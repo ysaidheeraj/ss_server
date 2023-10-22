@@ -39,3 +39,11 @@ class Category(models.Model):
     category_last_updated_time = models.DateTimeField(auto_now=True)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     category_created_time = models.DateTimeField(auto_now_add=True)
+    category_last_updated_time = models.DateTimeField(auto_now=True)
+
+class Item_Group_Category_Mapping(models.Model):
+    item_group_category_mapping_id = models.AutoField(primary_key=True)
+    item_group_id = models.ForeignKey(Item_Group, on_delete=models.CASCADE)
+    category_id = models.ForeignKey(Category, on_delete=models.CASCADE)
+    created_time = models.DateTimeField(auto_now_add=True)
+    store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
