@@ -19,4 +19,6 @@ class Customer(models.Model):
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     profile_picture = models.BinaryField(null=True, blank=True)
     address = models.TextField(max_length=500, null=True, blank=True)
+    customer_created_time = models.DateTimeField(auto_now_add=True)
+    customer_updated_time = models.DateTimeField(auto_now=True)
 

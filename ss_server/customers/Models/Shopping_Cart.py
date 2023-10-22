@@ -10,4 +10,6 @@ class Shopping_Cart(models.Model):
     item_id = models.ForeignKey(Item, on_delete=models.CASCADE)
     item_quantity = models.IntegerField(MinValueValidator(1))
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+    wishlist_created_time = models.DateTimeField(auto_now_add=True)
+    wishlist_updated_time = models.DateTimeField(auto_now=True)
 

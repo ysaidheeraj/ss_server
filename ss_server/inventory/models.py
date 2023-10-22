@@ -19,6 +19,8 @@ class Item_Group(models.Model):
     item_group_description = models.CharField(max_length=1000)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     item_group_unit = models.IntegerField(choices=Item_Units.choices, default=Item_Units.QUANTITY)
+    item_group_created_time = models.DateTimeField(auto_now_add=True)
+    item_group_updated_time = models.DateTimeField(auto_now=True)
 
 class Item(models.Model):
     item_id = models.AutoField(primary_key=True)
@@ -27,3 +29,13 @@ class Item(models.Model):
     item_available_count = models.FloatField()
     item_group_id = models.ForeignKey(Item_Group, on_delete=models.CASCADE)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+    item_created_time = models.DateTimeField(auto_now_add=True)
+    item_updated_time = models.DateTimeField(auto_now=True)
+
+class Category(models.Model):
+    category_id = models.AutoField(primary_key=True)
+    category_name = models.CharField(max_length=100)
+    category_picture = models.BinaryField()
+    category_last_updated_time = models.DateTimeField(auto_now=True)
+    store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+    category_created_time = models.DateTimeField(auto_now_add=True)
