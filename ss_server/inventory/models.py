@@ -15,7 +15,7 @@ class Item_Units(models.IntegerChoices):
 class Item_Group(models.Model):
     item_group_id = models.AutoField(primary_key=True)
     item_group_name = models.CharField(max_length=100)
-    # item_group_image = models
+    item_group_image = models.BinaryField(null=True, blank=True)
     item_group_description = models.CharField(max_length=1000)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     item_group_unit = models.IntegerField(choices=Item_Units.choices, default=Item_Units.QUANTITY)

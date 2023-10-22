@@ -17,5 +17,6 @@ class Customer(models.Model):
         validators=[phone_regex]
     )
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
-    profile_picture = models.BinaryField()
+    profile_picture = models.BinaryField(null=True, blank=True)
+    address = models.TextField(max_length=500, null=True, blank=True)
 
