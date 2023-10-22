@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'customers',
+    'sellers',
+    'inventory',
+    'stores'
 ]
 
 MIDDLEWARE = [
@@ -80,13 +84,6 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',  # Change this to the MySQL server's hostname or IP address if it's not on localhost.
-        'PORT': '3306',  # Change this if your MySQL server uses a different port.
-        'OPTIONS': {
-            'charset': 'utf8mb4',  # Use utf8mb4 for full Unicode support.
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'use_pure': True,  # Use the pure Python MySQL client (required for Django 4.0+).
-        },
-        'TIME_ZONE': 'UTC'
     }
 }
 
