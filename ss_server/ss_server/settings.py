@@ -144,13 +144,5 @@ AUTHENTICATION_BACKENDS = [
 #     # or allow read-only access for unauthenticated users.
 #     'DEFAULT_PERMISSION_CLASSES': [
 #         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-#     ],
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         'rest_framework_simplejwt.authentication.JWTAuthentication'
-#     ),
-# }
-
-# JWT_AUTH = {
-#     'JWT_ALLOW_REFRESH': True,
-#     'JWT_RESPONSE_PAYLOAD_HANDLER': 'ss_server.api.utils.jwt_response_payload_handler',
+#     ]
 # }
