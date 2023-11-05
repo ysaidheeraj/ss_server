@@ -57,6 +57,38 @@ class CustomerView(APIView):
         serializer = CustomerSerializer(customer)
         return Response(serializer.data)
 
+class CustomerUpdateView(APIView):
+
+    def put(self, request):
+        token = request.COOKIES.get('customer_jwt')
+
+        if not token:
+            raise AuthenticationFailed("Unauthenticated")
+        
+        try:
+            payload = jwt.decode(token, 'secret', algorithm=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Login Expired')
+        
+        customer = Customer.objects.filter(customer_id=payload['id']).first()
+        if not customer:
+            raise AuthenticationFailed("User not found")
+        
+        data = request.data
+        if not data:
+            raise AuthenticationFailed("Payload missing")
+        
+        if data['first_name']:
+            customer.first_name = data['first_name']
+        
+        customer.save()
+
+        return Response({
+            'message': 'success'
+        })
+        
+        
+
 class LogoutView(APIView):
     def post(self, request):
         response = Response()
