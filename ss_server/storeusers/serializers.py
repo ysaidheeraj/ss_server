@@ -1,14 +1,15 @@
 from rest_framework import serializers
-from customers.Models.Customer import Customer
+from .models import Store_User
 from stores.models import Store
 
-class CustomerSerializer(serializers.ModelSerializer):
+class StoreUserSerializer(serializers.ModelSerializer):
     profile_picture = serializers.ImageField(required=False, max_length=None, use_url=True)
     phone_number = serializers.CharField(required=False)
     address = serializers.CharField(required=False)
+    # user_role = serializers.IntegerField(required=False)
     class Meta:
-        model = Customer
-        fields = ['customer_id', 'email', 'password', 'first_name', 'last_name', 'store_id', 'profile_picture', 'address', 'phone_number']
+        model = Store_User
+        fields = ['user_id', 'email', 'password', 'first_name', 'last_name', 'store_id', 'profile_picture', 'address', 'phone_number', 'user_role', 'username']
         #To avoid returning password in the response
         extra_kwargs = {
             'password' : {'write_only': True}
@@ -29,8 +30,8 @@ class CustomerSerializer(serializers.ModelSerializer):
         except Store.DoesNotExist:
             raise serializers.ValidationError("Store with the provided store_id does not exist.")
 
-        # Create the Customer record with the foreign key relationship to the Store
-        customer = Customer.objects.create(store_id=store, **validated_data)
-        customer.set_password(password_val)
-        customer.save()
-        return customer
+        # Create the Store User record with the foreign key relationship to the Store
+        store_user = Store_User.objects.create(store_id=store, **validated_data)
+        store_user.set_password(password_val)
+        store_user.save()
+        return store_user
