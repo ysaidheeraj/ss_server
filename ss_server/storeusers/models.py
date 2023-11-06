@@ -25,7 +25,7 @@ class Store_User(AbstractUser):
         max_length=15,
         validators=[phone_regex]
     )
-    store_id = models.ForeignKey(Store, related_name="users", on_delete=models.CASCADE)
+    store_id = models.ForeignKey(Store, related_name="storeusers", on_delete=models.CASCADE, null=True)
     password = models.CharField(max_length=255)
     profile_picture = models.ImageField(upload_to=custom_image_upload, blank=True, null=True)
     address = models.TextField(max_length=500, null=True, blank=True)
