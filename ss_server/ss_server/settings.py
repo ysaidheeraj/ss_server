@@ -150,3 +150,5 @@ AUTHENTICATION_BACKENDS = [
 
 CUSTOMERS_MEDIA_URL = 'profile_pictures/'
 CUSTOMERS_MEDIA_ROOT = os.path.join(BASE_DIR, 'customers/profile_pictures')
+SELLERS_MEDIA_URL = 'profile_pictures/'
+SELLERS_MEDIA_ROOT = os.path.join(BASE_DIR, 'sellers/profile_pictures')
