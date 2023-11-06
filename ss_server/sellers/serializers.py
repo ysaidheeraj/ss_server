@@ -4,6 +4,8 @@ from stores.models import Store
 
 class SellerSerializer(serializers.ModelSerializer):
     profile_picture = serializers.ImageField(required=False, max_length=None, use_url=True)
+    phone_number = serializers.CharField(required=False)
+    address = serializers.CharField(required=False)
     class Meta:
         model = Seller
         fields = ['seller_id', 'email', 'password', 'first_name', 'last_name', 'store_id', 'profile_picture', 'address', 'phone_number']
