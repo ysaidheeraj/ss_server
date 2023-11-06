@@ -7,6 +7,18 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.parsers import MultiPartParser, FormParser
 import jwt, datetime
 
+def handleCustomerToken(request):
+    token = request.COOKIES.get('customer_jwt')
+
+    if not token:
+        raise AuthenticationFailed("Unauthenticated")
+    
+    try:
+        payload = jwt.decode(token, 'secret', algorithm=['HS256'])
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationFailed('Login Expired')
+    
+    return payload
 class RegisterCustomerView(APIView):
     def post(self, request):
         serializer = CustomerSerializer(data=request.data)
@@ -46,17 +58,8 @@ class LoginCustomerView(APIView):
 class CustomerView(APIView):
 
     def get(self, request):
-        token = request.COOKIES.get('customer_jwt')
-
-        if not token:
-            raise AuthenticationFailed("Unauthenticated")
-        
-        try:
-            payload = jwt.decode(token, 'secret', algorithm=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Login Expired')
-        
-        customer = Customer.objects.filter(customer_id=payload['id']).first()
+        user_info = handleCustomerToken(request)
+        customer = Customer.objects.filter(customer_id=user_info['id']).first()
         serializer = CustomerSerializer(customer)
         return Response(serializer.data)
 
@@ -64,17 +67,9 @@ class CustomerUpdateView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def put(self, request):
-        token = request.COOKIES.get('customer_jwt')
-
-        if not token:
-            raise AuthenticationFailed("Unauthenticated")
+        user_info = handleCustomerToken(request)
         
-        try:
-            payload = jwt.decode(token, 'secret', algorithm=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Login Expired')
-        
-        customer = Customer.objects.filter(customer_id=payload['id'], store_id=payload['store_id']).first()
+        customer = Customer.objects.filter(customer_id=user_info['id'], store_id=user_info['store_id']).first()
         if not customer:
             raise AuthenticationFailed("User not found")
         
@@ -86,7 +81,7 @@ class CustomerUpdateView(APIView):
         #Changing name of image so that it is unique per customer
         if profile_picture:
             ext = profile_picture.name.split('.')[-1]
-            profile_picture.name = 'customer_'+str(payload['store_id'])+"_"+str(customer.customer_id)+'.'+ext
+            profile_picture.name = 'customer_'+str(user_info['store_id'])+"_"+str(customer.customer_id)+'.'+ext
             customer.profile_picture = profile_picture
         
         serializer = CustomerSerializer(customer, data=request.data, partial=True)
