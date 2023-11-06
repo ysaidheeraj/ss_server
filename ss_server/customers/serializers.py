@@ -6,7 +6,7 @@ class CustomerSerializer(serializers.ModelSerializer):
     profile_picture = serializers.ImageField(required=False, max_length=None, use_url=True)
     class Meta:
         model = Customer
-        fields = ['customer_id', 'email', 'password', 'first_name', 'last_name', 'store_id', 'profile_picture']
+        fields = ['customer_id', 'email', 'password', 'first_name', 'last_name', 'store_id', 'profile_picture', 'address', 'phone_number']
         #To avoid returning password in the response
         extra_kwargs = {
             'password' : {'write_only': True}
