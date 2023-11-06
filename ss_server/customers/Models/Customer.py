@@ -7,6 +7,11 @@ phone_regex = RegexValidator(
     regex=r'^\+?1?\d{9,15}$'
 )
 
+def custom_image_upload(instance, filename):
+    old_instance = Customer.objects.get(pk=instance.pk)
+    old_instance.profile_picture.delete()  # Delete the old image
+    return 'customers/profile_pictures/{}'.format(filename)
+
 class Customer(AbstractUser):
     customer_id = models.AutoField(primary_key=True)
     phone_number = models.CharField(
@@ -18,7 +23,7 @@ class Customer(AbstractUser):
     password = models.CharField(max_length=255)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to=custom_image_upload, blank=True, null=True)
     address = models.TextField(max_length=500, null=True, blank=True)
     customer_created_time = models.DateTimeField(auto_now_add=True)
     customer_updated_time = models.DateTimeField(auto_now=True)

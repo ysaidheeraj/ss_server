@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -146,3 +147,6 @@ AUTHENTICATION_BACKENDS = [
 #         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
 #     ]
 # }
+
+CUSTOMERS_MEDIA_URL = 'profile_pictures/'
+CUSTOMERS_MEDIA_ROOT = os.path.join(BASE_DIR, 'customers/profile_pictures')

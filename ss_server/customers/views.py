@@ -1,8 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from .serializers import CustomerSerializer
 from .Models.Customer import Customer
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.parsers import MultiPartParser, FormParser
 import jwt, datetime
 
 class RegisterCustomerView(APIView):
@@ -27,6 +29,7 @@ class LoginCustomerView(APIView):
         
         payload = {
             'id': customer.customer_id, #Customer id
+            'store_id': store_id, #Store id of the customer
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24), #Token expiry time
             'iat': datetime.datetime.utcnow() #Token created time
         }
@@ -58,6 +61,7 @@ class CustomerView(APIView):
         return Response(serializer.data)
 
 class CustomerUpdateView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
 
     def put(self, request):
         token = request.COOKIES.get('customer_jwt')
@@ -70,22 +74,26 @@ class CustomerUpdateView(APIView):
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed('Login Expired')
         
-        customer = Customer.objects.filter(customer_id=payload['id']).first()
+        customer = Customer.objects.filter(customer_id=payload['id'], store_id=payload['store_id']).first()
         if not customer:
             raise AuthenticationFailed("User not found")
         
         data = request.data
+        profile_picture = request.data.get('profile_picture')
         if not data:
             raise AuthenticationFailed("Payload missing")
         
-        if data['first_name']:
-            customer.first_name = data['first_name']
+        #Changing name of image so that it is unique per customer
+        if profile_picture:
+            ext = profile_picture.name.split('.')[-1]
+            profile_picture.name = 'customer_'+str(payload['store_id'])+"_"+str(customer.customer_id)+'.'+ext
+            customer.profile_picture = profile_picture
         
-        customer.save()
-
-        return Response({
-            'message': 'success'
-        })
+        serializer = CustomerSerializer(customer, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         
 
