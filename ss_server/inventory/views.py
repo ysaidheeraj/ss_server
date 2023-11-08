@@ -20,8 +20,6 @@ def handleCustomerToken(request):
         return None
     
     return payload
-    
-    return payload
 class InitActions(APIView):
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
