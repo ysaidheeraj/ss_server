@@ -113,11 +113,11 @@ class CustomerUpdateView(APIView):
             profile_picture.name = 'customer_'+str(user_info['store_id'])+"_"+str(customer.user_id)+'.'+ext
             customer.profile_picture = profile_picture
         
-        serializer = Store_User(customer, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        customer_record = Store_User(customer, data=request.data, partial=True)
+        if customer_record.is_valid():
+            customer_record.save()
+            return Response(customer_record.data)
+        return Response(customer_record.errors, status=status.HTTP_400_BAD_REQUEST)
         
         
 
