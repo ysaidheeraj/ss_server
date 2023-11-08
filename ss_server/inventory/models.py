@@ -17,6 +17,11 @@ def custom_image_upload(instance, filename):
     old_instance.image.delete()  # Delete the old image
     return 'inventory/item_images/{}'.format(filename)
 
+def custom_category_image_upload(instance, filename):
+    old_instance = Item.objects.get(pk=instance.pk)
+    old_instance.image.delete()  # Delete the old image
+    return 'inventory/category_images/{}'.format(filename)
+
 # class Item_Group(models.Model):
 #     item_group_id = models.AutoField(primary_key=True)
 #     item_group_name = models.CharField(max_length=100)
@@ -41,8 +46,7 @@ class Item(models.Model):
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True)
     category_name = models.CharField(max_length=100)
-    category_picture = models.BinaryField()
-    category_last_updated_time = models.DateTimeField(auto_now=True)
+    category_picture = models.ImageField(upload_to=custom_category_image_upload, null=True, blank=True)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     category_created_time = models.DateTimeField(auto_now_add=True)
     category_last_updated_time = models.DateTimeField(auto_now=True)

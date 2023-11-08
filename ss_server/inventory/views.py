@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework.response import Response
 import jwt
+from .serializers import CategorySerializer
 from .models import Category, Item
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
@@ -21,11 +22,13 @@ def handleCustomerToken(request):
     
     return payload
 class InitActions(APIView):
-    def __init__(self, request) -> None:
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
         self.customer_token = handleCustomerToken(request)
 
-class CategoryActions(APIView):
+class CategoryActions(InitActions):
     def get(self, request, storeId):
-        # super()
-        categories = Category.objects.filter(store_id = storeId)
-        return Response
+        categories = Category.objects.filter(store_id = storeId).all()
+        cat_ser = CategorySerializer(categories, many=True)
+        return Response(cat_ser.data)
+
