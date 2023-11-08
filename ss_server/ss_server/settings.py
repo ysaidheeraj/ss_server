@@ -23,6 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-q-qbi8t(vnxxk^in644f_%%a)2frrytvqxhe4h+vsx=0l*#9=k'
 
+HASH_SECRET = 'secret'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -149,5 +151,8 @@ AUTHENTICATION_BACKENDS = [
 
 STORE_USERS_MEDIA_URL = 'profile_pictures/'
 STORE_USERS_MEDIA_ROOT = os.path.join(BASE_DIR, 'storeusers/profile_pictures')
+
+ITEMS_MEDIA_URL = 'item_images/'
+ITEMS_MEDIA_ROOT = os.path.join(BASE_DIR, 'inventory/item_images')
 
 AUTH_USER_MODEL = 'storeusers.Store_User'

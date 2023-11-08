@@ -6,7 +6,9 @@ from .models import Store_User, User_Role
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.parsers import MultiPartParser, FormParser
 import jwt, datetime
+from django.conf import settings
 
+secret_key = settings.HASH_SECRET
 def handleCustomerToken(request):
     token = request.COOKIES.get('customer_jwt')
 
@@ -14,7 +16,7 @@ def handleCustomerToken(request):
         raise AuthenticationFailed("Unauthenticated")
     
     try:
-        payload = jwt.decode(token, 'secret', algorithm=['HS256'])
+        payload = jwt.decode(token, secret_key, algorithm=['HS256'])
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed('Login Expired')
     
@@ -27,7 +29,7 @@ def handleSellerToken(request):
         raise AuthenticationFailed("Unauthenticated")
     
     try:
-        payload = jwt.decode(token, 'secret', algorithm=['HS256'])
+        payload = jwt.decode(token, secret_key, algorithm=['HS256'])
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed('Login Expired')
     
@@ -53,7 +55,7 @@ def generate_token(user_obj, store_id, user_role):
         'iat': datetime.datetime.utcnow() #Token created time
     }
 
-    token = jwt.encode(payload, 'secret', algorithm='HS256').decode('utf-8')
+    token = jwt.encode(payload, secret_key, algorithm='HS256').decode('utf-8')
     key = 'customer_jwt' if user_role == User_Role.CUSTOMER else 'seller_jwt'
     response = Response()
     response.set_cookie(key=key, value=token, httponly=True)
