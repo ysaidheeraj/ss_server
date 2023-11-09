@@ -6,6 +6,7 @@ from .models import Category, Item
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
 from rest_framework import status
+from storeusers.models import Store_User, User_Role
 
 secret_key = settings.HASH_SECRET
 def handleCustomerToken(request):
@@ -20,6 +21,42 @@ def handleCustomerToken(request):
         return None
     
     return payload
+
+def handleSellerToken(request):
+    token = request.COOKIES.get('seller_jwt')
+
+    if not token:
+        raise AuthenticationFailed("Unauthenticated")
+    
+    try:
+        payload = jwt.decode(token, secret_key, algorithm=['HS256'])
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationFailed('Login Expired')
+    
+    return payload
+
+def authorizeUser(user_id, store_id, user_role):
+
+    user_obj = Store_User.objects.filter(user_id=user_id, store_id=store_id, user_role=user_role).first()
+
+    if user_obj is None:
+        raise AuthenticationFailed('User Not Found')
+    return user_obj
+
+#Custom wrapper to authenticate seller
+def authorize_seller(view_func):
+    def wrapper(request, *args, **kwargs):
+        #Extract the storeId from the request url
+        storeId = kwargs.get('storeId')
+        
+        #Checking for the seller token
+        seller_payload = handleSellerToken(request)
+        
+        #Authorizing the seller if found
+        authorizeUser(seller_payload['id'], storeId, User_Role.SELLER)
+
+    return wrapper
+
 class InitActions(APIView):
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
@@ -31,16 +68,17 @@ class CategoryActions(InitActions):
         cat_ser = CategorySerializer(categories, many=True)
         return Response(cat_ser.data)
     
-    def post(self, request):
+    @authorize_seller
+    def post(self, request, storeId):
         data = request.data
         serializer = CategorySerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
     
-    def put(self, request):
-        
-        category = CategorySerializer.objects.filter(category_id=request.data.get('category_id'), store_id=request.data.get('category_id')).first()
+    @authorize_seller
+    def put(self, request, storeId, categoryId):
+        category = CategorySerializer.objects.filter(category_id=categoryId, store_id=storeId).first()
         if not category:
             raise AuthenticationFailed("Invalid Category")
         
@@ -60,4 +98,14 @@ class CategoryActions(InitActions):
             category_record.save()
             return Response(category_record.data)
         return Response(category_record.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @authorize_seller
+    def delete(self, request, storeId, categoryId):
+        try:
+            category = CategorySerializer.objects.filter(category_id=categoryId, store_id=storeId).first()
+            category.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    
 

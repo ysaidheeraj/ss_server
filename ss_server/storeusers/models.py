@@ -36,4 +36,4 @@ class Store_User(AbstractUser):
     REQUIRED_FIELDS = []
 
     class Meta:
-        unique_together = (("email", "store_id", "user_role"),)
+        unique_together = (("email", "store_id", "user_role"))

@@ -51,6 +51,9 @@ class Category(models.Model):
     category_created_time = models.DateTimeField(auto_now_add=True)
     category_last_updated_time = models.DateTimeField(auto_now=True)
     items = models.ManyToManyField(Item)
+
+    class Meta:
+        unique_together = (("category_name", "store_id"))
 # class Item_Group_Category_Mapping(models.Model):
 #     item_group_category_mapping_id = models.AutoField(primary_key=True)
 #     item_group_id = models.ForeignKey(Item_Group, on_delete=models.CASCADE)
