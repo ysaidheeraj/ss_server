@@ -107,5 +107,23 @@ class CategoryActions(InitActions):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+class ItemActions(APIView):
+
+    def get(self, request, storeId):
+        items = Item.objects.filter(store_id=storeId).all()
+        return Response(status=status.HTTP_200_OK)
+    
+    @authorize_seller
+    def post(self, request, storeId):
+        pass
+
+    @authorize_seller
+    def put(self, request, storeId, itemId):
+        pass
+
+    @authorize_seller
+    def put(self, request, storeId, itemId):
+        pass
     
 
