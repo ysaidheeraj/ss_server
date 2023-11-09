@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework.response import Response
 import jwt
-from .serializers import CategorySerializer
+from .serializers import CategorySerializer, ItemSerializer
 from .models import Category, Item
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
@@ -112,11 +112,17 @@ class ItemActions(APIView):
 
     def get(self, request, storeId):
         items = Item.objects.filter(store_id=storeId).all()
-        return Response(status=status.HTTP_200_OK)
+        items_serializer = ItemSerializer(items, many=True)
+        return Response(items_serializer.data, status=status.HTTP_200_OK)
     
     @authorize_seller
     def post(self, request, storeId):
-        pass
+        data = request.data
+        data['store_id'] = storeId
+        item = ItemSerializer(data=data)
+        item.is_valid(raise_exception=True)
+        item.save()
+        return Response(item.data)
 
     @authorize_seller
     def put(self, request, storeId, itemId):
