@@ -4,5 +4,6 @@ from django.conf import settings
 from .views import CategoryActions
 
 urlpatterns = [
-    path('allcategories', view=CategoryActions.as_view())
+    path('allcategories', view=CategoryActions.as_view()),
+    path('category/<int:category_id>', view=CategoryActions.as_view())
 ]+static(settings.ITEMS_MEDIA_URL, document_root=settings.ITEMS_MEDIA_ROOT)
