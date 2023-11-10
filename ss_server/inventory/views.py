@@ -2,8 +2,8 @@ from django.conf import settings
 from rest_framework.response import Response
 import jwt
 from functools import wraps
-from .serializers import CategorySerializer, ItemSerializer
-from .models import Category, Item
+from .serializers import CategorySerializer, ItemSerializer, OrderItemSerializer, OrderSerializer
+from .models import Category, Item, OrderItem, Order
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
 from rest_framework import status
@@ -14,12 +14,12 @@ def handleCustomerToken(request):
     token = request.COOKIES.get('customer_jwt')
 
     if not token:
-        return None
+        raise AuthenticationFailed("Unauthenticated")
     
     try:
         payload = jwt.decode(token, secret_key, algorithm=['HS256'])
     except jwt.ExpiredSignatureError:
-        return None
+         raise AuthenticationFailed('Login Expired')
     
     return payload
 
@@ -60,10 +60,44 @@ def authorize_seller(view_func):
 
     return wrapper
 
+def authorize_customer(view_func):
+    @wraps(view_func)
+    def wrapper(self, request, *args, **kwargs):
+        #Extract the storeId from the request url
+        storeId = kwargs.get('storeId')
+        
+        #Checking for the seller token
+        customer_payload = handleCustomerToken(request)
+        
+        #Authorizing the seller if found
+        authorizeUser(customer_payload['id'], storeId, User_Role.CUSTOMER)
+        return view_func(self, request, *args, **kwargs)
+
+    return wrapper
+
+def authorize_seller_or_customer(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        try:
+            # Try seller authorization
+            authorize_seller(request, *args, **kwargs)
+        except AuthenticationFailed:
+            try:
+                # Try customer authorization if seller authorization fails
+                authorize_customer(request, *args, **kwargs)
+            except AuthenticationFailed:
+                # If both fail, raise AuthenticationFailed
+                raise AuthenticationFailed("Unauthorized")
+
+        # If any of the authorizations succeed, proceed to the original view function
+        return view_func(request, *args, **kwargs)
+
+    return wrapper
+
 class InitActions(APIView):
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.customer_token = handleCustomerToken(request)
+        # self.customer_token = handleCustomerToken(request)
 
 class CategoryActions(InitActions):
     def get(self, request, storeId, categoryId):
@@ -180,5 +214,39 @@ class ItemActions(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+class OrderItemActions(APIView):
+
+    @authorize_seller_or_customer
+    def get(self, request, storeId, orderItemId):
+        orderItem = OrderItem.objects.filter(order_item_id=orderItemId, store_id=storeId).first()
+        orderItemSerializer = OrderItemSerializer(orderItem)
+        return Response(orderItemSerializer.data)
     
+    @authorize_seller_or_customer
+    def post(self, request, storeId):
+        data = request.data
+        data['store_id'] = storeId
+        orderItemSerializer = OrderItemSerializer(data=data)
+        orderItemSerializer.is_valid(raise_exception=True)
+        orderItemSerializer.save()
+        return Response(orderItemSerializer.data)
+    
+    @authorize_seller_or_customer
+    def put(self, request, storeId, orderItemId):
+        data = request.data
+        orderItem = OrderItem.objects.filter(order_item_id = orderItemId, store_id = storeId).first()
+        orderItemSer = OrderItemSerializer(orderItem, data=data, partial=True)
+        orderItemSer.is_valid(raise_exception=True)
+        orderItemSer.save()
+        return Response(orderItemSer.data)
+    
+    @authorize_seller_or_customer
+    def delete(self, request, storeId, orderItemId):
+        try:
+            orderItem = OrderItem.objects.filter(order_item_id = orderItemId, store_id = storeId).first()
+            orderItem.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
