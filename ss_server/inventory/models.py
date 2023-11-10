@@ -1,5 +1,6 @@
 from django.db import models
 from stores.models import Store
+from storeusers.models import Store_User
 
 # Create your models here.
 
@@ -57,9 +58,29 @@ class Category(models.Model):
 
     class Meta:
         unique_together = (("category_name", "store_id"))
-# class Item_Group_Category_Mapping(models.Model):
-#     item_group_category_mapping_id = models.AutoField(primary_key=True)
-#     item_group_id = models.ForeignKey(Item_Group, on_delete=models.CASCADE)
-#     category_id = models.ForeignKey(Category, on_delete=models.CASCADE)
-#     created_time = models.DateTimeField(auto_now_add=True)
-#     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+
+class OrderStatus(models.IntegerChoices):
+    CART = 0,
+    PAID = 1,
+    SHIPPED = 2,
+    DELIVERED = 3,
+    CANCELLED = 4,
+    RETURNED = 5,
+    REFUND = 6
+    
+class Order(models.Model):
+    order_id = models.AutoField(primary_key=True)
+    customer_id = models.ForeignKey(Store_User, on_delete=models.CASCADE)
+    store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+    order_created_time = models.DateTimeField(auto_now_add=True)
+    order_last_updated_time = models.DateTimeField(auto_now=True)
+    order_status = models.IntegerField(choices=OrderStatus.choices, default=OrderStatus.CART)
+    total_price = models.FloatField(null=True)
+
+class OrderItem(models.Model):
+    order_item_id = models.AutoField(primary_key=True)
+    item = models.OneToOneField(Item, on_delete=models.CASCADE)
+    item_quantity = models.FloatField()
+    store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    item_price = models.FloatField(null=True)
