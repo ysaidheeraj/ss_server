@@ -3,11 +3,12 @@ from rest_framework.response import Response
 import jwt
 from functools import wraps
 from .serializers import CategorySerializer, ItemSerializer, OrderItemSerializer, OrderSerializer
-from .models import Category, Item, OrderItem, Order
+from .models import Category, Item, OrderItem, Order, OrderStatus
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
 from rest_framework import status
 from storeusers.models import Store_User, User_Role
+from django.db import transaction
 
 secret_key = settings.HASH_SECRET
 def handleCustomerToken(request):
@@ -68,6 +69,8 @@ def authorize_customer(view_func):
         
         #Checking for the seller token
         customer_payload = handleCustomerToken(request)
+
+        view_func.customer_payload = customer_payload
         
         #Authorizing the seller if found
         authorizeUser(customer_payload['id'], storeId, User_Role.CUSTOMER)
@@ -99,7 +102,7 @@ class InitActions(APIView):
         super().setup(request, *args, **kwargs)
         # self.customer_token = handleCustomerToken(request)
 
-class CategoryActions(InitActions):
+class CategoryActions(APIView):
     def get(self, request, storeId, categoryId):
         many = False
         categories = []
@@ -245,8 +248,88 @@ class OrderItemActions(APIView):
     def delete(self, request, storeId, orderItemId):
         try:
             orderItem = OrderItem.objects.filter(order_item_id = orderItemId, store_id = storeId).first()
-            orderItem.delete()
+            with transaction.atomic():
+                # Check if it's the only OrderItem in the Order
+                order = orderItem.order
+                if order.order_items.count() == 1:
+                    order.delete()  # Delete the Order if it's the only OrderItem
+                else:
+                    # Delete the OrderItem
+                    orderItem.delete()
+
             return Response(status=status.HTTP_204_NO_CONTENT)
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+class OrderActions(APIView):
+    
+    @authorize_customer
+    def get(self, request, storeId, orderId):
+        orders = []
+        many = False
+        if not orderId:
+            orders = Order.objects.filter(customer_id=get.customer_payload['id'], store_id=storeId).all()
+            many = True
+        else:
+            orders = Order.objects.filter(order_Id=orderId, customer_id = get.customer_payload['id'], store_id=storeId).first()
+        ser = OrderSerializer(orders, many=many)
+        return Response(ser.data)
+    
+    @authorize_customer
+    def post(self, request, storeId):
+        data = request.data
+        data['store_id'] = storeId
+        data['customer_id'] = post.customer_payload['id']
+        ser = OrderSerializer(data = data)
+        ser.is_valid(raise_exception=True)
+        ser.save()
+        return Response(ser.data)
+    
+    def update_item_and_order_item(self, order_item):
+        # Assuming 'item' is the OneToOneField relationship to the Item model
+        item = order_item.item
+        # Assuming 'item_quantity' is the field to be updated
+        new_quantity = item.item_available_count - order_item.item_quantity
+        item.item_available_count = new_quantity
+        item.save()
+        order_item.item_price = item.item_price
+        order_item.save()
+
+    @authorize_customer
+    def put(self, request, storeId, orderId):
+        order = Order.objects.filter(order_id = orderId, store_id=storeId, customer_id=put.customer_payload['id']).first()
+        data = request.data
+        if data['order_status'] == OrderStatus.PAID:
+            orderItems = order.order_items.all()
+            # Update available quantity for each item
+            with transaction.atomic():
+                for order_item in orderItems:
+                    self.update_item_and_order_item(order_item)
+        orderSer = OrderSerializer(order, data=request.data)
+        orderSer.is_valid(raise_exception=True)
+        orderSer.save()
+        return Response(orderSer.data)
+    
+class SellerOrderActions(APIView):
+
+    @authorize_seller
+    def get(self, request, storeId, customerId, orderId):
+        if customerId and orderId:
+            orders = Order.objects.filter(customer_id = customerId, order_id = orderId, store_id=storeId).all()
+        elif customerId:
+            orders = Order.objects.filter(customer_id = customerId, store_id=storeId).all()
+        else:
+            orders = Order.objects.filter(store_id=storeId).all()
+        ser = OrderSerializer(orders, many=True)
+        return Response(ser)
+    
+    @authorize_seller
+    def put(self, request, storeId, orderId):
+        order = Order.objects.filter(order_id = orderId, store_id=storeId).first()
+        orderSer = OrderSerializer(order, data=request.data)
+        orderSer.is_valid(raise_exception=True)
+        orderSer.save()
+        return Response(orderSer.data)
+    
+            
 
