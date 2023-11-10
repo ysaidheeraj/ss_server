@@ -80,7 +80,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order_item_id = models.AutoField(primary_key=True)
     item = models.OneToOneField(Item, on_delete=models.CASCADE)
-    item_quantity = models.FloatField()
+    item_quantity = models.FloatField(null=True)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
     item_price = models.FloatField(null=True)
