@@ -132,10 +132,43 @@ class ItemActions(APIView):
 
     @authorize_seller
     def put(self, request, storeId, itemId):
-        pass
+        item = Item.objects.filter(item_id=itemId, store_id=storeId).first()
+        if not item:
+            raise AuthenticationFailed("Invalid Item")
+        
+        data = request.data
+        if not data:
+            raise AuthenticationFailed("Payload missing")
+        
+        profile_picture = request.data.get('item_image')
+        #Changing name of image so that it is unique per item
+        if profile_picture:
+            ext = profile_picture.name.split('.')[-1]
+            profile_picture.name = 'item_'+str(storeId)+"_"+str(itemId)+'.'+ext
+            item.item_image = profile_picture
+        
+        if data:
+            item_record = ItemSerializer(item, data=request.data, partial=True)
+            if item_record.is_valid():
+                item_record.save()
+            else:
+                return Response(item_record.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(item_record.data)
 
     @authorize_seller
-    def put(self, request, storeId, itemId):
-        pass
+    def delete(self, request, storeId, itemId):
+        try:
+            item = Item.objects.filter(item_id=itemId, store_id=storeId).first()
+            #Getting all the categories that have this item
+            categories = Category.objects.filter(items=item)
+            #removing item from each category
+            for category in categories:
+                category.items.remove(item)
+                category.save()
+            #Finally deleting the item
+            item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
     
 
