@@ -155,4 +155,7 @@ STORE_USERS_MEDIA_ROOT = os.path.join(BASE_DIR, 'storeusers/profile_pictures')
 ITEMS_MEDIA_URL = 'item_images/'
 ITEMS_MEDIA_ROOT = os.path.join(BASE_DIR, 'inventory/item_images')
 
+CATEGORY_MEDIA_URL = 'category_images/'
+CATEGORY_MEDIA_ROOT = os.path.join(BASE_DIR, 'inventory/category_images')
+
 AUTH_USER_MODEL = 'storeusers.Store_User'

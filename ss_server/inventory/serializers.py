@@ -6,7 +6,8 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         category_picture = serializers.ImageField(required=False, max_length=None, use_url=True)
-        fields = ['category_id', 'category_name', 'category_picture', 'store_id', 'category_created_time']
+        fields = ['category_id', 'category_name', 'category_picture', 'store_id', 'category_created_time', 'items']
+    
 
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:

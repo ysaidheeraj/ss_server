@@ -5,5 +5,6 @@ from .views import CategoryActions
 
 urlpatterns = [
     path('allcategories', view=CategoryActions.as_view()),
-    path('category/<int:category_id>', view=CategoryActions.as_view())
-]+static(settings.ITEMS_MEDIA_URL, document_root=settings.ITEMS_MEDIA_ROOT)
+    path('createcategory', view=CategoryActions.as_view()),
+    path('category/<int:categoryId>', view=CategoryActions.as_view())
+]+static(settings.ITEMS_MEDIA_URL, document_root=settings.ITEMS_MEDIA_ROOT)+static(settings.CATEGORY_MEDIA_URL, document_root=settings.CATEGORY_MEDIA_ROOT)

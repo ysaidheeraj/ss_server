@@ -14,12 +14,12 @@ class Item_Units(models.IntegerChoices):
 
 def custom_image_upload(instance, filename):
     old_instance = Item.objects.get(pk=instance.pk)
-    old_instance.image.delete()  # Delete the old image
+    old_instance.item_image.delete()  # Delete the old image
     return 'inventory/item_images/{}'.format(filename)
 
 def custom_category_image_upload(instance, filename):
-    old_instance = Item.objects.get(pk=instance.pk)
-    old_instance.image.delete()  # Delete the old image
+    old_instance = Category.objects.get(pk=instance.pk)
+    old_instance.category_picture.delete()  # Delete the old image
     return 'inventory/category_images/{}'.format(filename)
 
 # class Item_Group(models.Model):
@@ -50,7 +50,7 @@ class Category(models.Model):
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     category_created_time = models.DateTimeField(auto_now_add=True)
     category_last_updated_time = models.DateTimeField(auto_now=True)
-    items = models.ManyToManyField(Item)
+    items = models.ManyToManyField(Item, blank=True)
 
     class Meta:
         unique_together = (("category_name", "store_id"))

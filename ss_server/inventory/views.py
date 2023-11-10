@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework.response import Response
 import jwt
+from functools import wraps
 from .serializers import CategorySerializer, ItemSerializer
 from .models import Category, Item
 from rest_framework.exceptions import AuthenticationFailed
@@ -45,7 +46,8 @@ def authorizeUser(user_id, store_id, user_role):
 
 #Custom wrapper to authenticate seller
 def authorize_seller(view_func):
-    def wrapper(request, *args, **kwargs):
+    @wraps(view_func)
+    def wrapper(self, request, *args, **kwargs):
         #Extract the storeId from the request url
         storeId = kwargs.get('storeId')
         
@@ -54,6 +56,7 @@ def authorize_seller(view_func):
         
         #Authorizing the seller if found
         authorizeUser(seller_payload['id'], storeId, User_Role.SELLER)
+        return view_func(self, request, *args, **kwargs)
 
     return wrapper
 
@@ -71,6 +74,7 @@ class CategoryActions(InitActions):
     @authorize_seller
     def post(self, request, storeId):
         data = request.data
+        data['store_id'] = storeId
         serializer = CategorySerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -78,31 +82,33 @@ class CategoryActions(InitActions):
     
     @authorize_seller
     def put(self, request, storeId, categoryId):
-        category = CategorySerializer.objects.filter(category_id=categoryId, store_id=storeId).first()
+        category = Category.objects.filter(category_id=categoryId, store_id=storeId).first()
         if not category:
             raise AuthenticationFailed("Invalid Category")
         
         data = request.data
-        profile_picture = request.data.get('category_picture')
         if not data:
             raise AuthenticationFailed("Payload missing")
         
+        profile_picture = request.data.get('category_picture')
         #Changing name of image so that it is unique per customer
         if profile_picture:
             ext = profile_picture.name.split('.')[-1]
-            profile_picture.name = 'category_'+str(request.data.get('category_id'))+"_"+str(category.category_id)+'.'+ext
+            profile_picture.name = 'category_'+str(storeId)+"_"+str(categoryId)+'.'+ext
             category.category_picture = profile_picture
         
-        category_record = Category(category, data=request.data, partial=True)
-        if category_record.is_valid():
-            category_record.save()
-            return Response(category_record.data)
-        return Response(category_record.errors, status=status.HTTP_400_BAD_REQUEST)
+        if data:
+            category_record = CategorySerializer(category, data=request.data, partial=True)
+            if category_record.is_valid():
+                category_record.save()
+            else:
+                return Response(category_record.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(category_record.data)
     
     @authorize_seller
     def delete(self, request, storeId, categoryId):
         try:
-            category = CategorySerializer.objects.filter(category_id=categoryId, store_id=storeId).first()
+            category = Category.objects.filter(category_id=categoryId, store_id=storeId).first()
             category.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except:
