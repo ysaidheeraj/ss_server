@@ -66,9 +66,15 @@ class InitActions(APIView):
         self.customer_token = handleCustomerToken(request)
 
 class CategoryActions(InitActions):
-    def get(self, request, storeId):
-        categories = Category.objects.filter(store_id = storeId).all()
-        cat_ser = CategorySerializer(categories, many=True)
+    def get(self, request, storeId, categoryId):
+        many = False
+        categories = []
+        if categoryId:
+            categories = Category.objects.filter(category_id=categoryId, store_id = storeId).first()
+        else:
+            many = True
+            categories = Category.objects.filter(store_id = storeId).all()
+        cat_ser = CategorySerializer(categories, many=many)
         return Response(cat_ser.data)
     
     @authorize_seller
@@ -97,13 +103,12 @@ class CategoryActions(InitActions):
             profile_picture.name = 'category_'+str(storeId)+"_"+str(categoryId)+'.'+ext
             category.category_picture = profile_picture
         
-        if data:
-            category_record = CategorySerializer(category, data=request.data, partial=True)
-            if category_record.is_valid():
-                category_record.save()
-            else:
-                return Response(category_record.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(category_record.data)
+        category_record = CategorySerializer(category, data=request.data, partial=True)
+        if category_record.is_valid():
+            category_record.save()
+            return Response(category_record.data)
+        else:
+            return Response(category_record.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @authorize_seller
     def delete(self, request, storeId, categoryId):
@@ -116,9 +121,15 @@ class CategoryActions(InitActions):
 
 class ItemActions(APIView):
 
-    def get(self, request, storeId):
-        items = Item.objects.filter(store_id=storeId).all()
-        items_serializer = ItemSerializer(items, many=True)
+    def get(self, request, storeId, itemId):
+        many = False
+        items = []
+        if itemId:
+            items = Item.objects.filter(item_id=itemId, store_id=storeId).first()
+        else:
+            items = Item.objects.filter(store_id=storeId).all()
+            many = True
+        items_serializer = ItemSerializer(items, many=many)
         return Response(items_serializer.data, status=status.HTTP_200_OK)
     
     @authorize_seller
@@ -147,13 +158,12 @@ class ItemActions(APIView):
             profile_picture.name = 'item_'+str(storeId)+"_"+str(itemId)+'.'+ext
             item.item_image = profile_picture
         
-        if data:
-            item_record = ItemSerializer(item, data=request.data, partial=True)
-            if item_record.is_valid():
-                item_record.save()
-            else:
-                return Response(item_record.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(item_record.data)
+        item_record = ItemSerializer(item, data=request.data, partial=True)
+        if item_record.is_valid():
+            item_record.save()
+            return Response(item_record.data)
+        else:
+            return Response(item_record.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @authorize_seller
     def delete(self, request, storeId, itemId):

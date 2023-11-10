@@ -43,6 +43,9 @@ class Item(models.Model):
     item_updated_time = models.DateTimeField(auto_now=True)
     item_image = models.ImageField(upload_to=custom_image_upload, null=True, blank=True)
 
+    class Meta:
+        unique_together = (("item_name", "store_id"))
+
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True)
     category_name = models.CharField(max_length=100)
