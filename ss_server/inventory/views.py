@@ -78,25 +78,6 @@ def authorize_customer(view_func):
 
     return wrapper
 
-def authorize_seller_or_customer(view_func):
-    @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
-        try:
-            # Try seller authorization
-            authorize_seller(view_func)
-        except AuthenticationFailed:
-            try:
-                # Try customer authorization if seller authorization fails
-                authorize_customer(view_func)
-            except AuthenticationFailed:
-                # If both fail, raise AuthenticationFailed
-                raise AuthenticationFailed("Unauthorized")
-
-        # If any of the authorizations succeed, proceed to the original view function
-        return view_func(request, *args, **kwargs)
-
-    return wrapper
-
 class InitActions(APIView):
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
@@ -220,42 +201,47 @@ class ItemActions(APIView):
 
 class OrderItemActions(APIView):
 
-    @authorize_seller_or_customer
+    @authorize_customer
     def get(self, request, storeId, orderItemId=None):
         orderItem = OrderItem.objects.filter(order_item_id=orderItemId, store_id=storeId).first()
         orderItemSerializer = OrderItemSerializer(orderItem)
         return Response(orderItemSerializer.data)
     
-    @authorize_seller_or_customer
+    def validate_item_quantity(self, data, item):
+        if data['item_quantity']:
+            if data['item_quantity'] > item.item_available_count:
+                raise APIException("Order Item quantity cannot exceed available stock")
+        return
+    
+    @authorize_customer
     def post(self, request, storeId):
         data = request.data
         data['store_id'] = storeId
+        data['customer_id'] = self.customer_payload['id']
+        item = Item.objects.filter(item_id=data['item'], store_id=storeId).first()
+        if not item:
+            raise APIException("Item does not exist in the store")
+        self.validate_item_quantity(data, item)
         orderItemSerializer = OrderItemSerializer(data=data)
         orderItemSerializer.is_valid(raise_exception=True)
         orderItemSerializer.save()
         return Response(orderItemSerializer.data)
     
-    @authorize_seller_or_customer
+    @authorize_customer
     def put(self, request, storeId, orderItemId):
         data = request.data
         orderItem = OrderItem.objects.filter(order_item_id = orderItemId, store_id = storeId).first()
+        self.validate_item_quantity(data, orderItem.item)
         orderItemSer = OrderItemSerializer(orderItem, data=data, partial=True)
         orderItemSer.is_valid(raise_exception=True)
         orderItemSer.save()
         return Response(orderItemSer.data)
     
-    @authorize_seller_or_customer
+    @authorize_customer
     def delete(self, request, storeId, orderItemId):
         try:
             orderItem = OrderItem.objects.filter(order_item_id = orderItemId, store_id = storeId).first()
-            with transaction.atomic():
-                # Check if it's the only OrderItem in the Order
-                order = orderItem.order
-                if order.order_items.count() == 1:
-                    order.delete()  # Delete the Order if it's the only OrderItem
-                else:
-                    # Delete the OrderItem
-                    orderItem.delete()
+            orderItem.delete()
 
             return Response(status=status.HTTP_204_NO_CONTENT)
         except:
@@ -283,6 +269,9 @@ class OrderActions(APIView):
     
     @authorize_customer
     def post(self, request, storeId):
+        order = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId).first()
+        if order:
+            raise APIException("Cart Already Exists")
         data = request.data
         data['store_id'] = storeId
         data['customer_id'] = self.customer_payload['id']
@@ -336,7 +325,7 @@ class SellerOrderActions(APIView):
         else:
             orders = Order.objects.filter(store_id=storeId).all()
         ser = OrderSerializer(orders, many=True)
-        return Response(ser)
+        return Response(ser.data)
     
     @authorize_seller
     def put(self, request, storeId, orderId):

@@ -13,7 +13,7 @@ urlpatterns = [
     path('item/<int:itemId>', view=ItemActions.as_view()),
     path('createitem', view=ItemActions.as_view()),
     #OrderItems urls
-    path('orderItem/<int:orderItemId>', view=OrderItemActions.as_view()),
+    path('orderitem/<int:orderItemId>', view=OrderItemActions.as_view()),
     path('createorderitem', view=OrderItemActions.as_view()),
     #Order urls
     path('customer/allorders', view=OrderActions.as_view()),
