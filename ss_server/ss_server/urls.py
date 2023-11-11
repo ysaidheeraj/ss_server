@@ -24,6 +24,6 @@ urlpatterns = [
     path('store/<int:storeId>/categories/', include('inventory.urls')),
     path('store/<int:storeId>/items/', include('inventory.urls')),
     path('inventory/', include('inventory.urls')),
-    path('orderitems/', include('inventory.urls')),
-    path('orders/', include('inventory.urls'))
+    path('store/<int:storeId>/orderitems/', include('inventory.urls')),
+    path('store/<int:storeId>/orders/', include('inventory.urls'))
 ]

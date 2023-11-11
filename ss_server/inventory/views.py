@@ -4,7 +4,7 @@ import jwt
 from functools import wraps
 from .serializers import CategorySerializer, ItemSerializer, OrderItemSerializer, OrderSerializer
 from .models import Category, Item, OrderItem, Order, OrderStatus
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, APIException
 from rest_framework.views import APIView
 from rest_framework import status
 from storeusers.models import Store_User, User_Role
@@ -70,7 +70,7 @@ def authorize_customer(view_func):
         #Checking for the seller token
         customer_payload = handleCustomerToken(request)
 
-        view_func.customer_payload = customer_payload
+        self.customer_payload = customer_payload
         
         #Authorizing the seller if found
         authorizeUser(customer_payload['id'], storeId, User_Role.CUSTOMER)
@@ -103,7 +103,7 @@ class InitActions(APIView):
         # self.customer_token = handleCustomerToken(request)
 
 class CategoryActions(APIView):
-    def get(self, request, storeId, categoryId):
+    def get(self, request, storeId, categoryId=None):
         many = False
         categories = []
         if categoryId:
@@ -158,7 +158,7 @@ class CategoryActions(APIView):
 
 class ItemActions(APIView):
 
-    def get(self, request, storeId, itemId):
+    def get(self, request, storeId, itemId=None):
         many = False
         items = []
         if itemId:
@@ -221,7 +221,7 @@ class ItemActions(APIView):
 class OrderItemActions(APIView):
 
     @authorize_seller_or_customer
-    def get(self, request, storeId, orderItemId):
+    def get(self, request, storeId, orderItemId=None):
         orderItem = OrderItem.objects.filter(order_item_id=orderItemId, store_id=storeId).first()
         orderItemSerializer = OrderItemSerializer(orderItem)
         return Response(orderItemSerializer.data)
@@ -264,14 +264,18 @@ class OrderItemActions(APIView):
 class OrderActions(APIView):
     
     @authorize_customer
-    def get(self, request, storeId, orderId):
+    def get(self, request, storeId, orderId=None):
         orders = []
+        data = request.data
         many = False
         if not orderId:
-            orders = Order.objects.filter(customer_id=get.customer_payload['id'], store_id=storeId).all()
+            orders = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId).all()
             many = True
+        #For returning current customer cart
+        elif data['order_status'] and data['order_status'] == OrderStatus.CART:
+            orders = Order.objects.filter(order_Id=orderId, customer_id = self.customer_payload['id'], store_id=storeId, order_status=OrderStatus.CART).first()
         else:
-            orders = Order.objects.filter(order_Id=orderId, customer_id = get.customer_payload['id'], store_id=storeId).first()
+            orders = Order.objects.filter(order_Id=orderId, customer_id = self.customer_payload['id'], store_id=storeId).first()
         ser = OrderSerializer(orders, many=many)
         return Response(ser.data)
     
@@ -279,32 +283,37 @@ class OrderActions(APIView):
     def post(self, request, storeId):
         data = request.data
         data['store_id'] = storeId
-        data['customer_id'] = post.customer_payload['id']
+        data['customer_id'] = self.customer_payload['id']
+        data['order_status'] = OrderStatus.CART
         ser = OrderSerializer(data = data)
         ser.is_valid(raise_exception=True)
         ser.save()
         return Response(ser.data)
     
-    def update_item_and_order_item(self, order_item):
+    def update_item_and_order_item(self, order_item, deduct=True):
         # Assuming 'item' is the OneToOneField relationship to the Item model
         item = order_item.item
         # Assuming 'item_quantity' is the field to be updated
-        new_quantity = item.item_available_count - order_item.item_quantity
-        item.item_available_count = new_quantity
-        item.save()
-        order_item.item_price = item.item_price
-        order_item.save()
+        new_quantity = item.item_available_count + order_item.item_quantity
+        if deduct:
+            new_quantity = item.item_available_count - order_item.item_quantity
+        if new_quantity >= 0:
+            item.item_available_count = new_quantity
+            item.save()
+            order_item.item_price = item.item_price
+            order_item.save()
+        raise APIException("Invalid Order Quantity")
 
     @authorize_customer
     def put(self, request, storeId, orderId):
-        order = Order.objects.filter(order_id = orderId, store_id=storeId, customer_id=put.customer_payload['id']).first()
+        order = Order.objects.filter(order_id = orderId, store_id=storeId, customer_id=self.customer_payload['id']).first()
         data = request.data
-        if data['order_status'] == OrderStatus.PAID:
+        if data['order_status'] == OrderStatus.PAID or data['order_status'] == OrderStatus.CANCELLED or data['order_status'] == OrderStatus.RETURNED:
             orderItems = order.order_items.all()
             # Update available quantity for each item
             with transaction.atomic():
                 for order_item in orderItems:
-                    self.update_item_and_order_item(order_item)
+                    self.update_item_and_order_item(order_item, deduct=data['order_status'] == OrderStatus.PAID)
         orderSer = OrderSerializer(order, data=request.data)
         orderSer.is_valid(raise_exception=True)
         orderSer.save()
