@@ -268,14 +268,14 @@ class OrderActions(APIView):
         orders = []
         data = request.data
         many = False
-        if not orderId:
-            orders = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId).all()
-            many = True
+        if orderId:
+            orders = Order.objects.filter(order_Id=orderId, customer_id = self.customer_payload['id'], store_id=storeId).first()
         #For returning current customer cart
         elif data['order_status'] and data['order_status'] == OrderStatus.CART:
             orders = Order.objects.filter(order_Id=orderId, customer_id = self.customer_payload['id'], store_id=storeId, order_status=OrderStatus.CART).first()
         else:
-            orders = Order.objects.filter(order_Id=orderId, customer_id = self.customer_payload['id'], store_id=storeId).first()
+            orders = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId).all()
+            many = True
         ser = OrderSerializer(orders, many=many)
         return Response(ser.data)
     
