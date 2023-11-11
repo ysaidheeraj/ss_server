@@ -202,9 +202,15 @@ class ItemActions(APIView):
 class OrderItemActions(APIView):
 
     @authorize_customer
-    def get(self, request, storeId, orderItemId=None):
-        orderItem = OrderItem.objects.filter(order_item_id=orderItemId, store_id=storeId).first()
-        orderItemSerializer = OrderItemSerializer(orderItem)
+    def get(self, request, storeId, orderItemId=None, orderId=None):
+        many = True
+        orderItems = []
+        if orderId:
+            orderItems = OrderItem.objects.filter(order=orderId, store_id=storeId).all()
+        else:
+            orderItems = OrderItem.objects.filter(order_item_id=orderItemId, store_id=storeId).first()
+            many = False
+        orderItemSerializer = OrderItemSerializer(orderItems, many=many)
         return Response(orderItemSerializer.data)
     
     def validate_item_quantity(self, data, item):
