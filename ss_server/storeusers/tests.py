@@ -4,6 +4,8 @@ from storeusers.models import Store_User, User_Role
 from rest_framework.test import APIClient
 from rest_framework import status
 from stores.serializers import StoreSerializer
+from django.core.files.uploadedfile import SimpleUploadedFile
+import os
 
 class CustomerAPITests(TestCase):
     def setUp(self):
@@ -78,6 +80,17 @@ class CustomerAPITests(TestCase):
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
+    def test_customer_image_update(self):
+        url = '/store/'+self.storeId+'/storeuser/customer/update'
+        image_path = os.path.join(os.getcwd(), 'storeusers')
+        with open(image_path+'/testimage.jpeg', 'rb') as img:
+            data = {
+                'profile_picture': img,
+            }
+            self.client.cookies['customer_jwt'] = self.test_login_customer()
+            response = self.client.put(url, data, format='multipart')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
     def test_customer_update_unauthenticated(self):
         url = '/store/'+self.storeId+'/storeuser/customer/update'
         data = {
@@ -147,6 +160,17 @@ class CustomerAPITests(TestCase):
         self.client.cookies['seller_jwt'] = self.test_login_seller()
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_seller_image_update(self):
+        url = '/store/'+self.storeId+'/storeuser/seller/update'
+        image_path = os.path.join(os.getcwd(), 'storeusers')
+        with open(image_path+'/testimage.jpeg', 'rb') as img:
+            data = {
+                'profile_picture': img,
+            }
+            self.client.cookies['seller_jwt'] = self.test_login_seller()
+            response = self.client.put(url, data, format='multipart')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
     
     def test_seller_update_unauthenticated(self):
         url = '/store/'+self.storeId+'/storeuser/seller/update'
