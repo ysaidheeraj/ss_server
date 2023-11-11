@@ -4,7 +4,7 @@ from rest_framework import status
 from .serializers import StoreUserSerializer
 from .models import Store_User, User_Role
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 import jwt, datetime
 from functools import wraps
 from django.conf import settings
@@ -116,7 +116,7 @@ class RegisterCustomerView(APIView):
         serializer = StoreUserSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class LoginCustomerView(APIView):
     def post(self, request, storeId):
@@ -137,7 +137,7 @@ class CustomerView(APIView):
         return Response(serializer.data)
 
 class CustomerUpdateView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser,JSONParser)
 
     @authorize_customer
     def put(self, request, storeId):
@@ -158,7 +158,7 @@ class CustomerUpdateView(APIView):
             profile_picture.name = 'customer_'+str(user_info['store_id'])+"_"+str(customer.user_id)+'.'+ext
             customer.profile_picture = profile_picture
         
-        customer_record = Store_User(customer, data=request.data, partial=True)
+        customer_record = StoreUserSerializer(customer, data=request.data, partial=True)
         if customer_record.is_valid():
             customer_record.save()
             return Response(customer_record.data)
@@ -176,14 +176,15 @@ class LogoutCustomerView(APIView):
         return response
 
 class RegisterSellerView(APIView):
-    def post(self, request):
+    def post(self, request, storeId):
         data = request.data
         data['user_role'] = User_Role.SELLER
+        data['store_id'] = storeId
         data['username'] = 'seller_'+data['email']+"_"+str(data['store_id'])
         serializer = StoreUserSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class LoginSellerView(APIView):
     def post(self, request, storeId):
@@ -205,7 +206,7 @@ class SellerView(APIView):
         return Response(serializer.data)
 
 class SellerUpdateView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     @authorize_seller
     def put(self, request, storeId):

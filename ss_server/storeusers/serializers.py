@@ -21,9 +21,6 @@ class StoreUserSerializer(serializers.ModelSerializer):
         #Extract the password to hash it and then store
         password_val = validated_data.pop('password', None)
 
-        if password_val is None:
-            raise serializers.ValidationError("Invalid Password")
-
         # Check if the Store with the provided store_id exists
         try:
             store = Store.objects.get(store_id=store_id.store_id)
