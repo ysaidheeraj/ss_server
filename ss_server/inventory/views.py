@@ -258,7 +258,7 @@ class OrderActions(APIView):
             orders = Order.objects.filter(order_id=orderId, customer_id = self.customer_payload['id'], store_id=storeId).first()
         #For returning current customer cart
         elif data['order_status'] is not None and data['order_status'] == OrderStatus.CART:
-            orders = Order.objects.filter(order_id=orderId, customer_id = self.customer_payload['id'], store_id=storeId, order_status=OrderStatus.CART).first()
+            orders = Order.objects.filter(customer_id = self.customer_payload['id'], store_id=storeId, order_status=OrderStatus.CART).first()
         else:
             orders = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId).all()
             many = True
@@ -334,6 +334,3 @@ class SellerOrderActions(APIView):
         orderSer.is_valid(raise_exception=True)
         orderSer.save()
         return Response(orderSer.data)
-    
-            
-
