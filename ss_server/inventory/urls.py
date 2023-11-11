@@ -17,6 +17,7 @@ urlpatterns = [
     path('createorderitem', view=OrderItemActions.as_view()),
     #Order urls
     path('customer/allorders', view=OrderActions.as_view()),
+    path('customer/createorder', view=OrderActions.as_view()),
     path('customer/order/<int:orderId>', view=OrderActions.as_view()),
     path('seller/allorders', view=SellerOrderActions.as_view()),
     path('seller/customer/<int:customerId>/order/<int:orderId>', view=SellerOrderActions.as_view())

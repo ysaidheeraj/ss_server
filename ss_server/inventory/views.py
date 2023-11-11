@@ -83,11 +83,11 @@ def authorize_seller_or_customer(view_func):
     def wrapper(request, *args, **kwargs):
         try:
             # Try seller authorization
-            authorize_seller(request, *args, **kwargs)
+            authorize_seller(view_func)
         except AuthenticationFailed:
             try:
                 # Try customer authorization if seller authorization fails
-                authorize_customer(request, *args, **kwargs)
+                authorize_customer(view_func)
             except AuthenticationFailed:
                 # If both fail, raise AuthenticationFailed
                 raise AuthenticationFailed("Unauthorized")
@@ -269,15 +269,17 @@ class OrderActions(APIView):
         data = request.data
         many = False
         if orderId:
-            orders = Order.objects.filter(order_Id=orderId, customer_id = self.customer_payload['id'], store_id=storeId).first()
+            orders = Order.objects.filter(order_id=orderId, customer_id = self.customer_payload['id'], store_id=storeId).first()
         #For returning current customer cart
-        elif data['order_status'] and data['order_status'] == OrderStatus.CART:
-            orders = Order.objects.filter(order_Id=orderId, customer_id = self.customer_payload['id'], store_id=storeId, order_status=OrderStatus.CART).first()
+        elif data['order_status'] is not None and data['order_status'] == OrderStatus.CART:
+            orders = Order.objects.filter(order_id=orderId, customer_id = self.customer_payload['id'], store_id=storeId, order_status=OrderStatus.CART).first()
         else:
             orders = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId).all()
             many = True
-        ser = OrderSerializer(orders, many=many)
-        return Response(ser.data)
+        if orders is not None:
+            ser = OrderSerializer(orders, many=many)
+            return Response(ser.data)
+        return Response(orders)
     
     @authorize_customer
     def post(self, request, storeId):
@@ -309,11 +311,15 @@ class OrderActions(APIView):
         order = Order.objects.filter(order_id = orderId, store_id=storeId, customer_id=self.customer_payload['id']).first()
         data = request.data
         if data['order_status'] == OrderStatus.PAID or data['order_status'] == OrderStatus.CANCELLED or data['order_status'] == OrderStatus.RETURNED:
-            orderItems = order.order_items.all()
-            # Update available quantity for each item
-            with transaction.atomic():
-                for order_item in orderItems:
-                    self.update_item_and_order_item(order_item, deduct=data['order_status'] == OrderStatus.PAID)
+            order = OrderSerializer(order)
+            orderItems = order['order_items']
+            if isinstance(orderItems, list) and len(orderItems) > 0:
+                # Update available quantity for each item
+                with transaction.atomic():
+                    for order_item in orderItems:
+                        self.update_item_and_order_item(order_item, deduct=data['order_status'] == OrderStatus.PAID)
+            else:
+                raise APIException("There are no items in this order")
         orderSer = OrderSerializer(order, data=request.data)
         orderSer.is_valid(raise_exception=True)
         orderSer.save()

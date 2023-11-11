@@ -84,3 +84,6 @@ class OrderItem(models.Model):
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
     item_price = models.FloatField(null=True)
+
+    class Meta:
+        unique_together = (("item", "order"))
