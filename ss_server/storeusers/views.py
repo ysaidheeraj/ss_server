@@ -8,6 +8,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 import jwt, datetime
 from functools import wraps
 from django.conf import settings
+from .utils import create_model_response
 
 secret_key = settings.HASH_SECRET
 def handleCustomerToken(request):
@@ -116,7 +117,7 @@ class RegisterCustomerView(APIView):
         serializer = StoreUserSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(create_model_response(User_Role, serializer.data), status=status.HTTP_201_CREATED)
 
 class LoginCustomerView(APIView):
     def post(self, request, storeId):
@@ -134,7 +135,7 @@ class CustomerView(APIView):
         user_info = self.customer_payload
         customer = Store_User.objects.filter(user_id=user_info['id'], user_role = User_Role.CUSTOMER, store_id=storeId).first()
         serializer = StoreUserSerializer(customer)
-        return Response(serializer.data)
+        return Response(create_model_response(Store_User, serializer.data))
 
 class CustomerUpdateView(APIView):
     parser_classes = (MultiPartParser, FormParser,JSONParser)
@@ -159,7 +160,7 @@ class CustomerUpdateView(APIView):
         customer_record = StoreUserSerializer(customer, data=request.data, partial=True)
         if customer_record.is_valid():
             customer_record.save()
-            return Response(customer_record.data)
+            return Response(create_model_response(Store_User, customer_record.data))
         return Response(customer_record.errors, status=status.HTTP_400_BAD_REQUEST)
         
         
@@ -182,7 +183,7 @@ class RegisterSellerView(APIView):
         serializer = StoreUserSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(create_model_response(Store_User, serializer.data), status=status.HTTP_201_CREATED)
 
 class LoginSellerView(APIView):
     def post(self, request, storeId):
@@ -201,7 +202,7 @@ class SellerView(APIView):
         user_info = self.seller_payload
         seller = Store_User.objects.filter(user_id=user_info['id'], user_role=User_Role.SELLER, store_id=storeId).first()
         serializer = StoreUserSerializer(seller)
-        return Response(serializer.data)
+        return Response(create_model_response(Store_User, serializer.data))
 
 class SellerUpdateView(APIView):
     parser_classes = (MultiPartParser, FormParser, JSONParser)
@@ -226,7 +227,7 @@ class SellerUpdateView(APIView):
         serializer = StoreUserSerializer(seller, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(create_model_response(Store_User, serializer.data))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         
