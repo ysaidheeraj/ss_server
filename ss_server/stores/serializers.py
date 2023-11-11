@@ -1,9 +1,10 @@
-from customers.serializers import CustomerSerializer
-from customers.Models.Customer import Customer
 from .models import Store
 from rest_framework import serializers
 
-# class StoreSerializer(serializers.ModelSerializer):
+class StoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Store
+        fields = "__all__"
     # customers = CustomerSerializer(many=True)
 
     # def create(self, validated_data):

@@ -4,8 +4,9 @@ from rest_framework import status
 from .serializers import StoreUserSerializer
 from .models import Store_User, User_Role
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 import jwt, datetime
+from functools import wraps
 from django.conf import settings
 
 secret_key = settings.HASH_SECRET
@@ -34,6 +35,48 @@ def handleSellerToken(request):
         raise AuthenticationFailed('Login Expired')
     
     return payload
+
+def authorizeUser(user_id, store_id, user_role):
+
+    user_obj = Store_User.objects.filter(user_id=user_id, store_id=store_id, user_role=user_role).first()
+
+    if user_obj is None:
+        raise AuthenticationFailed('User Not Found')
+    return user_obj
+
+#Custom wrapper to authenticate seller
+def authorize_seller(view_func):
+    @wraps(view_func)
+    def wrapper(self, request, *args, **kwargs):
+        #Extract the storeId from the request url
+        storeId = kwargs.get('storeId')
+        
+        #Checking for the seller token
+        seller_payload = handleSellerToken(request)
+        self.seller_payload = seller_payload
+        
+        #Authorizing the seller if found
+        authorizeUser(seller_payload['id'], storeId, User_Role.SELLER)
+        return view_func(self, request, *args, **kwargs)
+
+    return wrapper
+
+def authorize_customer(view_func):
+    @wraps(view_func)
+    def wrapper(self, request, *args, **kwargs):
+        #Extract the storeId from the request url
+        storeId = kwargs.get('storeId')
+        
+        #Checking for the seller token
+        customer_payload = handleCustomerToken(request)
+
+        self.customer_payload = customer_payload
+        
+        #Authorizing the seller if found
+        authorizeUser(customer_payload['id'], storeId, User_Role.CUSTOMER)
+        return view_func(self, request, *args, **kwargs)
+
+    return wrapper
 
 def authenticateUser(email, password, store_id, user_role):
 
@@ -65,42 +108,42 @@ def generate_token(user_obj, store_id, user_role):
     return response
 
 class RegisterCustomerView(APIView):
-    def post(self, request):
+    def post(self, request, storeId):
         data = request.data
         data['user_role'] = User_Role.CUSTOMER
+        data['store_id'] = storeId
         data['username'] = 'customer_'+data['email']+"_"+str(data['store_id'])
         serializer = StoreUserSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class LoginCustomerView(APIView):
-    def post(self, request):
+    def post(self, request, storeId):
         email = request.data['email']
         password = request.data['password']
-        store_id = request.data['store_id']
 
-        customer = authenticateUser(email, password, store_id, User_Role.CUSTOMER)
+        customer = authenticateUser(email, password, storeId, User_Role.CUSTOMER)
 
-        return generate_token(customer, store_id, User_Role.CUSTOMER)
+        return generate_token(customer, storeId, User_Role.CUSTOMER)
 
 class CustomerView(APIView):
 
-    def get(self, request):
-        user_info = handleCustomerToken(request)
-        customer = Store_User.objects.filter(user_id=user_info['id'], user_role = User_Role.CUSTOMER).first()
+    @authorize_customer
+    def get(self, request, storeId):
+        user_info = self.customer_payload
+        customer = Store_User.objects.filter(user_id=user_info['id'], user_role = User_Role.CUSTOMER, store_id=storeId).first()
         serializer = StoreUserSerializer(customer)
         return Response(serializer.data)
 
 class CustomerUpdateView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser,JSONParser)
 
-    def put(self, request):
-        user_info = handleCustomerToken(request)
+    @authorize_customer
+    def put(self, request, storeId):
+        user_info = self.customer_payload
         
-        customer = Store_User.objects.filter(user_id=user_info['id'], store_id=user_info['store_id'], user_role=User_Role.CUSTOMER).first()
-        if not customer:
-            raise AuthenticationFailed("User not found")
+        customer = Store_User.objects.filter(user_id=user_info['id'], store_id=storeId, user_role=User_Role.CUSTOMER).first()
         
         data = request.data
         profile_picture = request.data.get('profile_picture')
@@ -113,7 +156,7 @@ class CustomerUpdateView(APIView):
             profile_picture.name = 'customer_'+str(user_info['store_id'])+"_"+str(customer.user_id)+'.'+ext
             customer.profile_picture = profile_picture
         
-        customer_record = Store_User(customer, data=request.data, partial=True)
+        customer_record = StoreUserSerializer(customer, data=request.data, partial=True)
         if customer_record.is_valid():
             customer_record.save()
             return Response(customer_record.data)
@@ -122,7 +165,7 @@ class CustomerUpdateView(APIView):
         
 
 class LogoutCustomerView(APIView):
-    def post(self, request):
+    def post(self, request, storeId):
         response = Response()
         response.delete_cookie('customer_jwt')
         response.data = {
@@ -131,20 +174,21 @@ class LogoutCustomerView(APIView):
         return response
 
 class RegisterSellerView(APIView):
-    def post(self, request):
+    def post(self, request, storeId):
         data = request.data
         data['user_role'] = User_Role.SELLER
+        data['store_id'] = storeId
         data['username'] = 'seller_'+data['email']+"_"+str(data['store_id'])
         serializer = StoreUserSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class LoginSellerView(APIView):
-    def post(self, request):
+    def post(self, request, storeId):
         email = request.data['email']
         password = request.data['password']
-        store_id = request.data['store_id']
+        store_id = storeId
 
         seller = authenticateUser(email, password, store_id, User_Role.SELLER)
 
@@ -152,21 +196,21 @@ class LoginSellerView(APIView):
 
 class SellerView(APIView):
 
-    def get(self, request):
-        user_info = handleSellerToken(request)
-        seller = Store_User.objects.filter(user_id=user_info['id'], user_role=User_Role.SELLER).first()
+    @authorize_seller
+    def get(self, request, storeId):
+        user_info = self.seller_payload
+        seller = Store_User.objects.filter(user_id=user_info['id'], user_role=User_Role.SELLER, store_id=storeId).first()
         serializer = StoreUserSerializer(seller)
         return Response(serializer.data)
 
 class SellerUpdateView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
-    def put(self, request):
-        user_info = handleSellerToken(request)
+    @authorize_seller
+    def put(self, request, storeId):
+        user_info = self.seller_payload
         
-        seller = Store_User.objects.filter(user_id=user_info['id'], store_id=user_info['store_id'], user_role=User_Role.SELLER).first()
-        if not seller:
-            raise AuthenticationFailed("User not found")
+        seller = Store_User.objects.filter(user_id=user_info['id'], store_id=storeId, user_role=User_Role.SELLER).first()
         
         data = request.data
         profile_picture = request.data.get('profile_picture')
@@ -188,7 +232,7 @@ class SellerUpdateView(APIView):
         
 
 class LogoutSellerView(APIView):
-    def post(self, request):
+    def post(self, request, storeId):
         response = Response()
         response.delete_cookie('seller_jwt')
         response.data = {

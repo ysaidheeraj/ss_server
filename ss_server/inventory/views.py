@@ -2,71 +2,22 @@ from django.conf import settings
 from rest_framework.response import Response
 import jwt
 from functools import wraps
-from .serializers import CategorySerializer, ItemSerializer
-from .models import Category, Item
-from rest_framework.exceptions import AuthenticationFailed
+from .serializers import CategorySerializer, ItemSerializer, OrderItemSerializer, OrderSerializer
+from .models import Category, Item, OrderItem, Order, OrderStatus
+from rest_framework.exceptions import AuthenticationFailed, APIException
 from rest_framework.views import APIView
 from rest_framework import status
 from storeusers.models import Store_User, User_Role
-
-secret_key = settings.HASH_SECRET
-def handleCustomerToken(request):
-    token = request.COOKIES.get('customer_jwt')
-
-    if not token:
-        return None
-    
-    try:
-        payload = jwt.decode(token, secret_key, algorithm=['HS256'])
-    except jwt.ExpiredSignatureError:
-        return None
-    
-    return payload
-
-def handleSellerToken(request):
-    token = request.COOKIES.get('seller_jwt')
-
-    if not token:
-        raise AuthenticationFailed("Unauthenticated")
-    
-    try:
-        payload = jwt.decode(token, secret_key, algorithm=['HS256'])
-    except jwt.ExpiredSignatureError:
-        raise AuthenticationFailed('Login Expired')
-    
-    return payload
-
-def authorizeUser(user_id, store_id, user_role):
-
-    user_obj = Store_User.objects.filter(user_id=user_id, store_id=store_id, user_role=user_role).first()
-
-    if user_obj is None:
-        raise AuthenticationFailed('User Not Found')
-    return user_obj
-
-#Custom wrapper to authenticate seller
-def authorize_seller(view_func):
-    @wraps(view_func)
-    def wrapper(self, request, *args, **kwargs):
-        #Extract the storeId from the request url
-        storeId = kwargs.get('storeId')
-        
-        #Checking for the seller token
-        seller_payload = handleSellerToken(request)
-        
-        #Authorizing the seller if found
-        authorizeUser(seller_payload['id'], storeId, User_Role.SELLER)
-        return view_func(self, request, *args, **kwargs)
-
-    return wrapper
+from django.db import transaction
+from storeusers.views import authorize_customer, authorize_seller
 
 class InitActions(APIView):
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.customer_token = handleCustomerToken(request)
+        # self.customer_token = handleCustomerToken(request)
 
-class CategoryActions(InitActions):
-    def get(self, request, storeId, categoryId):
+class CategoryActions(APIView):
+    def get(self, request, storeId, categoryId=None):
         many = False
         categories = []
         if categoryId:
@@ -121,7 +72,7 @@ class CategoryActions(InitActions):
 
 class ItemActions(APIView):
 
-    def get(self, request, storeId, itemId):
+    def get(self, request, storeId, itemId=None):
         many = False
         items = []
         if itemId:
@@ -180,5 +131,150 @@ class ItemActions(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
-    
 
+class OrderItemActions(APIView):
+
+    @authorize_customer
+    def get(self, request, storeId, orderItemId=None, orderId=None):
+        many = True
+        orderItems = []
+        if orderId:
+            orderItems = OrderItem.objects.filter(order=orderId, store_id=storeId).all()
+        else:
+            orderItems = OrderItem.objects.filter(order_item_id=orderItemId, store_id=storeId).first()
+            many = False
+        orderItemSerializer = OrderItemSerializer(orderItems, many=many)
+        return Response(orderItemSerializer.data)
+    
+    def validate_item_quantity(self, data, item):
+        if data['item_quantity']:
+            if data['item_quantity'] > item.item_available_count:
+                raise APIException("Order Item quantity cannot exceed available stock")
+        return
+    
+    @authorize_customer
+    def post(self, request, storeId):
+        data = request.data
+        data['store_id'] = storeId
+        data['customer_id'] = self.customer_payload['id']
+        item = Item.objects.filter(item_id=data['item'], store_id=storeId).first()
+        if not item:
+            raise APIException("Item does not exist in the store")
+        self.validate_item_quantity(data, item)
+        orderItemSerializer = OrderItemSerializer(data=data)
+        orderItemSerializer.is_valid(raise_exception=True)
+        orderItemSerializer.save()
+        return Response(orderItemSerializer.data)
+    
+    @authorize_customer
+    def put(self, request, storeId, orderItemId):
+        data = request.data
+        orderItem = OrderItem.objects.filter(order_item_id = orderItemId, store_id = storeId).first()
+        self.validate_item_quantity(data, orderItem.item)
+        orderItemSer = OrderItemSerializer(orderItem, data=data, partial=True)
+        orderItemSer.is_valid(raise_exception=True)
+        orderItemSer.save()
+        return Response(orderItemSer.data)
+    
+    @authorize_customer
+    def delete(self, request, storeId, orderItemId):
+        try:
+            orderItem = OrderItem.objects.filter(order_item_id = orderItemId, store_id = storeId).first()
+            orderItem.delete()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+class OrderActions(APIView):
+    
+    @authorize_customer
+    def get(self, request, storeId, orderId=None):
+        orders = []
+        data = request.data
+        many = False
+        if orderId:
+            orders = Order.objects.filter(order_id=orderId, customer_id = self.customer_payload['id'], store_id=storeId).first()
+        #For returning current customer cart
+        elif data['order_status'] is not None and data['order_status'] == OrderStatus.CART:
+            orders = Order.objects.filter(customer_id = self.customer_payload['id'], store_id=storeId, order_status=OrderStatus.CART).first()
+        else:
+            orders = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId).all()
+            many = True
+        if orders is not None:
+            ser = OrderSerializer(orders, many=many)
+            return Response(ser.data)
+        return Response(orders)
+    
+    @authorize_customer
+    def post(self, request, storeId):
+        order = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId).first()
+        if order:
+            raise APIException("Cart Already Exists")
+        data = request.data
+        data['store_id'] = storeId
+        data['customer_id'] = self.customer_payload['id']
+        data['order_status'] = OrderStatus.CART
+        ser = OrderSerializer(data = data)
+        ser.is_valid(raise_exception=True)
+        ser.save()
+        return Response(ser.data)
+    
+    def update_item_and_order_item(self, order_item, deduct=True):
+        # Assuming 'item' is the OneToOneField relationship to the Item model
+        item = order_item.item
+        # Assuming 'item_quantity' is the field to be updated
+        new_quantity = item.item_available_count + order_item.item_quantity
+        if deduct:
+            new_quantity = item.item_available_count - order_item.item_quantity
+        if new_quantity >= 0:
+            item.item_available_count = new_quantity
+            item.save()
+            order_item.item_price = item.item_price
+            order_item.save()
+        raise APIException("Invalid Order Quantity")
+
+    @authorize_customer
+    def put(self, request, storeId, orderId):
+        order = Order.objects.filter(order_id = orderId, store_id=storeId, customer_id=self.customer_payload['id']).first()
+        data = request.data
+        if data['order_status'] == OrderStatus.PAID or data['order_status'] == OrderStatus.CANCELLED or data['order_status'] == OrderStatus.RETURNED:
+            order = OrderSerializer(order)
+            orderItems = order['order_items']
+            if isinstance(orderItems, list) and len(orderItems) > 0:
+                # Update available quantity for each item
+                with transaction.atomic():
+                    for order_item in orderItems:
+                        self.update_item_and_order_item(order_item, deduct=data['order_status'] == OrderStatus.PAID)
+            else:
+                raise APIException("There are no items in this order")
+        orderSer = OrderSerializer(order, data=request.data)
+        orderSer.is_valid(raise_exception=True)
+        orderSer.save()
+        return Response(orderSer.data)
+    
+class SellerOrderActions(APIView):
+
+    @authorize_seller
+    def get(self, request, storeId, customerId, orderId):
+        if customerId and orderId:
+            orders = Order.objects.filter(customer_id = customerId, order_id = orderId, store_id=storeId).all()
+        elif customerId:
+            orders = Order.objects.filter(customer_id = customerId, store_id=storeId).all()
+        else:
+            orders = Order.objects.filter(store_id=storeId).all()
+        ser = OrderSerializer(orders, many=True)
+        order_items = OrderItem.objects.filter(order=orderId, customer_id=customerId, store_id=storeId).all()
+        order_items = OrderItemSerializer(order_items, many=True)
+        return Response({
+            "order": ser.data,
+            "order_items": order_items.data
+            })
+    
+    @authorize_seller
+    def put(self, request, storeId, orderId):
+        order = Order.objects.filter(order_id = orderId, store_id=storeId).first()
+        orderSer = OrderSerializer(order, data=request.data)
+        orderSer.is_valid(raise_exception=True)
+        orderSer.save()
+        return Response(orderSer.data)
