@@ -9,74 +9,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from storeusers.models import Store_User, User_Role
 from django.db import transaction
-
-secret_key = settings.HASH_SECRET
-def handleCustomerToken(request):
-    token = request.COOKIES.get('customer_jwt')
-
-    if not token:
-        raise AuthenticationFailed("Unauthenticated")
-    
-    try:
-        payload = jwt.decode(token, secret_key, algorithm=['HS256'])
-    except jwt.ExpiredSignatureError:
-         raise AuthenticationFailed('Login Expired')
-    
-    return payload
-
-def handleSellerToken(request):
-    token = request.COOKIES.get('seller_jwt')
-
-    if not token:
-        raise AuthenticationFailed("Unauthenticated")
-    
-    try:
-        payload = jwt.decode(token, secret_key, algorithm=['HS256'])
-    except jwt.ExpiredSignatureError:
-        raise AuthenticationFailed('Login Expired')
-    
-    return payload
-
-def authorizeUser(user_id, store_id, user_role):
-
-    user_obj = Store_User.objects.filter(user_id=user_id, store_id=store_id, user_role=user_role).first()
-
-    if user_obj is None:
-        raise AuthenticationFailed('User Not Found')
-    return user_obj
-
-#Custom wrapper to authenticate seller
-def authorize_seller(view_func):
-    @wraps(view_func)
-    def wrapper(self, request, *args, **kwargs):
-        #Extract the storeId from the request url
-        storeId = kwargs.get('storeId')
-        
-        #Checking for the seller token
-        seller_payload = handleSellerToken(request)
-        
-        #Authorizing the seller if found
-        authorizeUser(seller_payload['id'], storeId, User_Role.SELLER)
-        return view_func(self, request, *args, **kwargs)
-
-    return wrapper
-
-def authorize_customer(view_func):
-    @wraps(view_func)
-    def wrapper(self, request, *args, **kwargs):
-        #Extract the storeId from the request url
-        storeId = kwargs.get('storeId')
-        
-        #Checking for the seller token
-        customer_payload = handleCustomerToken(request)
-
-        self.customer_payload = customer_payload
-        
-        #Authorizing the seller if found
-        authorizeUser(customer_payload['id'], storeId, User_Role.CUSTOMER)
-        return view_func(self, request, *args, **kwargs)
-
-    return wrapper
+from storeusers.views import authorize_customer, authorize_seller
 
 class InitActions(APIView):
     def setup(self, request, *args, **kwargs):
