@@ -150,6 +150,15 @@ class CustomerAPITests(TestCase):
         self.client.cookies['seller_jwt'] = self.test_login_seller()
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_seller_update_unauthenticated(self):
+        url = '/store/'+self.storeId+'/storeuser/seller/update'
+        data = {
+            'address': 'New address',
+            'phone_number': '+1234567890'
+        }
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_logout_seller(self):
         url = '/store/'+self.storeId+'/storeuser/seller/logout'
