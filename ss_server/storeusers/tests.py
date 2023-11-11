@@ -4,13 +4,10 @@ from storeusers.models import Store_User, User_Role
 from rest_framework.test import APIClient
 from rest_framework import status
 from stores.serializers import StoreSerializer
-from django.conf import settings
-import pdb
 
 class CustomerAPITests(TestCase):
     def setUp(self):
         # Set up the API client
-        secret_key = settings.HASH_SECRET
         self.client = APIClient()
         
         #Creating a test store
