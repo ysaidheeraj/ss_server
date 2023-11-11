@@ -331,7 +331,12 @@ class SellerOrderActions(APIView):
         else:
             orders = Order.objects.filter(store_id=storeId).all()
         ser = OrderSerializer(orders, many=True)
-        return Response(ser.data)
+        order_items = OrderItem.objects.filter(order=orderId, customer_id=customerId, store_id=storeId).all()
+        order_items = OrderItemSerializer(order_items, many=True)
+        return Response({
+            "order": ser.data,
+            "order_items": order_items.data
+            })
     
     @authorize_seller
     def put(self, request, storeId, orderId):
