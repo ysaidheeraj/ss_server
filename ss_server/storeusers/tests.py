@@ -61,6 +61,16 @@ class CustomerAPITests(TestCase):
 
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_login_wrong_store_customer(self):
+        url = '/store/'+"1000"+'/storeuser/customer/login'
+        data = {
+            'email': 'newcustomer@example.com',
+            'password': 'newpassword',
+        }
+
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
     def test_customer_view(self):
@@ -68,6 +78,12 @@ class CustomerAPITests(TestCase):
         self.client.cookies['customer_jwt'] = self.test_login_customer()
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_customer_wrong_store_view(self):
+        url = '/store/'+"10000"+'/storeuser/customer/customer'
+        self.client.cookies['customer_jwt'] = self.test_login_customer()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
     def test_customer_update(self):
@@ -98,6 +114,12 @@ class CustomerAPITests(TestCase):
             'phone_number': '+1234567890'
         }
         response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_customer_update_no_payload(self):
+        url = '/store/'+self.storeId+'/storeuser/customer/update'
+        self.client.cookies['customer_jwt'] = self.test_login_customer()
+        response = self.client.put(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_logout_customer(self):
@@ -160,6 +182,12 @@ class CustomerAPITests(TestCase):
         self.client.cookies['seller_jwt'] = self.test_login_seller()
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_seller_update_no_payload(self):
+        url = '/store/'+self.storeId+'/storeuser/seller/update'
+        self.client.cookies['seller_jwt'] = self.test_login_seller()
+        response = self.client.put(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_seller_image_update(self):
         url = '/store/'+self.storeId+'/storeuser/seller/update'

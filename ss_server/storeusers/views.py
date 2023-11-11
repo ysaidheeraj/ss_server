@@ -144,8 +144,6 @@ class CustomerUpdateView(APIView):
         user_info = self.customer_payload
         
         customer = Store_User.objects.filter(user_id=user_info['id'], store_id=storeId, user_role=User_Role.CUSTOMER).first()
-        if not customer:
-            raise AuthenticationFailed("User not found")
         
         data = request.data
         profile_picture = request.data.get('profile_picture')
@@ -213,8 +211,6 @@ class SellerUpdateView(APIView):
         user_info = self.seller_payload
         
         seller = Store_User.objects.filter(user_id=user_info['id'], store_id=storeId, user_role=User_Role.SELLER).first()
-        if not seller:
-            raise AuthenticationFailed("User not found")
         
         data = request.data
         profile_picture = request.data.get('profile_picture')
