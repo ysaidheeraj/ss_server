@@ -1,6 +1,7 @@
 from django.db import models
 from stores.models import Store
 from storeusers.models import Store_User
+from django.core.validators import MinValueValidator
 
 # Create your models here.
 
@@ -36,7 +37,7 @@ class Item(models.Model):
     item_id = models.AutoField(primary_key=True)
     item_name = models.CharField(max_length=100)
     item_price = models.FloatField()
-    item_available_count = models.FloatField()
+    item_available_count = models.FloatField(validators=[MinValueValidator(0)])
     # item_group_id = models.ForeignKey(Item_Group, on_delete=models.CASCADE)
     item_unit = models.IntegerField(choices=Item_Units.choices, default=Item_Units.QUANTITY)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)

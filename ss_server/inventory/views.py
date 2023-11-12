@@ -10,6 +10,7 @@ from rest_framework import status
 from storeusers.models import Store_User, User_Role
 from django.db import transaction
 from storeusers.views import authorize_customer, authorize_seller
+from .utils import create_model_response
 
 class InitActions(APIView):
     def setup(self, request, *args, **kwargs):
@@ -77,11 +78,13 @@ class ItemActions(APIView):
         items = []
         if itemId:
             items = Item.objects.filter(item_id=itemId, store_id=storeId).first()
+            if not items:
+                raise APIException("Invalid Item")
         else:
             items = Item.objects.filter(store_id=storeId).all()
             many = True
         items_serializer = ItemSerializer(items, many=many)
-        return Response(items_serializer.data, status=status.HTTP_200_OK)
+        return Response(create_model_response(Item, items_serializer.data))
     
     @authorize_seller
     def post(self, request, storeId):
@@ -90,7 +93,7 @@ class ItemActions(APIView):
         item = ItemSerializer(data=data)
         item.is_valid(raise_exception=True)
         item.save()
-        return Response(item.data)
+        return Response(create_model_response(Item, item.data), status=status.HTTP_201_CREATED)
 
     @authorize_seller
     def put(self, request, storeId, itemId):
@@ -112,7 +115,7 @@ class ItemActions(APIView):
         item_record = ItemSerializer(item, data=request.data, partial=True)
         if item_record.is_valid():
             item_record.save()
-            return Response(item_record.data)
+            return Response(create_model_response(Item, item_record.data))
         else:
             return Response(item_record.errors, status=status.HTTP_400_BAD_REQUEST)
 
