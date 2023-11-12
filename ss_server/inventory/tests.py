@@ -37,14 +37,17 @@ class InventoryTestCases(TestCase):
         category = Category.objects.create(category_name="Test Category", store_id=store).save()
         # self.categoryId = str()
 
-        #Creating a test Item
+        #Creating test Items
         item = Item.objects.create(item_name="Test Item", item_price=10.0, item_available_count=100, item_unit=Item_Units.QUANTITY, store_id=store)
         self.itemId = str(ItemSerializer(item).data['item_id'])
+
+        item = Item.objects.create(item_name="Test Item 1", item_price=10.0, item_available_count=100, item_unit=Item_Units.QUANTITY, store_id=store)
+        self.deleteItemId = str(ItemSerializer(item).data['item_id'])
 
     def test_create_item(self):
         url = '/store/'+self.storeId+'/items/createitem'
         data = {
-            "item_name": "Test Item 1",
+            "item_name": "Test Item 2",
             "item_price": 10,
             "item_available_count": 100,
             "item_unit": 1
@@ -136,3 +139,9 @@ class InventoryTestCases(TestCase):
         self.client.cookies['seller_jwt'] = self.seller_token
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_delete_item(self):
+        url = '/store/'+self.storeId+'/items/item/'+self.deleteItemId
+        self.client.cookies['seller_jwt'] = self.seller_token
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
