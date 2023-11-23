@@ -9,6 +9,7 @@ import jwt, datetime
 from functools import wraps
 from django.conf import settings
 from .utils import create_model_response
+from  django.contrib.auth.hashers import make_password
 
 secret_key = settings.HASH_SECRET
 def handleCustomerToken(request):
@@ -160,6 +161,9 @@ class CustomerUpdateView(APIView):
             ext = profile_picture.name.split('.')[-1]
             profile_picture.name = 'customer_'+str(user_info['store_id'])+"_"+str(customer.user_id)+'.'+ext
             customer.profile_picture = profile_picture
+        
+        if data['password']:
+            data['password'] = make_password(data['password'])
         
         customer_record = StoreUserSerializer(customer, data=request.data, partial=True)
         if customer_record.is_valid():
