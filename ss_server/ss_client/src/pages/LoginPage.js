@@ -29,7 +29,7 @@ export const LoginPage = () => {
 
     useEffect(() => {
         if (customer && customer.first_name){
-            navigate(redirect);
+            navigate("../"+redirect);
         }
     }, [customer])
   return (
