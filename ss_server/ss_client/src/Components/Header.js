@@ -29,8 +29,8 @@ export const Header = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
-              <LinkContainer to="/cart">
-                <Nav.Link>
+              <LinkContainer to={{pathname: '/login', search: '?redirect=cart'}}>
+                <Nav.Link >
                   <i className="fas fa-shopping-cart"></i>CART
                 </Nav.Link>
               </LinkContainer>

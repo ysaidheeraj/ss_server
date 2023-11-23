@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Row, Col, ListGroup, Image, Form, Button, Card } from 'react-bootstrap'
@@ -8,6 +8,7 @@ import { addToCart, removeFromCart } from '../Actions/CartActions'
 export const CartPage = () => {
     const { id: itemId } = useParams();
     const [searchParams] = useSearchParams();
+    const [loggedIn, setLoggedIn] = useState(false);
     const quantity = searchParams.get('qty');
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -15,13 +16,22 @@ export const CartPage = () => {
     const cart = useSelector(state => state.cart);
     const {cartItems} = cart;
     
+    const customerDetails = useSelector((state) => state.customerDetails);
+    const { customer } = customerDetails;
 
+    useEffect(() => {
+        if (customer && customer.first_name){
+            setLoggedIn(true);
+        }else{
+            navigate('/login?redirect=cart')
+        }
+    }, [customer])
 
     useEffect(() =>{
-        if(itemId){
+        if(itemId && loggedIn){
             dispatch(addToCart(itemId, quantity))
         }
-    }, [dispatch, itemId, quantity]);
+    }, [dispatch, itemId, quantity, loggedIn]);
 
     const removeFromCartHandler = (id) =>{
         dispatch(removeFromCart(id));
@@ -32,8 +42,8 @@ export const CartPage = () => {
     }
   return (
     <Row>
+        <h1>Shopping Cart</h1>
         <Col md={8}>
-            <h1>Shopping Cart</h1>
             {cartItems.length === 0 ? (
                 <Message variant='light'>
                     Your cart is empty <Link to='/'>Back to Home</Link>
@@ -88,7 +98,7 @@ export const CartPage = () => {
                 <ListGroup variant='flush'>
                     <ListGroup.Item>
                         <h2>
-                            Subtotal ({cartItems.reduce((acc, item) => acc + item.quantity, 0)}) items
+                            Subtotal ({cartItems.reduce((acc, item) => acc + Number(item.quantity), 0)}) items
                         </h2>
                         ${cartItems.reduce((acc, item) => acc+item.quantity * item.price, 0).toFixed(2)}
                     </ListGroup.Item>
