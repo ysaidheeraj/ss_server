@@ -200,7 +200,7 @@ export const customer_logout = () => async(dispatch) =>{
         { withCredentials: true },
         config
     )
-    // localStorage.removeItem('customerInfo');
+    localStorage.removeItem('customerInfo');
     dispatch({
         type: CUSTOMER_LOGOUT
     })
