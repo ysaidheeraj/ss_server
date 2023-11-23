@@ -27,7 +27,7 @@ class CategoryActions(APIView):
             many = True
             categories = Category.objects.filter(store_id = storeId).all()
         cat_ser = CategorySerializer(categories, many=many)
-        return Response(cat_ser.data)
+        return Response(create_model_response(Category, cat_ser.data))
     
     @authorize_seller
     def post(self, request, storeId):
@@ -194,19 +194,19 @@ class OrderActions(APIView):
     @authorize_customer
     def get(self, request, storeId, orderId=None):
         orders = []
-        data = request.data
+        order_status = request.GET.get('order_status')
         many = False
         if orderId:
             orders = Order.objects.filter(order_id=orderId, customer_id = self.customer_payload['id'], store_id=storeId).first()
         #For returning current customer cart
-        elif data['order_status'] is not None and data['order_status'] == OrderStatus.CART:
+        elif order_status is not None and order_status == OrderStatus.CART:
             orders = Order.objects.filter(customer_id = self.customer_payload['id'], store_id=storeId, order_status=OrderStatus.CART).first()
         else:
             orders = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId).all()
             many = True
         if orders is not None:
             ser = OrderSerializer(orders, many=many)
-            return Response(ser.data)
+            return Response(create_model_response(Order, ser.data))
         return Response(orders)
     
     @authorize_customer
