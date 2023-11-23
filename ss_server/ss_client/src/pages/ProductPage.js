@@ -26,7 +26,7 @@ export const ProductPage = () => {
   return (
     <div>
       <Link to="/" className="btn btn-primary my-3">
-        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+        <i className="fa fa-arrow-left" aria-hidden="true"></i>
       </Link>
 
       {loading ? (
