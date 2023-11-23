@@ -101,10 +101,13 @@ def generate_token(user_obj, store_id, user_role):
 
     token = jwt.encode(payload, secret_key, algorithm='HS256').decode('utf-8')
     key = 'customer_jwt' if user_role == User_Role.CUSTOMER else 'seller_jwt'
+    user_type = 'customer' if user_role == User_Role.CUSTOMER else 'seller'
     response = Response()
-    response.set_cookie(key=key, value=token, httponly=True)
+    response.set_cookie(key=key, value=token, httponly=True) #, domain="127.0.0.1") , samesite='Lax')
+    response["Access-Control-Allow-Credentials"] = "true"
     response.data = {
-        key: token
+        key: token,
+        user_type: StoreUserSerializer(user_obj).data
     }
     return response
 
@@ -117,7 +120,8 @@ class RegisterCustomerView(APIView):
         serializer = StoreUserSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(create_model_response(User_Role, serializer.data), status=status.HTTP_201_CREATED)
+        customer = Store_User.objects.filter(email=data['email'], store_id=storeId, user_role=User_Role.CUSTOMER).first()
+        return generate_token(customer, storeId, User_Role.CUSTOMER)
 
 class LoginCustomerView(APIView):
     def post(self, request, storeId):
