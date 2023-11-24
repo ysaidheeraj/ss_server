@@ -1,15 +1,15 @@
 from django.conf import settings
 from rest_framework.response import Response
-import jwt
+from django.db import transaction
 from functools import wraps
-from .serializers import CategorySerializer, ItemSerializer, OrderItemSerializer, OrderSerializer
+from .serializers import CategorySerializer, ItemSerializer, OrderItemSerializer, OrderSerializer, ShippingAddressSerializer
 from .models import Category, Item, OrderItem, Order, OrderStatus
 from rest_framework.exceptions import AuthenticationFailed, APIException
 from rest_framework.views import APIView
 from rest_framework import status
-from storeusers.models import Store_User, User_Role
 from django.db import transaction
 from storeusers.views import authorize_customer, authorize_seller
+from django.utils import timezone
 from .utils import create_model_response
 
 class InitActions(APIView):
@@ -210,32 +210,82 @@ class OrderActions(APIView):
         return Response(orders)
     
     @authorize_customer
+    @transaction.atomic
     def post(self, request, storeId):
-        order = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId).first()
-        if order:
-            raise APIException("Cart Already Exists")
         data = request.data
+
+        orderItems = data.pop('orderItems')
+        shippingAddress = data.pop('shippingAddress')
+        if not orderItems:
+            raise APIException('Order Items missing in the request')
+        
+        #Creating order object
+        current_time = timezone.now()
         data['store_id'] = storeId
         data['customer_id'] = self.customer_payload['id']
-        data['order_status'] = OrderStatus.CART
+        data['order_status'] = OrderStatus.PAID
+        data['order_paid_time'] = current_time
         ser = OrderSerializer(data = data)
         ser.is_valid(raise_exception=True)
         ser.save()
-        return Response(ser.data)
+        order = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId, order_paid_time=current_time).first()
+        
+        #Creating the shipping address object
+        shippingAddress['order'] = order.order_id
+        shippingAddress['postalCode'] = shippingAddress.pop('pinCode')
+        shippingAddressSer = ShippingAddressSerializer(data=shippingAddress)
+        shippingAddressSer.is_valid(raise_exception=True)
+        shippingAddressSer.save()
+
+        for orderItem in orderItems:
+            item = Item.objects.get(item_id=orderItem['item'])
+            orderItemSer = OrderItemSerializer(data={
+                'store_id': storeId,
+                'customer_id': self.customer_payload['id'],
+                'item': item.item_id,
+                'item_quantity' : orderItem['quantity'],
+                'order': order.order_id,
+                'item_price': orderItem['price']
+            })
+            orderItemSer.is_valid(raise_exception=True)
+            orderItemSer.save()
+
+        order = OrderSerializer(order).data
+        order_status = order['order_status']
+        if order_status == OrderStatus.PAID or order_status == OrderStatus.CANCELLED or order_status == OrderStatus.RETURNED:
+            orderItems = order['order_items']
+            if isinstance(orderItems, list) and len(orderItems) > 0:
+                # Update available quantity for each item
+                with transaction.atomic():
+                    for order_item in orderItems:
+                        self.update_item_and_order_item(order_item, deduct=data['order_status'] == OrderStatus.PAID)
+            else:
+                raise APIException("There are no items in this order")
+        
+        return Response(create_model_response(Order, order))
     
     def update_item_and_order_item(self, order_item, deduct=True):
         # Assuming 'item' is the OneToOneField relationship to the Item model
-        item = order_item.item
+        item = order_item['Item']
+        item = Item.objects.filter(item_id=item['item_id'], store_id=item['store_id']).first()
+        order_item = OrderItem.objects.filter(order_item_id=order_item['order_item_id'], store_id=order_item['store_id']).first()
         # Assuming 'item_quantity' is the field to be updated
         new_quantity = item.item_available_count + order_item.item_quantity
         if deduct:
             new_quantity = item.item_available_count - order_item.item_quantity
         if new_quantity >= 0:
-            item.item_available_count = new_quantity
-            item.save()
-            order_item.item_price = item.item_price
-            order_item.save()
-        raise APIException("Invalid Order Quantity")
+            itemdata = {'item_available_count' : new_quantity}
+            orderItemData = {'item_price' : item.item_price}
+
+            item_ser = ItemSerializer(item, data=itemdata, partial=True)
+            item_ser.is_valid(raise_exception=True)
+            item_ser.save()
+
+            order_item_ser = OrderItemSerializer(order_item, data=orderItemData, partial=True)
+            order_item_ser.is_valid(raise_exception=True)
+            order_item_ser.save()
+        else:
+            raise APIException("Invalid Order Quantity")
 
     @authorize_customer
     def put(self, request, storeId, orderId):
