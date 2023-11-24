@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Loader } from "../Components/Loader";
@@ -16,11 +16,6 @@ export const ProfilePage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const [searchParams] = useSearchParams();
-  const redirect = searchParams.get("redirect")
-    ? searchParams.get("redirect")
-    : "/";
 
   const customerDetails = useSelector((state) => state.customerDetails);
   const { error, loading, customer } = customerDetails;

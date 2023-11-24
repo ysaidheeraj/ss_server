@@ -33,6 +33,6 @@ urlpatterns = [
     path('inventory/', include('inventory.urls')),
     path('store/<int:storeId>/orderitems/', include('inventory.urls')),
     path('store/<int:storeId>/orders/', include('inventory.urls')),
-    re_path(r'^(?P<path>.*)$', serve, {'document_root': settings.STATICFILES_DIRS[1]}),
+    # re_path(r'^(?P<path>.*)$', serve, {'document_root': settings.STATICFILES_DIRS[1]}),
 ]
 urlpatterns += static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
