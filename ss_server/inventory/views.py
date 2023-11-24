@@ -293,7 +293,7 @@ class OrderActions(APIView):
         data = request.data
         if data['order_status'] == OrderStatus.PAID or data['order_status'] == OrderStatus.CANCELLED or data['order_status'] == OrderStatus.RETURNED:
             order = OrderSerializer(order)
-            orderItems = order['order_items']
+            orderItems = order.data['order_items']
             if isinstance(orderItems, list) and len(orderItems) > 0:
                 # Update available quantity for each item
                 with transaction.atomic():
