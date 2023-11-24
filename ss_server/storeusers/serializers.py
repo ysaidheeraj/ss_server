@@ -21,11 +21,7 @@ class StoreUserSerializer(serializers.ModelSerializer):
         #Extract the password to hash it and then store
         password_val = validated_data.pop('password', None)
 
-        # Check if the Store with the provided store_id exists
-        try:
-            store = Store.objects.get(store_id=store_id.store_id)
-        except Store.DoesNotExist:
-            raise serializers.ValidationError("Store with the provided store_id does not exist.")
+        store = Store.objects.get(store_id=store_id.store_id)
 
         # Create the Store User record with the foreign key relationship to the Store
         store_user = Store_User.objects.create(store_id=store, **validated_data)

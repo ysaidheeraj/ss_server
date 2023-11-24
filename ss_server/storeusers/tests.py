@@ -39,6 +39,18 @@ class CustomerAPITests(TestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
     
+    def test_register_customer_invalid_store(self):
+        url = '/store/'+"1000"+'/storeuser/customer/register'
+        data = {
+            'email': 'newcustomer1@example.com',
+            'password': 'newpassword',
+            'first_name': 'Customer',
+            'last_name': '3'
+        }
+
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
 
     def test_login_customer(self):
         url = '/store/'+self.storeId+'/storeuser/customer/login'

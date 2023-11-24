@@ -11,6 +11,9 @@ migrations/
 # Backup files # 
 *.bak 
 
+profile_pictures/
+category_images/
+item_images/
 # If you are using PyCharm # 
 # User-specific stuff
 .idea/**/workspace.xml
