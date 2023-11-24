@@ -22,7 +22,7 @@ export const OrderDetailsPage = () => {
             dispatch(getOrderDetails(orderId))
         }
        
-    },[order, orderId])
+    },[dispatch, order, orderId])
   return loading ? 
     (<Loader/>) 
     : error ? (<Message variant='danger'>{error}</Message>)
@@ -61,7 +61,7 @@ export const OrderDetailsPage = () => {
 
                         {Number(order.order_status) >= 2 ?
                             (<Message variant='success'>Paid on {order.order_paid_time}</Message>)
-                            :(<Message variant='warning'>Payment on delivery</Message>)
+                            :(<Message variant='warning'>Not Paid</Message>)
                         }
                     </ListGroup.Item>
 
