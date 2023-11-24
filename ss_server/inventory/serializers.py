@@ -20,6 +20,12 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = "__all__"
+    def to_representation(self, instance):
+        data = super(OrderItemSerializer, self).to_representation(instance)
+        item_data = Item.objects.filter(item_id=data['item']).first()
+        items_serializer = ItemSerializer(item_data)
+        data[Item.__name__] = items_serializer.data
+        return data
 
 class OrderSerializer(serializers.ModelSerializer):
     order_items = OrderItemSerializer(many=True, read_only=True)
@@ -30,7 +36,7 @@ class OrderSerializer(serializers.ModelSerializer):
         data = super(OrderSerializer, self).to_representation(instance)
         order_items = OrderItem.objects.filter(order=instance)
         order_items_serializer = OrderItemSerializer(order_items, many=True)
-        data['order_items'] = order_items_serializer.data
+        data[OrderItem.__name__] = order_items_serializer.data
         return data
 
 class ReviewSerializer(serializers.ModelSerializer):
