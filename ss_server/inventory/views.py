@@ -301,6 +301,8 @@ class OrderActions(APIView):
                         self.update_item_and_order_item(order_item, deduct=data['order_status'] == OrderStatus.PAID)
             else:
                 raise APIException("There are no items in this order")
+        if data['order_status'] == OrderStatus.DELIVERED:
+            data['order_paid_time'] = timezone.now()
         orderSer = OrderSerializer(order, data=request.data)
         orderSer.is_valid(raise_exception=True)
         orderSer.save()
