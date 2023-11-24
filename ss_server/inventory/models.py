@@ -74,6 +74,10 @@ class OrderStatus(models.IntegerChoices):
     CANCELLED = 4,
     RETURNED = 5,
     REFUND = 6
+
+class OrderPaymentMethod(models.IntegerChoices):
+    COD = 0,
+    PAYPAL = 1
     
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
@@ -85,6 +89,7 @@ class Order(models.Model):
     total_price = models.FloatField(null=True)
     tax_price = models.FloatField(null=True)
     order_paid_time = models.DateTimeField(null=True, blank=True)
+    payment_method = models.IntegerField(choices=OrderPaymentMethod.choices, null=True)
 
 class OrderItem(models.Model):
     order_item_id = models.AutoField(primary_key=True)
