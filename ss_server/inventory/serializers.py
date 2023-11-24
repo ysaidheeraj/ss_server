@@ -31,7 +31,7 @@ class OrderSerializer(serializers.ModelSerializer):
     order_items = OrderItemSerializer(many=True, read_only=True)
     class Meta:
         model = Order
-        fields = ['order_id', 'customer_id', 'store_id', 'order_created_time', 'order_last_updated_time', 'order_status', 'order_items']
+        fields = ['order_id', 'customer_id', 'store_id', 'order_created_time', 'order_last_updated_time', 'order_status', 'order_items', 'total_price', 'tax_price', 'order_paid_time', 'payment_method']
     def to_representation(self, instance):
         data = super(OrderSerializer, self).to_representation(instance)
         order_items = OrderItem.objects.filter(order=instance)
