@@ -50,7 +50,7 @@ export const Header = () => {
                       <NavDropdown.Item onClick={customerLogoutHandler}>Logout</NavDropdown.Item>
                     </NavDropdown>
                   ) : (
-                    <NavDropdown title={customer.isSeller} id='userName'>
+                    <NavDropdown title={customer.first_name} id='userName'>
                       <LinkContainer to='/profile'>
                         <NavDropdown.Item>Profile</NavDropdown.Item>
                       </LinkContainer>

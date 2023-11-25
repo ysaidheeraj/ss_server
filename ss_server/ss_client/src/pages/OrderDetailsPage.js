@@ -4,7 +4,7 @@ import {  Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Message } from '../Components/Message'
-import { getOrderDetails } from '../Actions/OrderActions'
+import { getOrderDetails, updateOrderDetails } from '../Actions/OrderActions'
 import { Loader } from '../Components/Loader'
 export const OrderDetailsPage = () => {
     const dispatch = useDispatch();
@@ -23,6 +23,10 @@ export const OrderDetailsPage = () => {
         }
        
     },[dispatch, order, orderId])
+
+    const updateOrderStatus = (status) =>{
+        dispatch(updateOrderDetails(orderId, {'order_status': status}));
+    }
   return loading ? 
     (<Loader/>) 
     : error ? (<Message variant='danger'>{error}</Message>)
@@ -134,6 +138,24 @@ export const OrderDetailsPage = () => {
                                     Total:
                                 </Col>
                                 <Col>${order.total_price}</Col>
+                            </Row>
+                        </ListGroup.Item>
+
+                        <ListGroup.Item>
+                            <Row>
+                                <Col>
+                                {Number(order.order_status) <= 2 ? (
+                                    <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(3)}>Cancel Order</Button>
+                                ) : Number(order.order_status) === 3 ? (
+                                    <Message variant='info'>Cancelled</Message>
+                                ): Number(order.order_status) === 4 ?(
+                                    <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(5)}>Return Order</Button>
+                                ): Number(order.order_status) === 5 ? (
+                                    <Message variant='info'>Returned</Message>
+                                ): (
+                                    <Message variant='info'>Refund Granted</Message>
+                                )}
+                                </Col>
                             </Row>
                         </ListGroup.Item>
                         

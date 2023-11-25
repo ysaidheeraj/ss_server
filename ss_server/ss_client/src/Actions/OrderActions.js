@@ -94,12 +94,17 @@ export const updateOrderDetails = (id, requestData) => async(dispatch, getState)
 
         const {data} = await axios.put(
             `/store/1/orders/customer/order/${id}`,
-            config,
-            requestData
+            requestData,
+            config
         )
 
         dispatch({
             type: ORDER_UPDATE_SUCCESS,
+            payload: data.Order
+        })
+
+        dispatch({
+            type: ORDER_DETAILS_SUCCESS,
             payload: data.Order
         })
 

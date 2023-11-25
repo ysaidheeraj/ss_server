@@ -287,12 +287,13 @@ class OrderActions(APIView):
             raise APIException("Invalid Order Quantity")
 
     @authorize_customer
+    @transaction.atomic
     def put(self, request, storeId, orderId):
         order = Order.objects.filter(order_id = orderId, store_id=storeId, customer_id=self.customer_payload['id']).first()
         data = request.data
         if data['order_status'] == OrderStatus.PAID or data['order_status'] == OrderStatus.CANCELLED or data['order_status'] == OrderStatus.RETURNED:
-            order = OrderSerializer(order)
-            orderItems = order.data['order_items']
+            orderSerObj = OrderSerializer(order)
+            orderItems = orderSerObj.data['order_items']
             if isinstance(orderItems, list) and len(orderItems) > 0:
                 # Update available quantity for each item
                 with transaction.atomic():
@@ -302,10 +303,10 @@ class OrderActions(APIView):
                 raise APIException("There are no items in this order")
         if data['order_status'] == OrderStatus.DELIVERED and order.payment_method == OrderPaymentMethod.COD:
             data['order_paid_time'] = timezone.now()
-        orderSer = OrderSerializer(order, data=request.data)
+        orderSer = OrderSerializer(order, data=request.data, partial=True)
         orderSer.is_valid(raise_exception=True)
         orderSer.save()
-        return Response(orderSer.data)
+        return Response(create_model_response(Order, orderSer.data))
     
 class SellerOrderActions(APIView):
 

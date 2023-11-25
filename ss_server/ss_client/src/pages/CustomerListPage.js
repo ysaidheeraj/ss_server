@@ -3,11 +3,12 @@ import { Loader } from '../Components/Loader'
 import { Message } from '../Components/Message'
 import { Table, Button } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
-import React, { useState, useEffect } from 'react'
-import { LinkContainer } from 'react-router-bootstrap'
+import React, { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export const CustomerListPage = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const customerList = useSelector(state => state.customerList)
     const {loading, error, customers} = customerList;
 
@@ -15,6 +16,13 @@ export const CustomerListPage = () => {
     useEffect(()=>{
         dispatch(list_store_customers());
     },[dispatch])
+
+    const customerDetails = useSelector((state) => state.customerDetails);
+    const { customer } = customerDetails;
+
+    if(!customer || !customer.isSeller){
+        navigate('/login');
+    }
 
 
   return (
