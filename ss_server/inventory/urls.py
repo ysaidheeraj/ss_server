@@ -1,7 +1,8 @@
 from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import CategoryActions, ItemActions, OrderItemActions, OrderActions, SellerOrderActions
+from .views import CategoryActions, ItemActions, OrderActions, SellerOrderActions
+# from .views import OrderItemActions
 
 urlpatterns = [
     #Categories urls
@@ -12,10 +13,12 @@ urlpatterns = [
     path('allitems', view=ItemActions.as_view()),
     path('item/<int:itemId>', view=ItemActions.as_view()),
     path('createitem', view=ItemActions.as_view()),
+
     #OrderItems urls
-    path('orderitem/<int:orderItemId>', view=OrderItemActions.as_view()),
-    path('createorderitem', view=OrderItemActions.as_view()),
-    path('customer/order/<int:orderId>/orderitems', view=OrderItemActions.as_view()),
+    # path('orderitem/<int:orderItemId>', view=OrderItemActions.as_view()),
+    # path('createorderitem', view=OrderItemActions.as_view()),
+    # path('customer/order/<int:orderId>/orderitems', view=OrderItemActions.as_view()),
+
     #Order urls
     path('customer/allorders', view=OrderActions.as_view()),
     path('customer/cart', view=OrderActions.as_view()),

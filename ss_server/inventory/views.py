@@ -15,11 +15,6 @@ from django.utils import timezone
 from .utils import create_model_response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
-class InitActions(APIView):
-    def setup(self, request, *args, **kwargs):
-        super().setup(request, *args, **kwargs)
-        # self.customer_token = handleCustomerToken(request)
-
 class CategoryActions(APIView):
     def get(self, request, storeId, categoryId=None):
         many = False
@@ -46,10 +41,6 @@ class CategoryActions(APIView):
         category = Category.objects.filter(category_id=categoryId, store_id=storeId).first()
         if not category:
             raise AuthenticationFailed("Invalid Category")
-        
-        data = request.data
-        if not data:
-            raise AuthenticationFailed("Payload missing")
         
         profile_picture = request.data.get('category_picture')
         #Changing name of image so that it is unique per customer
@@ -109,10 +100,6 @@ class ItemActions(APIView):
         if not item:
             raise AuthenticationFailed("Invalid Item")
         
-        data = request.data
-        if not data:
-            raise AuthenticationFailed("Payload missing")
-        
         profile_picture = request.data.get('item_image')
         #Changing name of image so that it is unique per item
         if profile_picture:
@@ -143,59 +130,59 @@ class ItemActions(APIView):
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-class OrderItemActions(APIView):
+# class OrderItemActions(APIView):
 
-    @authorize_customer
-    def get(self, request, storeId, orderItemId=None, orderId=None):
-        many = True
-        orderItems = []
-        if orderId:
-            orderItems = OrderItem.objects.filter(order=orderId, store_id=storeId).all()
-        else:
-            orderItems = OrderItem.objects.filter(order_item_id=orderItemId, store_id=storeId).first()
-            many = False
-        orderItemSerializer = OrderItemSerializer(orderItems, many=many)
-        return Response(orderItemSerializer.data)
+#     @authorize_customer
+#     def get(self, request, storeId, orderItemId=None, orderId=None):
+#         many = True
+#         orderItems = []
+#         if orderId:
+#             orderItems = OrderItem.objects.filter(order=orderId, store_id=storeId).all()
+#         else:
+#             orderItems = OrderItem.objects.filter(order_item_id=orderItemId, store_id=storeId).first()
+#             many = False
+#         orderItemSerializer = OrderItemSerializer(orderItems, many=many)
+#         return Response(orderItemSerializer.data)
     
-    def validate_item_quantity(self, data, item):
-        if data['item_quantity']:
-            if data['item_quantity'] > item.item_available_count:
-                raise APIException("Order Item quantity cannot exceed available stock")
-        return
+#     def validate_item_quantity(self, data, item):
+#         if data['item_quantity']:
+#             if data['item_quantity'] > item.item_available_count:
+#                 raise APIException("Order Item quantity cannot exceed available stock")
+#         return
     
-    @authorize_customer
-    def post(self, request, storeId):
-        data = request.data
-        data['store_id'] = storeId
-        data['customer_id'] = self.customer_payload['id']
-        item = Item.objects.filter(item_id=data['item'], store_id=storeId).first()
-        if not item:
-            raise APIException("Item does not exist in the store")
-        self.validate_item_quantity(data, item)
-        orderItemSerializer = OrderItemSerializer(data=data)
-        orderItemSerializer.is_valid(raise_exception=True)
-        orderItemSerializer.save()
-        return Response(orderItemSerializer.data)
+#     @authorize_customer
+#     def post(self, request, storeId):
+#         data = request.data
+#         data['store_id'] = storeId
+#         data['customer_id'] = self.customer_payload['id']
+#         item = Item.objects.filter(item_id=data['item'], store_id=storeId).first()
+#         if not item:
+#             raise APIException("Item does not exist in the store")
+#         self.validate_item_quantity(data, item)
+#         orderItemSerializer = OrderItemSerializer(data=data)
+#         orderItemSerializer.is_valid(raise_exception=True)
+#         orderItemSerializer.save()
+#         return Response(orderItemSerializer.data)
     
-    @authorize_customer
-    def put(self, request, storeId, orderItemId):
-        data = request.data
-        orderItem = OrderItem.objects.filter(order_item_id = orderItemId, store_id = storeId).first()
-        self.validate_item_quantity(data, orderItem.item)
-        orderItemSer = OrderItemSerializer(orderItem, data=data, partial=True)
-        orderItemSer.is_valid(raise_exception=True)
-        orderItemSer.save()
-        return Response(orderItemSer.data)
+#     @authorize_customer
+#     def put(self, request, storeId, orderItemId):
+#         data = request.data
+#         orderItem = OrderItem.objects.filter(order_item_id = orderItemId, store_id = storeId).first()
+#         self.validate_item_quantity(data, orderItem.item)
+#         orderItemSer = OrderItemSerializer(orderItem, data=data, partial=True)
+#         orderItemSer.is_valid(raise_exception=True)
+#         orderItemSer.save()
+#         return Response(orderItemSer.data)
     
-    @authorize_customer
-    def delete(self, request, storeId, orderItemId):
-        try:
-            orderItem = OrderItem.objects.filter(order_item_id = orderItemId, store_id = storeId).first()
-            orderItem.delete()
+#     @authorize_customer
+#     def delete(self, request, storeId, orderItemId):
+#         try:
+#             orderItem = OrderItem.objects.filter(order_item_id = orderItemId, store_id = storeId).first()
+#             orderItem.delete()
 
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+#             return Response(status=status.HTTP_204_NO_CONTENT)
+#         except:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
 
 class OrderActions(APIView):
     
@@ -228,7 +215,6 @@ class OrderActions(APIView):
             raise APIException('Order Items missing in the request')
         
         #Creating order object
-        current_time = timezone.now()
         data['store_id'] = storeId
         data['customer_id'] = self.customer_payload['id']
         data['order_status'] = OrderStatus.CONFIRMED
@@ -272,7 +258,7 @@ class OrderActions(APIView):
         return Response(create_model_response(Order, order))
     
     def update_item_and_order_item(self, order_item, deduct=True):
-        # Assuming 'item' is the OneToOneField relationship to the Item model
+        
         item = order_item['Item']
         item = Item.objects.filter(item_id=item['item_id'], store_id=item['store_id']).first()
         order_item = OrderItem.objects.filter(order_item_id=order_item['order_item_id'], store_id=order_item['store_id']).first()

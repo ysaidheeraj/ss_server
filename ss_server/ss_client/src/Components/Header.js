@@ -31,7 +31,7 @@ export const Header = () => {
           </LinkContainer>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
+            <Nav className="ms-auto">
               <LinkContainer to={{pathname: '/login', search: '?redirect=cart'}}>
                 <Nav.Link >
                   <i className="fas fa-shopping-cart"></i>CART
@@ -39,39 +39,31 @@ export const Header = () => {
               </LinkContainer>
 
               {customer ? (
-                  customer.isSeller ?(
-                    <NavDropdown title={customer.first_name} id='userName'>
-                      <LinkContainer to='/profile'>
-                        <NavDropdown.Item>Profile</NavDropdown.Item>
-                      </LinkContainer>
-                      <LinkContainer to='/seller/customers'>
-                        <NavDropdown.Item>Customers</NavDropdown.Item>
-                      </LinkContainer>
-                      <LinkContainer to='/seller/products'>
-                        <NavDropdown.Item>Products</NavDropdown.Item>
-                      </LinkContainer>
-                      <LinkContainer to='/seller/orders'>
-                        <NavDropdown.Item>Orders</NavDropdown.Item>
-                      </LinkContainer>
-                      <NavDropdown.Item onClick={customerLogoutHandler}>Logout</NavDropdown.Item>
-                    </NavDropdown>
-                  ) : (
-                    <NavDropdown title={customer.first_name} id='userName'>
-                      <LinkContainer to='/profile'>
-                        <NavDropdown.Item>Profile</NavDropdown.Item>
-                      </LinkContainer>
-                      <LinkContainer to='/myorders'>
-                        <NavDropdown.Item>Orders</NavDropdown.Item>
-                      </LinkContainer>
-                      <NavDropdown.Item onClick={customerLogoutHandler}>Logout</NavDropdown.Item>
-                    </NavDropdown>
-                  )
+                <NavDropdown title={customer.first_name} id='userName'>
+                  <LinkContainer to='/profile'>
+                    <NavDropdown.Item>Profile</NavDropdown.Item>
+                  </LinkContainer>
+                  <NavDropdown.Item onClick={customerLogoutHandler}>Logout</NavDropdown.Item>
+                </NavDropdown>
               ):(
                 <LinkContainer to="/login">
                   <Nav.Link>
                     <i className="fas fa-user"></i>LOGIN
                   </Nav.Link>
                 </LinkContainer>
+              )}
+              {customer && customer.isSeller && (
+                <NavDropdown title={"Manage"} id='manage'>
+                  <LinkContainer to='/seller/customers'>
+                    <NavDropdown.Item>Customers</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to='/seller/products'>
+                    <NavDropdown.Item>Products</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to='/seller/orders'>
+                    <NavDropdown.Item>Orders</NavDropdown.Item>
+                  </LinkContainer>
+                </NavDropdown>
               )}
             </Nav>
           </Navbar.Collapse>
