@@ -227,7 +227,7 @@ class OrderActions(APIView):
         ser = OrderSerializer(data = data)
         ser.is_valid(raise_exception=True)
         ser.save()
-        order = Order.objects.filter(customer_id=self.customer_payload['id'], store_id=storeId, order_paid_time=current_time).first()
+        order = Order.objects.filter(order_id=ser.instance.order_id, customer_id=self.customer_payload['id'], store_id=storeId).first()
         
         #Creating the shipping address object
         shippingAddress['order'] = order.order_id
