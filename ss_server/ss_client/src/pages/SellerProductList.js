@@ -4,8 +4,9 @@ import { Table, Button, Row, Col } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { Loader } from '../Components/Loader'
 import { Message } from '../Components/Message'
-import { listItems, deleteItem } from '../Actions/ItemActions'
+import { listItems, deleteItem, createItem } from '../Actions/ItemActions'
 import { Link, useNavigate } from 'react-router-dom'
+import { ITEM_CREATE_RESET } from '../Constants/ItemConstants'
 
 export const SellerProductList = () => {
 
@@ -21,13 +22,21 @@ export const SellerProductList = () => {
     const itemDelete = useSelector(state => state.itemDelete)
     const {error: errorDelete, loading: deleteLoading, success} = itemDelete;
 
+    const itemCreate = useSelector(state => state.itemCreate)
+    const {error: errorCreate, loading: createLoading, success: createSuccess, item: createdItem} = itemCreate;
+
     useEffect(()=>{
-        if(customerInfo && customerInfo.isSeller){
-            dispatch(listItems());
-        }else{
+        dispatch({type: ITEM_CREATE_RESET});
+        if(!customerInfo || !customerInfo.isSeller){
             navigate('/login');
         }
-    },[dispatch, customerInfo, success])
+
+        if(createSuccess){
+            navigate(`/seller/product/${createdItem.item_id}/edit`);
+        }else{
+            dispatch(listItems());
+        }
+    },[dispatch, customerInfo, success, createSuccess, createdItem])
 
     const deleteItemHandler = (id) =>{
         if(window.confirm('Are you sure you want to delete this item?')){
@@ -36,7 +45,7 @@ export const SellerProductList = () => {
     }
 
     const createItemHandler = (item) =>{
-
+        dispatch(createItem());
     }
 
   return (
@@ -54,6 +63,9 @@ export const SellerProductList = () => {
 
         {deleteLoading && <Loader />}
         {errorDelete && <Message variant='danger'>{errorDelete}</Message>}
+
+        {createLoading && <Loader />}
+        {errorCreate && <Message variant='danger'>{errorCreate}</Message>}
         {loading ?
         <Loader />
         : error ?
