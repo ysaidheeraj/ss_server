@@ -158,8 +158,14 @@ class CustomerUpdateView(APIView):
             customer_record.save()
             return Response(create_model_response(Store_User, customer_record.data))
         return Response(customer_record.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        
+
+ 
+class ListAllCustomersView(APIView):
+    @authorize_seller
+    def get(self, request, storeId):
+        customers = Store_User.objects.filter(store_id=storeId, user_role=User_Role.CUSTOMER).all()
+        customerSer = StoreUserSerializer(customers, many=True)
+        return Response(create_model_response(Store_User, customerSer.data))
 
 class LogoutCustomerView(APIView):
     def post(self, request, storeId):
