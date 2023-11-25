@@ -2,6 +2,7 @@ import { CUSTOMER_LOGIN_REQUEST, CUSTOMER_LOGIN_SUCCESS, CUSTOMER_LOGIN_FAIL, CU
 CUSTOMER_DETAILS_FAIL, CUSTOMER_DETAILS_SUCCESS, CUSTOMER_DETAILS_REQUEST, CUSTOMER_DETAILS_RESET } from "../Constants/UserConstants";
 import { CUSTOMER_UPDATE_REQUEST, CUSTOMER_UPDATE_SUCCESS, CUSTOMER_UPDATE_FAIL, CUSTOMER_UPDATE_RESET } from "../Constants/UserConstants";
 import { SELLER_LOGIN_REQUEST, SELLER_LOGIN_SUCCESS, SELLER_LOGIN_FAIL, SELLER_LOGOUT } from "../Constants/UserConstants";
+import { ORDERS_LIST_RESET } from "../Constants/OrderConstants";
 import axios from "axios";
 
 
@@ -213,6 +214,11 @@ export const customer_logout = () => async(dispatch) =>{
 
     dispatch({
         type: CUSTOMER_DETAILS_RESET
+    })
+
+    //Reset the orders list on logout
+    dispatch({
+        type: ORDERS_LIST_RESET
     })
 }
 
