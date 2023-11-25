@@ -23,15 +23,15 @@ class InventoryTestCases(TestCase):
         customer = Store_User.objects.create(email='newcustomer@example.com', first_name='Customer', last_name='1', store_id=store, username='abc', user_role=User_Role.CUSTOMER)
         customer.set_password('newpassword')
         customer.save()
-        token = generate_token(customer, int(self.storeId), User_Role.CUSTOMER)
+        token = generate_token(customer, int(self.storeId))
         self.customer_token = token.data['customer_jwt']
 
         #Creating a test seller
         seller = Store_User.objects.create(email='newseller@example.com', first_name='Seller', last_name='1', store_id=store, username='sellerabc', user_role=User_Role.SELLER)
         seller.set_password('newpassword')
         seller.save()
-        token = generate_token(seller, int(self.storeId), User_Role.SELLER)
-        self.seller_token = token.data['seller_jwt']
+        token = generate_token(seller, int(self.storeId))
+        self.seller_token = token.data['customer_jwt']
 
         #Creating a test category
         category = Category.objects.create(category_name="Test Category", store_id=store).save()

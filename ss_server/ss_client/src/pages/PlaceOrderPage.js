@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {  Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
@@ -13,7 +13,7 @@ export const PlaceOrderPage = () => {
     const navigate = useNavigate();
 
     const createOrder = useSelector(state => state.createOrder)
-    const {error, loading, order, success} = createOrder;
+    const {error, order, success} = createOrder;
 
     cart.itemsPrice = cart.cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2)
 

@@ -67,11 +67,11 @@ class Category(models.Model):
         unique_together = (("category_name", "store_id"))
 
 class OrderStatus(models.IntegerChoices):
-    CART = 0,
+    CONFIRMED = 0,
     PAID = 1,
     SHIPPED = 2,
-    DELIVERED = 3,
-    CANCELLED = 4,
+    CANCELLED = 3,
+    DELIVERED = 4,
     RETURNED = 5,
     REFUND = 6
 
@@ -85,7 +85,7 @@ class Order(models.Model):
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     order_created_time = models.DateTimeField(auto_now_add=True)
     order_last_updated_time = models.DateTimeField(auto_now=True)
-    order_status = models.IntegerField(choices=OrderStatus.choices, default=OrderStatus.CART)
+    order_status = models.IntegerField(choices=OrderStatus.choices, default=OrderStatus.CONFIRMED)
     items_price = models.FloatField(null=True)
     shipping_price = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     total_price = models.FloatField(null=True)

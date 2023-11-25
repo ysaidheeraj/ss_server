@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import {  Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Message } from '../Components/Message'
-import { getOrderDetails } from '../Actions/OrderActions'
+import { getOrderDetails, updateOrderDetails } from '../Actions/OrderActions'
 import { Loader } from '../Components/Loader'
+import { useNavigate } from 'react-router-dom'
 export const OrderDetailsPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -14,8 +15,17 @@ export const OrderDetailsPage = () => {
     const customerDetails = useSelector((state) => state.customerDetails);
     const { customer } = customerDetails;
 
+    if(!customer){
+        navigate(`/login?redirect=order/${orderId}`)
+    }else if(customer && customer.isSeller){
+        navigate('/');
+    }
+
     const orderDetails = useSelector(state => state.orderDetails)
     const {error, loading, order} = orderDetails;
+
+    const orderUpdate = useSelector(state => state.orderUpdate)
+    const {loading: updating} = orderUpdate
     
     useEffect(() =>{
         if(!order || order.order_id !== Number(orderId)){
@@ -23,6 +33,12 @@ export const OrderDetailsPage = () => {
         }
        
     },[dispatch, order, orderId])
+
+    const updateOrderStatus = (status, warn, warnMessage) =>{
+        if(window.confirm(warnMessage)){
+            dispatch(updateOrderDetails(orderId, {'order_status': status}));
+        }
+    }
   return loading ? 
     (<Loader/>) 
     : error ? (<Message variant='danger'>{error}</Message>)
@@ -134,6 +150,32 @@ export const OrderDetailsPage = () => {
                                     Total:
                                 </Col>
                                 <Col>${order.total_price}</Col>
+                            </Row>
+                        </ListGroup.Item>
+
+                        <ListGroup.Item>
+                            <Row>
+                                <Col>
+                                {Number(order.order_status) <= 2 ? (
+                                    <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(3, true, 
+                                    'Are you sure you want to cancel your order? This action is irreversible, and your order will be cancelled.')}>
+                                        {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                        {updating ? "Processing" : "Cancel Order"}
+                                    </Button>
+                                ) : Number(order.order_status) === 3 ? (
+                                    <Message variant='info'>Cancelled</Message>
+                                ): Number(order.order_status) === 4 ?(
+                                    <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(5, true, 
+                                    'Are you sure you want to return your order?')}>
+                                        {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                        {updating ? "Processing" : "Return Order"}
+                                    </Button>
+                                ): Number(order.order_status) === 5 ? (
+                                    <Message variant='info'>Returned</Message>
+                                ): (
+                                    <Message variant='info'>Refund Granted</Message>
+                                )}
+                                </Col>
                             </Row>
                         </ListGroup.Item>
                         

@@ -60,7 +60,11 @@ export const ProfilePage = () => {
         setFirstName(customer.first_name);
         setLastName(customer.last_name);
         setEmail(customer.email);
-        setImageSrc(customer.profile_picture);
+        if(customer.profile_picture){
+          setImageSrc(customer.profile_picture);
+        }else{
+          setImageSrc('/storeusers/profile_pictures/default_avatar.jpeg');
+        }
       }
     }
   }, [dispatch, customer, customerInfo, success, navigate]);
