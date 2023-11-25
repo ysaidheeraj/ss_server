@@ -40,6 +40,9 @@ export const CustomerListPage = () => {
                         <th>EMAIL</th>
                         <th>NAME</th>
                         <th>ORDERS</th>
+                        <th>FULFILLED</th>
+                        <th>IN PROGRESS</th>
+                        <th>CANCELLED/RETURNED</th>
                         <th>SALES</th>
                     </tr>
                 </thead>
@@ -51,6 +54,9 @@ export const CustomerListPage = () => {
                             <td>{customer.email}</td>
                             <td>{customer.first_name}{' '}{customer.last_name}</td>
                             <td>{customer.num_orders}</td>
+                            <td>{customer.fulfilled_orders}</td>
+                            <td>{customer.inprogress_orders}</td>
+                            <td>{customer.unfulfilled_orders}</td>
                             <td>${customer.total_sales}</td>
                         </tr>
                     ))}

@@ -6,15 +6,26 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Message } from '../Components/Message'
 import { getOrderDetails, updateOrderDetails } from '../Actions/OrderActions'
 import { Loader } from '../Components/Loader'
+import { useNavigate } from 'react-router-dom'
 export const OrderDetailsPage = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { id: orderId } = useParams();
 
     const customerDetails = useSelector((state) => state.customerDetails);
     const { customer } = customerDetails;
 
+    if(!customer){
+        navigate(`/login?redirect=order/${orderId}`)
+    }else if(customer && customer.isSeller){
+        navigate('/');
+    }
+
     const orderDetails = useSelector(state => state.orderDetails)
     const {error, loading, order} = orderDetails;
+
+    const orderUpdate = useSelector(state => state.orderUpdate)
+    const {loading: updating} = orderUpdate
     
     useEffect(() =>{
         if(!order || order.order_id !== Number(orderId)){
@@ -23,8 +34,10 @@ export const OrderDetailsPage = () => {
        
     },[dispatch, order, orderId])
 
-    const updateOrderStatus = (status) =>{
-        dispatch(updateOrderDetails(orderId, {'order_status': status}));
+    const updateOrderStatus = (status, warn, warnMessage) =>{
+        if(window.confirm(warnMessage)){
+            dispatch(updateOrderDetails(orderId, {'order_status': status}));
+        }
     }
   return loading ? 
     (<Loader/>) 
@@ -144,11 +157,19 @@ export const OrderDetailsPage = () => {
                             <Row>
                                 <Col>
                                 {Number(order.order_status) <= 2 ? (
-                                    <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(3)}>Cancel Order</Button>
+                                    <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(3, true, 
+                                    'Are you sure you want to cancel your order? This action is irreversible, and your order will be cancelled.')}>
+                                        {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                        {updating ? "Processing" : "Cancel Order"}
+                                    </Button>
                                 ) : Number(order.order_status) === 3 ? (
                                     <Message variant='info'>Cancelled</Message>
                                 ): Number(order.order_status) === 4 ?(
-                                    <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(5)}>Return Order</Button>
+                                    <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(5, true, 
+                                    'Are you sure you want to return your order?')}>
+                                        {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                        {updating ? "Processing" : "Return Order"}
+                                    </Button>
                                 ): Number(order.order_status) === 5 ? (
                                     <Message variant='info'>Returned</Message>
                                 ): (

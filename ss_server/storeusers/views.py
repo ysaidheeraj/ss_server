@@ -5,7 +5,7 @@ from .serializers import StoreUserSerializer
 from .models import Store_User, User_Role
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from inventory.models import Order
+from inventory.models import Order, OrderStatus
 import jwt, datetime
 from functools import wraps
 from django.conf import settings
@@ -190,9 +190,21 @@ class ListAllCustomersView(APIView):
             customerOrders = Order.objects.filter(customer_id=customer['user_id']).all()
             customer['num_orders'] = len(customerOrders)
             totalVal = 0
+            fulfilled = 0
+            inProgress = 0
+            unfulfilled = 0
             for order in customerOrders:
-                totalVal += order.total_price
+                if order.order_status == OrderStatus.DELIVERED:
+                    fulfilled += 1
+                    totalVal += order.total_price
+                elif order.order_status == OrderStatus.SHIPPED or order.order_status == OrderStatus.CONFIRMED or order.order_status ==OrderStatus.PAID:
+                    inProgress += 1
+                else:
+                    unfulfilled += 1
             customer['total_sales'] = round(totalVal, 2)
+            customer['fulfilled_orders'] = fulfilled
+            customer['inprogress_orders'] = inProgress
+            customer['unfulfilled_orders'] = unfulfilled
         return Response(create_model_response(Store_User, customerSerData))
 
 class LogoutCustomerView(APIView):
