@@ -27,7 +27,7 @@ class Store_User(AbstractUser):
     )
     store_id = models.ForeignKey(Store, related_name="storeusers", on_delete=models.CASCADE, null=True)
     password = models.CharField(max_length=255)
-    profile_picture = models.ImageField(upload_to=custom_image_upload, blank=True, null=True)
+    profile_picture = models.ImageField(upload_to=custom_image_upload, default="storeusers/profile_pictures/default_avatar.jpeg")
     address = models.TextField(max_length=500, null=True, blank=True)
     user_created_time = models.DateTimeField(auto_now_add=True)
     user_updated_time = models.DateTimeField(auto_now=True)

@@ -43,7 +43,7 @@ class Item(models.Model):
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     item_created_time = models.DateTimeField(auto_now_add=True)
     item_updated_time = models.DateTimeField(auto_now=True)
-    item_image = models.ImageField(upload_to=custom_image_upload, default="/inventory/item_images/empty-img.png")
+    item_image = models.ImageField(upload_to=custom_image_upload, default="inventory/item_images/empty-img.png")
     item_description = models.TextField(null=True, blank=True)
     rating = models.FloatField(default=0)
 
