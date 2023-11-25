@@ -35,5 +35,9 @@ class Store_User(AbstractUser):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
 
+    @property
+    def isSeller(self):
+        return self.user_role == User_Role.SELLER
+
     class Meta:
         unique_together = (("email", "store_id", "user_role"))
