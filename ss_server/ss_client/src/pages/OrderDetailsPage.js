@@ -17,8 +17,6 @@ export const OrderDetailsPage = () => {
 
     if(!customer){
         navigate(`/login?redirect=order/${orderId}`)
-    }else if(customer && customer.isSeller){
-        navigate('/');
     }
 
     const orderDetails = useSelector(state => state.orderDetails)
@@ -35,7 +33,9 @@ export const OrderDetailsPage = () => {
     },[dispatch, order, orderId])
 
     const updateOrderStatus = (status, warn, warnMessage) =>{
-        if(window.confirm(warnMessage)){
+        if(warn && window.confirm(warnMessage)){
+            dispatch(updateOrderDetails(orderId, {'order_status': status}));
+        }else if(!warn){
             dispatch(updateOrderDetails(orderId, {'order_status': status}));
         }
     }
@@ -156,29 +156,64 @@ export const OrderDetailsPage = () => {
                         <ListGroup.Item>
                             <Row>
                                 <Col>
-                                {Number(order.order_status) <= 2 ? (
-                                    <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(3, true, 
-                                    'Are you sure you want to cancel your order? This action is irreversible, and your order will be cancelled.')}>
-                                        {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
-                                        {updating ? "Processing" : "Cancel Order"}
-                                    </Button>
-                                ) : Number(order.order_status) === 3 ? (
-                                    <Message variant='info'>Cancelled</Message>
-                                ): Number(order.order_status) === 4 ?(
-                                    <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(5, true, 
-                                    'Are you sure you want to return your order?')}>
-                                        {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
-                                        {updating ? "Processing" : "Return Order"}
-                                    </Button>
-                                ): Number(order.order_status) === 5 ? (
-                                    <Message variant='info'>Returned</Message>
-                                ): (
-                                    <Message variant='info'>Refund Granted</Message>
+                                {Number(order.order_status) === 3 ? (
+                                        <Message variant='danger'>Cancelled</Message>
+                                )
+                                :customer.isSeller 
+                                ?(
+                                    Number(order.order_status) <= 1 ? (
+                                        <Button variant='primary' className='form-control' onClick={() => updateOrderStatus(2, false)}>
+                                            {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                            {updating ? "Processing" : "Mark As Shipped"}
+                                        </Button>
+                                    ) : (
+                                        <Message variant='success'>Shipped</Message>
+                                    ) 
+                                )
+                                :(
+                                    Number(order.order_status) <= 2 ? (
+                                        <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(3, true, 
+                                        'Are you sure you want to cancel your order? This action is irreversible, and your order will be cancelled.')}>
+                                            {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                            {updating ? "Processing" : "Cancel Order"}
+                                        </Button>
+                                    ) : Number(order.order_status) === 4 ?(
+                                        <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(5, true, 
+                                        'Are you sure you want to return your order?')}>
+                                            {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                            {updating ? "Processing" : "Return Order"}
+                                        </Button>
+                                    ): Number(order.order_status) === 5 ? (
+                                        <Message variant='info'>Returned</Message>
+                                    ): (
+                                        <Message variant='info'>Refund Granted</Message>
+                                    )
                                 )}
+                                {}
                                 </Col>
                             </Row>
                         </ListGroup.Item>
-                        
+                        {customer.isSeller &&  Number(order.order_status) === 2 && (
+                                <ListGroup.Item>
+                                        <Button variant='info' className='form-control' onClick={() => updateOrderStatus(4, false)}>
+                                            {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                            {updating ? "Processing" : "Mark As Delivered"}
+                                        </Button>
+                                </ListGroup.Item>
+                        )}
+                        {customer.isSeller && Number(order.order_status) === 4 &&(
+                                <ListGroup.Item>
+                                    <Message variant='success'>Delivered</Message>
+                                </ListGroup.Item>
+                        )}
+                        {customer.isSeller && Number(order.order_status) === 5 &&(
+                                <ListGroup.Item>
+                                        <Button variant='info' className='form-control' onClick={() => updateOrderStatus(6, false)}>
+                                            {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                            {updating ? "Processing" : "Mark As Received"}
+                                        </Button>
+                                </ListGroup.Item>
+                        )}
                     </ListGroup>
                 </Card>
             </Col>

@@ -3,12 +3,14 @@ from rest_framework.response import Response
 from django.db import transaction
 from functools import wraps
 from .serializers import CategorySerializer, ItemSerializer, OrderItemSerializer, OrderSerializer, ShippingAddressSerializer
+from storeusers.models import Store_User
+from storeusers.serializers import StoreUserSerializer
 from .models import Category, Item, OrderItem, Order, OrderStatus, OrderPaymentMethod
 from rest_framework.exceptions import AuthenticationFailed, APIException
 from rest_framework.views import APIView
 from rest_framework import status
 from django.db import transaction
-from storeusers.views import authorize_customer, authorize_seller
+from storeusers.views import authorize_customer, authorize_seller, authorize_storeuser
 from django.utils import timezone
 from .utils import create_model_response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -197,13 +199,13 @@ class OrderItemActions(APIView):
 
 class OrderActions(APIView):
     
-    @authorize_customer
+    @authorize_storeuser
     def get(self, request, storeId, orderId=None):
         orders = []
         order_status = request.GET.get('order_status')
         many = False
         if orderId:
-            orders = Order.objects.filter(order_id=orderId, customer_id = self.customer_payload['id'], store_id=storeId).first()
+            orders = Order.objects.filter(order_id=orderId, store_id=storeId).first()
         #For returning current customer cart
         elif order_status is not None and order_status == OrderStatus.CART:
             orders = Order.objects.filter(customer_id = self.customer_payload['id'], store_id=storeId, order_status=OrderStatus.CART).first()
@@ -292,10 +294,10 @@ class OrderActions(APIView):
         else:
             raise APIException("Invalid Order Quantity")
 
-    @authorize_customer
+    @authorize_storeuser
     @transaction.atomic
     def put(self, request, storeId, orderId):
-        order = Order.objects.filter(order_id = orderId, store_id=storeId, customer_id=self.customer_payload['id']).first()
+        order = Order.objects.filter(order_id = orderId, store_id=storeId).first()
         data = request.data
         if data['order_status'] == OrderStatus.PAID or data['order_status'] == OrderStatus.CANCELLED or data['order_status'] == OrderStatus.RETURNED:
             orderSerObj = OrderSerializer(order)
@@ -317,25 +319,10 @@ class OrderActions(APIView):
 class SellerOrderActions(APIView):
 
     @authorize_seller
-    def get(self, request, storeId, customerId, orderId):
-        if customerId and orderId:
-            orders = Order.objects.filter(customer_id = customerId, order_id = orderId, store_id=storeId).all()
-        elif customerId:
-            orders = Order.objects.filter(customer_id = customerId, store_id=storeId).all()
-        else:
-            orders = Order.objects.filter(store_id=storeId).all()
+    def get(self, request, storeId):
+        orders = Order.objects.filter(store_id=storeId).all()
         ser = OrderSerializer(orders, many=True)
-        order_items = OrderItem.objects.filter(order=orderId, customer_id=customerId, store_id=storeId).all()
-        order_items = OrderItemSerializer(order_items, many=True)
-        return Response({
-            "order": ser.data,
-            "order_items": order_items.data
-            })
-    
-    @authorize_seller
-    def put(self, request, storeId, orderId):
-        order = Order.objects.filter(order_id = orderId, store_id=storeId).first()
-        orderSer = OrderSerializer(order, data=request.data)
-        orderSer.is_valid(raise_exception=True)
-        orderSer.save()
-        return Response(orderSer.data)
+        for order in ser.data:
+            customer = Store_User.objects.filter(store_id=storeId, user_id=order['customer_id']).first()
+            order['customer'] = StoreUserSerializer(customer).data
+        return Response(create_model_response(Order, ser.data))

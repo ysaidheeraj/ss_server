@@ -13,6 +13,9 @@ import { PlaceOrderPage } from "./pages/PlaceOrderPage";
 import { OrderDetailsPage } from "./pages/OrderDetailsPage";
 import { CustomerOrdersPage } from "./pages/CustomerOrdersPage";
 import { CustomerListPage } from "./pages/CustomerListPage";
+import { SellerProductList } from "./pages/SellerProductList";
+import { ProductEditPage } from "./pages/ProductEditPage";
+import { StoreOrdersPage } from "./pages/StoreOrdersPage";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 function App() {
   return (
@@ -33,6 +36,9 @@ function App() {
             <Route path="/order/:id" Component={OrderDetailsPage} />
             <Route path="/myorders" Component={CustomerOrdersPage} />
             <Route path="/seller/customers" Component={CustomerListPage} />
+            <Route path="/seller/products" Component={SellerProductList} />
+            <Route path="/seller/product/:id/edit" Component={ProductEditPage} />
+            <Route path="/seller/orders" Component={StoreOrdersPage} />
           </Routes>
         </Container>
       </main>
