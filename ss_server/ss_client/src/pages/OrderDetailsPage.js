@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import {  Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,7 +8,6 @@ import { getOrderDetails, updateOrderDetails } from '../Actions/OrderActions'
 import { Loader } from '../Components/Loader'
 export const OrderDetailsPage = () => {
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const { id: orderId } = useParams();
 
     const customerDetails = useSelector((state) => state.customerDetails);
