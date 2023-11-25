@@ -5,6 +5,7 @@ from .serializers import StoreUserSerializer
 from .models import Store_User, User_Role
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from inventory.models import Order
 import jwt, datetime
 from functools import wraps
 from django.conf import settings
@@ -26,8 +27,10 @@ def handleCustomerToken(request):
     return payload
 
 def authorizeUser(user_id, store_id, user_role):
-
-    user_obj = Store_User.objects.filter(user_id=user_id, store_id=store_id, user_role=user_role).first()
+    if user_role > -1:
+        user_obj = Store_User.objects.filter(user_id=user_id, store_id=store_id, user_role=user_role).first()
+    else:
+        user_obj = Store_User.objects.filter(user_id=user_id, store_id=store_id).first()
 
     if user_obj is None:
         raise AuthenticationFailed('User Not Found')
@@ -56,13 +59,29 @@ def authorize_customer(view_func):
         #Extract the storeId from the request url
         storeId = kwargs.get('storeId')
         
-        #Checking for the seller token
+        #Checking for the customer token
+        customer_payload = handleCustomerToken(request)
+
+        self.customer_payload = customer_payload
+        
+        #Authorizing the customer if found
+        authorizeUser(customer_payload['id'], storeId, User_Role.CUSTOMER)
+        return view_func(self, request, *args, **kwargs)
+
+    return wrapper
+
+def authorize_storeuser(view_func):
+    @wraps(view_func)
+    def wrapper(self, request, *args, **kwargs):
+        #Extract the storeId from the request url
+        storeId = kwargs.get('storeId')
+        
         customer_payload = handleCustomerToken(request)
 
         self.customer_payload = customer_payload
         
         #Authorizing the seller if found
-        authorizeUser(customer_payload['id'], storeId, User_Role.CUSTOMER)
+        authorizeUser(customer_payload['id'], storeId, -1)
         return view_func(self, request, *args, **kwargs)
 
     return wrapper
@@ -123,7 +142,7 @@ class LoginCustomerView(APIView):
 
 class CustomerView(APIView):
 
-    @authorize_customer
+    @authorize_storeuser
     def get(self, request, storeId):
         user_info = self.customer_payload
         customer = Store_User.objects.filter(user_id=user_info['id'], store_id=storeId).first()
@@ -133,7 +152,7 @@ class CustomerView(APIView):
 class CustomerUpdateView(APIView):
     parser_classes = (MultiPartParser, FormParser,JSONParser)
 
-    @authorize_customer
+    @authorize_storeuser
     def put(self, request, storeId):
         user_info = self.customer_payload
         
@@ -164,8 +183,17 @@ class ListAllCustomersView(APIView):
     @authorize_seller
     def get(self, request, storeId):
         customers = Store_User.objects.filter(store_id=storeId, user_role=User_Role.CUSTOMER).all()
-        customerSer = StoreUserSerializer(customers, many=True)
-        return Response(create_model_response(Store_User, customerSer.data))
+        customerSerData = StoreUserSerializer(customers, many=True).data
+
+        #Also sending some sales data
+        for customer in customerSerData:
+            customerOrders = Order.objects.filter(customer_id=customer['user_id']).all()
+            customer['num_orders'] = len(customerOrders)
+            totalVal = 0
+            for order in customerOrders:
+                totalVal += order.total_price
+            customer['total_sales'] = round(totalVal, 2)
+        return Response(create_model_response(Store_User, customerSerData))
 
 class LogoutCustomerView(APIView):
     def post(self, request, storeId):

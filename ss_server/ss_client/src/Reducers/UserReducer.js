@@ -2,7 +2,7 @@ import { CUSTOMER_LOGIN_REQUEST, CUSTOMER_LOGIN_SUCCESS, CUSTOMER_LOGIN_FAIL, CU
 import { CUSTOMER_REGISTER_REQUEST, CUSTOMER_REGISTER_SUCCESS, CUSTOMER_REGISTER_FAIL } from "../Constants/UserConstants";
 import { CUSTOMER_UPDATE_REQUEST, CUSTOMER_UPDATE_SUCCESS, CUSTOMER_UPDATE_FAIL, CUSTOMER_UPDATE_RESET } from "../Constants/UserConstants";
 import { CUSTOMER_DETAILS_REQUEST, CUSTOMER_DETAILS_SUCCESS, CUSTOMER_DETAILS_FAIL, CUSTOMER_DETAILS_RESET } from "../Constants/UserConstants";
-import { SELLER_LOGIN_REQUEST, SELLER_LOGIN_SUCCESS, SELLER_LOGIN_FAIL, SELLER_LOGOUT } from "../Constants/UserConstants";
+import { CUSTOMER_LIST_FAIL, CUSTOMER_LIST_RESET, CUSTOMER_LIST_SUCCESS, CUSTOMER_LIST_REQUEST } from "../Constants/UserConstants";
 
 export const customerLoginReducer = (state = {}, action) =>{
     //Switch statement to determine the action type
@@ -58,7 +58,7 @@ export const customerUpdateReducer = (state = {}, action) =>{
     switch(action.type){
         //When the item list is loading
         case CUSTOMER_UPDATE_REQUEST:
-            return {loading: true, items: []}
+            return {loading: true}
         case CUSTOMER_UPDATE_SUCCESS:
             return {loading: false, success:true, customerInfo: action.payload}
         case CUSTOMER_UPDATE_FAIL:
@@ -70,18 +70,18 @@ export const customerUpdateReducer = (state = {}, action) =>{
     }
 }
 
-export const sellerLoginReducer = (state = {}, action) =>{
+export const customerListReducer = (state = {customers:[]}, action) =>{
     //Switch statement to determine the action type
     switch(action.type){
         //When the item list is loading
-        case SELLER_LOGIN_REQUEST:
-            return {loading: true, sellerInfo: {}}
-        case SELLER_LOGIN_SUCCESS:
-            return {loading: false, sellerInfo: action.payload}
-        case SELLER_LOGIN_FAIL:
+        case CUSTOMER_LIST_REQUEST:
+            return {loading: true}
+        case CUSTOMER_LIST_SUCCESS:
+            return {loading: false, customers: action.payload}
+        case CUSTOMER_LIST_FAIL:
             return {loading: false, error:action.payload}
-        case SELLER_LOGOUT:
-            return {};
+        case CUSTOMER_LIST_RESET:
+            return {customers:[]};
         default:
             return state
     }

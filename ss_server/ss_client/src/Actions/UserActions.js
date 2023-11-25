@@ -1,7 +1,7 @@
 import { CUSTOMER_LOGIN_REQUEST, CUSTOMER_LOGIN_SUCCESS, CUSTOMER_LOGIN_FAIL, CUSTOMER_LOGOUT, CUSTOMER_REGISTER_REQUEST, CUSTOMER_REGISTER_SUCCESS, CUSTOMER_REGISTER_FAIL,
 CUSTOMER_DETAILS_FAIL, CUSTOMER_DETAILS_SUCCESS, CUSTOMER_DETAILS_REQUEST, CUSTOMER_DETAILS_RESET } from "../Constants/UserConstants";
 import { CUSTOMER_UPDATE_REQUEST, CUSTOMER_UPDATE_SUCCESS, CUSTOMER_UPDATE_FAIL, CUSTOMER_UPDATE_RESET } from "../Constants/UserConstants";
-import { SELLER_LOGIN_REQUEST, SELLER_LOGIN_SUCCESS, SELLER_LOGIN_FAIL, SELLER_LOGOUT } from "../Constants/UserConstants";
+import { CUSTOMER_LIST_FAIL, CUSTOMER_LIST_RESET, CUSTOMER_LIST_SUCCESS, CUSTOMER_LIST_REQUEST } from "../Constants/UserConstants";
 import { ORDERS_LIST_RESET } from "../Constants/OrderConstants";
 import axios from "axios";
 
@@ -161,40 +161,39 @@ export const update_customer_details = (customer) => async(dispatch, getState) =
     }
 }
 
-export const seller_login = (email, password) => async(dispatch) =>{
+export const list_store_customers = () => async(dispatch, getState) =>{
     try{
         dispatch({
-            type: SELLER_LOGIN_REQUEST
+            type: CUSTOMER_LIST_REQUEST
         })
 
         const config = {
             headers : {
-                'Content-type' : 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
-            }
-        }
-        const {data} = await axios.post(
-            '/store/1/storeuser/seller/login',
-            {
-                "email": email,
-                "password": password
             },
+            withCredentials: true
+        }
+
+        const {data} = await axios.get(
+            '/store/1/storeuser/seller/allcustomers',
             config
         )
 
         dispatch({
-            type: SELLER_LOGIN_SUCCESS,
-            payload: data.customer
+            type: CUSTOMER_LIST_SUCCESS,
+            payload: data.Store_User
         })
 
-        localStorage.setItem('sellerInfo', JSON.stringify(data.customer));
+        localStorage.setItem('customerInfo', JSON.stringify(data.Store_User));
+
     }catch(error){
         dispatch({
-            type: SELLER_LOGIN_FAIL,
+            type: CUSTOMER_LIST_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
     }
 }
+
 
 export const customer_logout = () => async(dispatch) =>{
     const config = {
@@ -220,21 +219,10 @@ export const customer_logout = () => async(dispatch) =>{
     dispatch({
         type: ORDERS_LIST_RESET
     })
-}
 
-export const seller_logout = () => async(dispatch) =>{
-    const config = {
-        headers : {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    }
-    const {data} = await axios.post(
-        '/store/1/storeuser/seller/logout',
-        { withCredentials: true }
-    )
-    localStorage.removeItem('sellerInfo');
+    //Removing customers list once seller logs out
     dispatch({
-        type: SELLER_LOGOUT
+        type: CUSTOMER_LIST_RESET
     })
 }
 

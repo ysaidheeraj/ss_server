@@ -36,15 +36,30 @@ export const Header = () => {
               </LinkContainer>
 
               {customer ? (
-                <NavDropdown title={customer.first_name} id='userName'>
-                  <LinkContainer to='/profile'>
-                    <NavDropdown.Item>Profile</NavDropdown.Item>
-                  </LinkContainer>
-                  <LinkContainer to='/myorders'>
-                    <NavDropdown.Item>Orders</NavDropdown.Item>
-                  </LinkContainer>
-                  <NavDropdown.Item onClick={customerLogoutHandler}>Logout</NavDropdown.Item>
-                </NavDropdown>
+                  customer.isSeller ?(
+                    <NavDropdown title={customer.first_name} id='userName'>
+                      <LinkContainer to='/profile'>
+                        <NavDropdown.Item>Profile</NavDropdown.Item>
+                      </LinkContainer>
+                      <LinkContainer to='/seller/customers'>
+                        <NavDropdown.Item>Customers</NavDropdown.Item>
+                      </LinkContainer>
+                      <LinkContainer to='/seller/orders'>
+                        <NavDropdown.Item>Orders</NavDropdown.Item>
+                      </LinkContainer>
+                      <NavDropdown.Item onClick={customerLogoutHandler}>Logout</NavDropdown.Item>
+                    </NavDropdown>
+                  ) : (
+                    <NavDropdown title={customer.isSeller} id='userName'>
+                      <LinkContainer to='/profile'>
+                        <NavDropdown.Item>Profile</NavDropdown.Item>
+                      </LinkContainer>
+                      <LinkContainer to='/myorders'>
+                        <NavDropdown.Item>Orders</NavDropdown.Item>
+                      </LinkContainer>
+                      <NavDropdown.Item onClick={customerLogoutHandler}>Logout</NavDropdown.Item>
+                    </NavDropdown>
+                  )
               ):(
                 <LinkContainer to="/login">
                   <Nav.Link>

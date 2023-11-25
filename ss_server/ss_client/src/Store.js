@@ -3,7 +3,7 @@ import thunk from "redux-thunk";
 import { composeWithDevTools } from "redux-devtools-extension";
 import { itemListReducer, itemDetailsReducer } from "./Reducers/ItemReducers";
 import { CartReducer } from "./Reducers/CartReducers";
-import { customerLoginReducer, sellerLoginReducer, customerSignupReducer, customerDetailsReducer, customerUpdateReducer } from "./Reducers/UserReducer";
+import { customerLoginReducer, customerSignupReducer, customerDetailsReducer, customerUpdateReducer, customerListReducer } from "./Reducers/UserReducer";
 import { createOrderReducer, orderDetailsReducer, orderUpdateReducer, ordersListReducer } from "./Reducers/OrderReducers";
 
 const appReducer = combineReducers({
@@ -11,14 +11,14 @@ const appReducer = combineReducers({
     itemDetails: itemDetailsReducer,
     cart: CartReducer,
     customerLogin: customerLoginReducer,
-    sellerLogin: sellerLoginReducer,
     customerRegister: customerSignupReducer,
     customerDetails: customerDetailsReducer,
     customerUpdateProfile: customerUpdateReducer,
     createOrder: createOrderReducer,
     orderDetails: orderDetailsReducer,
     orderUpdate: orderUpdateReducer,
-    ordersList: ordersListReducer
+    ordersList: ordersListReducer,
+    customerList: customerListReducer
 });
 
 const cartItemsFromStorage = localStorage.getItem('cartItems') ? 
@@ -27,8 +27,6 @@ const cartItemsFromStorage = localStorage.getItem('cartItems') ?
 const customerInfoFromStorage = localStorage.getItem('customerInfo') ? 
         JSON.parse(localStorage.getItem('customerInfo')) : null;
 
-const sellerInfoFromStorage = localStorage.getItem('sellerInfo') ? 
-        JSON.parse(localStorage.getItem('sellerInfo')) : null;
 
 const shippingAddressFromStorage = localStorage.getItem('shippingAddress') ? 
         JSON.parse(localStorage.getItem('shippingAddress')) : null;
@@ -40,7 +38,6 @@ const initState = {
         shippingAddress: shippingAddressFromStorage
     },
     customerLogin: {customerInfo: customerInfoFromStorage},
-    sellerLogin: {sellerInfo: sellerInfoFromStorage}
 };
 
 const middleWare = [thunk]
