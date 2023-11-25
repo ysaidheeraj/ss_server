@@ -45,8 +45,8 @@ export const OrderDetailsPage = () => {
                             {order.shipping_address.country}
                         </p>
 
-                        {Number(order.order_status) >= 2 ?
-                            (<Message variant='success'>Delivered {order.order_paid_time}</Message>)
+                        {Number(order.order_status) >= 4 ?
+                            (<Message variant='success'>Delivered</Message>)
                             :(<Message variant='warning'>Not Delivered</Message>)
                         }
                     </ListGroup.Item>
@@ -59,8 +59,8 @@ export const OrderDetailsPage = () => {
                             {Number(order.payment_method) === 0 ? 'Cash on delivery' : 'Paypal'}
                         </p>
 
-                        {Number(order.order_status) >= 2 ?
-                            (<Message variant='success'>Paid on {order.order_paid_time}</Message>)
+                        {Number(order.order_status) >= 4 ?
+                            (<Message variant='success'>Paid on {order.order_paid_time.substring(0,10)}</Message>)
                             :(<Message variant='warning'>Not Paid</Message>)
                         }
                     </ListGroup.Item>

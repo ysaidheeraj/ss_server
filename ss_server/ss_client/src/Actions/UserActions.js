@@ -128,6 +128,12 @@ export const update_customer_details = (customer) => async(dispatch, getState) =
             withCredentials: true
         }
 
+        if(customer.profile_picture){
+            const formData = new FormData();
+            formData.append('profile_picture', customer.profile_picture);
+            customer = formData
+        }
+
         const {data} = await axios.put(
             '/store/1/storeuser/customer/update',
             customer,
