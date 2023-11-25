@@ -44,6 +44,9 @@ export const Header = () => {
                       <LinkContainer to='/seller/customers'>
                         <NavDropdown.Item>Customers</NavDropdown.Item>
                       </LinkContainer>
+                      <LinkContainer to='/seller/products'>
+                        <NavDropdown.Item>Products</NavDropdown.Item>
+                      </LinkContainer>
                       <LinkContainer to='/seller/orders'>
                         <NavDropdown.Item>Orders</NavDropdown.Item>
                       </LinkContainer>
