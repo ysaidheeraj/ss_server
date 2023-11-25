@@ -11,6 +11,7 @@ from django.db import transaction
 from storeusers.views import authorize_customer, authorize_seller
 from django.utils import timezone
 from .utils import create_model_response
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 class InitActions(APIView):
     def setup(self, request, *args, **kwargs):
@@ -72,6 +73,7 @@ class CategoryActions(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 class ItemActions(APIView):
+    parser_classes = (MultiPartParser, FormParser,JSONParser)
 
     def get(self, request, storeId, itemId=None):
         many = False
@@ -89,6 +91,10 @@ class ItemActions(APIView):
     @authorize_seller
     def post(self, request, storeId):
         data = request.data
+        if len(data) == 0:
+            data['item_name'] = 'Sample item'
+            data['item_price'] = 0
+            data['item_available_count'] = 0
         data['store_id'] = storeId
         item = ItemSerializer(data=data)
         item.is_valid(raise_exception=True)
