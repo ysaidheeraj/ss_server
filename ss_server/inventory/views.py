@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.db import transaction
 from functools import wraps
 from .serializers import CategorySerializer, ItemSerializer, OrderItemSerializer, OrderSerializer, ShippingAddressSerializer
-from .models import Category, Item, OrderItem, Order, OrderStatus
+from .models import Category, Item, OrderItem, Order, OrderStatus, OrderPaymentMethod
 from rest_framework.exceptions import AuthenticationFailed, APIException
 from rest_framework.views import APIView
 from rest_framework import status
@@ -223,8 +223,7 @@ class OrderActions(APIView):
         current_time = timezone.now()
         data['store_id'] = storeId
         data['customer_id'] = self.customer_payload['id']
-        data['order_status'] = OrderStatus.PAID
-        data['order_paid_time'] = current_time
+        data['order_status'] = OrderStatus.CONFIRMED
         ser = OrderSerializer(data = data)
         ser.is_valid(raise_exception=True)
         ser.save()
@@ -301,6 +300,8 @@ class OrderActions(APIView):
                         self.update_item_and_order_item(order_item, deduct=data['order_status'] == OrderStatus.PAID)
             else:
                 raise APIException("There are no items in this order")
+        if data['order_status'] == OrderStatus.DELIVERED and order.payment_method == OrderPaymentMethod.COD:
+            data['order_paid_time'] = timezone.now()
         orderSer = OrderSerializer(order, data=request.data)
         orderSer.is_valid(raise_exception=True)
         orderSer.save()

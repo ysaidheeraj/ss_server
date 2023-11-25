@@ -10,6 +10,7 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { ShippingPage } from "./pages/ShippingPage";
 import { PaymentPage } from "./pages/PaymentPage";
 import { PlaceOrderPage } from "./pages/PlaceOrderPage";
+import { OrderDetailsPage } from "./pages/OrderDetailsPage";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/shipping" Component={ShippingPage} />
             <Route path="/payment" Component={PaymentPage} />
             <Route path="/placeorder" Component={PlaceOrderPage} />
+            <Route path="/order/:id" Component={OrderDetailsPage} />
           </Routes>
         </Container>
       </main>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Button, Row, Col } from "react-bootstrap";
+import { Form, Button, Row, Col, Image } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Loader } from "../Components/Loader";
 import { Message } from "../Components/Message";
@@ -26,6 +26,26 @@ export const ProfilePage = () => {
   const customerUpdate = useSelector((state) => state.customerUpdateProfile);
   const { success } = customerUpdate; //Checking if update is success
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageSrc, setImageSrc] = useState('');
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // You can use the FileReader API to preview the selected image
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+
+      dispatch(update_customer_details({
+        'profile_picture': file
+      }))
+    }
+  };
+
+
   useEffect(() => {
     if (!customerInfo) {
       navigate("/login");
@@ -40,6 +60,7 @@ export const ProfilePage = () => {
         setFirstName(customer.first_name);
         setLastName(customer.last_name);
         setEmail(customer.email);
+        setImageSrc(customer.profile_picture);
       }
     }
   }, [dispatch, customer, customerInfo, success, navigate]);
@@ -62,11 +83,24 @@ export const ProfilePage = () => {
   };
   return (
     <Row>
-      <Col md={3}>
-        <h2>Profile</h2>
-        {info && <Message variant="danger">{info}</Message>}
-        {error && <Message variant="danger">{error}</Message>}
-        {loading && <Loader />}
+      <h2>Profile</h2>
+      {info && <Message variant="danger">{info}</Message>}
+      {error && <Message variant="danger">{error}</Message>}
+      {loading && <Loader />}
+      <Col md={4}>
+        <Image src={selectedImage || imageSrc} alt={firstName} fluid rounded />
+        <Row className="mt-3">
+          <Col>
+            <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} ref={(input) => input && input.setAttribute('accept', 'image/*')} />
+            <Button className="form-control" onClick={() => document.querySelector('input[type="file"]').click()}>
+              <i className="fa fa-pencil" aria-hidden="true"></i>
+              {'   '}
+              Edit
+            </Button>
+          </Col>
+        </Row>
+      </Col>
+      <Col md={8}>
         <Form onSubmit={registerSubmitHandler}>
           <Form.Group controlId="first_name">
             <Form.Label>First Name:</Form.Label>
@@ -130,10 +164,6 @@ export const ProfilePage = () => {
             Update Profile
           </Button>
         </Form>
-      </Col>
-
-      <Col md={9}>
-        <h2>Orders</h2>
       </Col>
     </Row>
   );

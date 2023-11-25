@@ -99,7 +99,7 @@ class OrderItem(models.Model):
     item_quantity = models.FloatField(null=True)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
-    item_price = models.FloatField(null=True),
+    item_price = models.FloatField(null=True)
     customer_id = models.ForeignKey(Store_User, on_delete=models.CASCADE)
 
     class Meta:

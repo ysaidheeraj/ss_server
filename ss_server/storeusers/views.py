@@ -93,18 +93,19 @@ def authenticateUser(email, password, store_id, user_role):
     return user_obj
 
 def generate_token(user_obj, store_id, user_role):
+    currentTime = datetime.datetime.utcnow()
     payload = {
         'id': user_obj.user_id, #Customer id
         'store_id': store_id, #Store id of the customer
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24), #Token expiry time
-        'iat': datetime.datetime.utcnow() #Token created time
+        'exp': currentTime + datetime.timedelta(hours=24), #Token expiry time
+        'iat': currentTime #Token created time
     }
 
     token = jwt.encode(payload, secret_key, algorithm='HS256').decode('utf-8')
     key = 'customer_jwt' if user_role == User_Role.CUSTOMER else 'seller_jwt'
     user_type = 'customer' if user_role == User_Role.CUSTOMER else 'seller'
     response = Response()
-    response.set_cookie(key=key, value=token, httponly=True) #, domain="127.0.0.1") , samesite='Lax')
+    response.set_cookie(key=key, value=token, httponly=True, expires=currentTime + datetime.timedelta(hours=24)) #, domain="127.0.0.1") , samesite='Lax')
     response["Access-Control-Allow-Credentials"] = "true"
     response.data = {
         key: token,
@@ -162,7 +163,7 @@ class CustomerUpdateView(APIView):
             profile_picture.name = 'customer_'+str(user_info['store_id'])+"_"+str(customer.user_id)+'.'+ext
             customer.profile_picture = profile_picture
         
-        if data['password']:
+        if data.get('password'):
             data['password'] = make_password(data['password'])
         
         customer_record = StoreUserSerializer(customer, data=request.data, partial=True)
