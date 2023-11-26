@@ -50,7 +50,7 @@ class Item(models.Model):
 
     @property
     def num_reviews(self):
-        return Review.objects.filter(Item=self).all().count()
+        return Reviews.objects.filter(item=self).all().count()
 
     class Meta:
         unique_together = (("item_name", "store_id"))
@@ -113,13 +113,17 @@ class Rating(models.IntegerChoices):
     FOUR = 4,
     FIVE = 5
 
-class Review(models.Model):
+class Reviews(models.Model):
     review_id = models.AutoField(primary_key=True)
     review_rating = models.IntegerField(choices = Rating.choices, default=Rating.ONE)
     review_text = models.TextField(blank=True, null=True)
-    customer = models.OneToOneField(Store_User, on_delete = models.CASCADE)
+    customer = models.ForeignKey(Store_User, on_delete = models.SET_NULL, null=True)
     name = models.CharField(max_length=200, blank=True, null=True)
-    Item = models.OneToOneField(Item, on_delete = models.CASCADE)
+    item = models.ForeignKey(Item, on_delete = models.CASCADE)
+    store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (('item', 'customer', 'store_id'))
 
 class ShippingAddress(models.Model):
     id = models.AutoField(primary_key=True)

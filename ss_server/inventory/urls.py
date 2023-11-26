@@ -1,7 +1,7 @@
 from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import CategoryActions, ItemActions, OrderActions, SellerOrderActions
+from .views import CategoryActions, ItemActions, OrderActions, SellerOrderActions, ReviewActions
 # from .views import OrderItemActions
 
 urlpatterns = [
@@ -24,6 +24,8 @@ urlpatterns = [
     path('customer/cart', view=OrderActions.as_view()),
     path('customer/createorder', view=OrderActions.as_view()),
     path('customer/order/<int:orderId>', view=OrderActions.as_view()),
-    path('seller/allorders', view=SellerOrderActions.as_view())
+    path('seller/allorders', view=SellerOrderActions.as_view()),
+
+    path('item/<int:itemId>/createreview', view=ReviewActions.as_view())
 
 ]+static(settings.ITEMS_MEDIA_URL, document_root=settings.ITEMS_MEDIA_ROOT)+static(settings.CATEGORY_MEDIA_URL, document_root=settings.CATEGORY_MEDIA_ROOT)
