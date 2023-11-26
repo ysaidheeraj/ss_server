@@ -5,9 +5,10 @@ import { Link } from 'react-router-dom'
 
 export const Product = ({product}) => {
   return (
-    <Card className='my-3 p-3 rounded'>
+    
+    <Card className=' container h-100 rounded mb-md-4 shadow '>
         <Link to={`/product/${product.item_id}`}>
-            <Card.Img src={product.item_image}/>
+            <Card.Img src={product.item_image} className='mt-3 mb-3 ml-3 mr-3 img-fluid' />
         </Link>
 
         <Card.Body>
@@ -17,7 +18,7 @@ export const Product = ({product}) => {
                 </Card.Title>
             </Link>
             <Card.Text as="div">
-                <div className='my-3'>
+                <div className='my-3 justify-content-md-center'>
                     <Rating value={product.rating} text={`${product.num_reviews} reviews`} color={'#f8e825'}/>
                 </div>
             </Card.Text>
@@ -27,5 +28,6 @@ export const Product = ({product}) => {
             </Card.Text>
         </Card.Body>
     </Card>
+    
   )
 }
