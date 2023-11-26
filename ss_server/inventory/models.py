@@ -16,7 +16,8 @@ class Item_Units(models.IntegerChoices):
 
 def custom_image_upload(instance, filename):
     old_instance = Item.objects.get(pk=instance.pk)
-    old_instance.item_image.delete()  # Delete the old image
+    if(old_instance.item_image != "inventory/item_images/empty-img.png"):
+        old_instance.item_image.delete()  # Delete the old image
     return 'inventory/item_images/{}'.format(filename)
 
 def custom_category_image_upload(instance, filename):

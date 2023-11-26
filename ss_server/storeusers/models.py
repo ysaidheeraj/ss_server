@@ -9,7 +9,8 @@ phone_regex = RegexValidator(
 
 def custom_image_upload(instance, filename):
     old_instance = Store_User.objects.get(pk=instance.pk)
-    old_instance.profile_picture.delete()  # Delete the old image
+    if(old_instance.item_image != "storeusers/profile_pictures/default_avatar.jpeg"):
+        old_instance.profile_picture.delete()  # Delete the old image
     return 'storeusers/profile_pictures/{}'.format(filename)
 class User_Role(models.IntegerChoices):
     CUSTOMER = 0,
