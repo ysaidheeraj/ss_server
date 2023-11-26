@@ -32,11 +32,13 @@ export const Header = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              <LinkContainer to={{pathname: '/login', search: '?redirect=cart'}}>
-                <Nav.Link >
-                  <i className="fas fa-shopping-cart text-white"></i>CART
-                </Nav.Link>
-              </LinkContainer>
+              {customer && !customer.isSeller && (
+                <LinkContainer to={{pathname: '/login', search: '?redirect=cart'}}>
+                  <Nav.Link >
+                    <i className="fas fa-shopping-cart text-white"></i>CART
+                  </Nav.Link>
+                </LinkContainer>
+              )}
 
               {customer && customer.isSeller ? (
                 <NavDropdown title={customer.first_name} id='userName'>
