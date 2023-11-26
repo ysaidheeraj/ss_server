@@ -108,8 +108,7 @@ export const ProductPage = () => {
                       </Col>
                     </Row>
                   </ListGroup.Item>
-                  
-                  {item.item_available_count > 0 && (
+                  {!customer.isSeller && item.item_available_count > 0 && (
                       <ListGroup.Item>
                           <Row>
                               <Col>Quantity:</Col>
@@ -130,8 +129,7 @@ export const ProductPage = () => {
                               </Col>
                           </Row>
                       </ListGroup.Item>
-                  )}
-
+                  ) && (
                   <ListGroup.Item>
                     <Button
                       onClick={addToCartHandler}
@@ -141,7 +139,7 @@ export const ProductPage = () => {
                     >
                       Add To Cart
                     </Button>
-                  </ListGroup.Item>
+                  </ListGroup.Item>)}
                 </ListGroup>
               </Card>
             </Col>
