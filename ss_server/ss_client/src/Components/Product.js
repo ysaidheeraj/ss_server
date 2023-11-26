@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card } from 'react-bootstrap'
+import { Card, Col } from 'react-bootstrap'; 
 import { Rating } from './Rating'
 import { Link } from 'react-router-dom'
 
@@ -8,13 +8,16 @@ export const Product = ({product}) => {
     
     <Card className=' container h-100 rounded mb-md-4 shadow '>
         <Link to={`/product/${product.item_id}`}>
-            <Card.Img src={product.item_image} className='mt-3 mb-3 ml-3 mr-3 img-fluid' />
+            <Col xs={4} md={4} lg={3}>
+                <Card.Img src={product.item_image} className='mt-3 mb-3 ml-3 mr-3 img-fluid' />
+            </Col>
         </Link>
 
         <Card.Body>
+            <Col xs={8} md={8} lg={9}>
             <Link to={`/product/${product.item_id}`}>
-                <Card.Title as="div">
-                    <strong>{product.item_name}</strong>
+                <Card.Title className='text-dark no-underline' >
+                {product.item_name}
                 </Card.Title>
             </Link>
             <Card.Text as="div">
@@ -26,6 +29,7 @@ export const Product = ({product}) => {
             <Card.Text as="h3">
                 ${product.item_price}
             </Card.Text>
+            </Col>
         </Card.Body>
     </Card>
     
