@@ -38,20 +38,32 @@ export const Header = () => {
                 </Nav.Link>
               </LinkContainer>
 
-              {customer ? (
+              {customer && customer.isSeller ? (
                 <NavDropdown title={customer.first_name} id='userName'>
                   <LinkContainer to='/profile'>
                     <NavDropdown.Item>Profile</NavDropdown.Item>
                   </LinkContainer>
                   <NavDropdown.Item onClick={customerLogoutHandler}>Logout</NavDropdown.Item>
                 </NavDropdown>
-              ):(
+              ): customer ? (
+                <NavDropdown title={customer.first_name} id='userName'>
+                  <LinkContainer to='/profile'>
+                    <NavDropdown.Item>Profile</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to='/myorders'>
+                    <NavDropdown.Item>Orders</NavDropdown.Item>
+                  </LinkContainer>
+                  <NavDropdown.Item onClick={customerLogoutHandler}>Logout</NavDropdown.Item>
+                </NavDropdown>
+              )
+              :(
                 <LinkContainer to="/login">
                   <Nav.Link>
                     <i className="fas fa-user text-white"></i>LOGIN
                   </Nav.Link>
                 </LinkContainer>
               )}
+              
               {customer && customer.isSeller && (
                 <NavDropdown title={"Manage"} id='manage'>
                   <LinkContainer to='/seller/customers'>

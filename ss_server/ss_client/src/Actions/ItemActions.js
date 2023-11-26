@@ -2,7 +2,8 @@ import { ITEM_LIST_SUCCESS, ITEM_LIST_REQUEST, ITEM_LIST_FAIL,
     ITEM_DETAILS_SUCCESS, ITEM_DETAILS_REQUEST, ITEM_DETAILS_FAIL,
     ITEM_DELETE_FAIL, ITEM_DELETE_REQUEST, ITEM_DELETE_SUCCESS,
     ITEM_CREATE_FAIL, ITEM_CREATE_REQUEST, ITEM_CREATE_SUCCESS,
-    ITEM_UPDATE_REQUEST, ITEM_UPDATE_FAIL, ITEM_UPDATE_SUCCESS
+    ITEM_UPDATE_REQUEST, ITEM_UPDATE_FAIL, ITEM_UPDATE_SUCCESS,
+    ITEM_CREATE_REVIEW_FAIL, ITEM_CREATE_REVIEW_REQUEST, ITEM_CREATE_REVIEW_SUCCESS
 } from "../Constants/ItemConstants"
 import axios from "axios";
 
@@ -133,6 +134,38 @@ export const update_item_details = (item, id) => async(dispatch, getState) =>{
     }catch(error){
         dispatch({
             type: ITEM_UPDATE_FAIL,
+            payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
+        });
+    }
+}
+
+export const create_item_review = (review, id) => async(dispatch, getState) =>{
+    try{
+        dispatch({
+            type: ITEM_CREATE_REVIEW_REQUEST
+        })
+
+        const config = {
+            headers : {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            withCredentials: true
+        }
+
+        const {data} = await axios.post(
+            `/store/1/reviews/item/${id}/createreview`,
+            review,
+            config
+        )
+
+        dispatch({
+            type: ITEM_CREATE_REVIEW_SUCCESS,
+            payload: data.Reviews
+        })
+
+    }catch(error){
+        dispatch({
+            type: ITEM_CREATE_REVIEW_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
     }
