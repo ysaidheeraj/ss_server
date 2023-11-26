@@ -3,6 +3,7 @@ import { CART_RESET } from "../Constants/CartConstants";
 import { ORDER_DETAILS_REQUEST, ORDER_DETAILS_SUCCESS, ORDER_DETAILS_FAIL } from "../Constants/OrderConstants";
 import { ORDER_UPDATE_REQUEST, ORDER_UPDATE_SUCCESS, ORDER_UPDATE_FAIL, ORDER_UPDATE_RESET } from "../Constants/OrderConstants";
 import { ORDERS_LIST_FAIL, ORDERS_LIST_REQUEST, ORDERS_LIST_SUCCESS } from "../Constants/OrderConstants";
+import { SELLER_ORDERS_LIST_FAIL, SELLER_ORDERS_LIST_REQUEST, SELLER_ORDERS_LIST_SUCCESS } from "../Constants/OrderConstants";
 import axios from "axios";
 
 export const create_order = (order) => async(dispatch, getState) =>{
@@ -143,6 +144,38 @@ export const listCustomerOrders = (id) => async(dispatch, getState) =>{
     }catch(error){
         dispatch({
             type: ORDERS_LIST_FAIL,
+            payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
+        });
+    }
+}
+
+export const listStoreOrders = (id) => async(dispatch, getState) =>{
+    try{
+        dispatch({
+            type: SELLER_ORDERS_LIST_REQUEST
+        })
+
+        const config = {
+            headers : {
+                'Content-type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            withCredentials: true
+        }
+
+        const {data} = await axios.get(
+            `/store/1/orders/seller/allorders`,
+            config
+        )
+
+        dispatch({
+            type: SELLER_ORDERS_LIST_SUCCESS,
+            payload: data.Order
+        })
+
+    }catch(error){
+        dispatch({
+            type: SELLER_ORDERS_LIST_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
     }

@@ -37,7 +37,7 @@ class CustomerAPITests(TestCase):
         }
 
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
     
     def test_register_customer_invalid_store(self):
         url = '/store/'+"1000"+'/storeuser/customer/register'

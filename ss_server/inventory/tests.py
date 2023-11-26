@@ -52,7 +52,14 @@ class InventoryTestCases(TestCase):
             "item_available_count": 100,
             "item_unit": 1
         }
-        self.client.cookies['seller_jwt'] = self.seller_token
+        self.client.cookies['customer_jwt'] = self.seller_token
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    
+    def test_create_item_empty_payload(self):
+        url = '/store/'+self.storeId+'/items/createitem'
+        data = {}
+        self.client.cookies['customer_jwt'] = self.seller_token
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
     
@@ -64,7 +71,7 @@ class InventoryTestCases(TestCase):
             "item_available_count": 100,
             "item_unit": 1
         }
-        self.client.cookies['seller_jwt'] = self.seller_token
+        self.client.cookies['customer_jwt'] = self.seller_token
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
@@ -86,7 +93,7 @@ class InventoryTestCases(TestCase):
             "item_available_count": 100,
             "item_unit": 1
         }
-        self.client.cookies['seller_jwt'] = self.seller_token
+        self.client.cookies['customer_jwt'] = self.seller_token
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
@@ -110,16 +117,25 @@ class InventoryTestCases(TestCase):
         data = {
             'item_available_count': 1005,
         }
-        self.client.cookies['seller_jwt'] = self.seller_token
+        self.client.cookies['customer_jwt'] = self.seller_token
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_item_update_invalid_item(self):
+        url = '/store/'+self.storeId+'/items/item/'+"1000"
+        data = {
+            'item_available_count': 1005,
+        }
+        self.client.cookies['customer_jwt'] = self.seller_token
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_item_update_invalid_availability(self):
         url = '/store/'+self.storeId+'/items/item/'+self.itemId
         data = {
             'item_available_count': -1,
         }
-        self.client.cookies['seller_jwt'] = self.seller_token
+        self.client.cookies['customer_jwt'] = self.seller_token
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
@@ -136,12 +152,12 @@ class InventoryTestCases(TestCase):
         data = {
             'item_available_count': 1005,
         }
-        self.client.cookies['seller_jwt'] = self.seller_token
+        self.client.cookies['customer_jwt'] = self.seller_token
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_delete_item(self):
         url = '/store/'+self.storeId+'/items/item/'+self.deleteItemId
-        self.client.cookies['seller_jwt'] = self.seller_token
+        self.client.cookies['customer_jwt'] = self.seller_token
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

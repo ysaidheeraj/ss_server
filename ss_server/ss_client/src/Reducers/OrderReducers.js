@@ -2,6 +2,7 @@ import { CREATE_ORDER_FAIL, CREATE_ORDER_REQUEST, CREATE_ORDER_SUCCESS, CREATE_O
 import { ORDER_DETAILS_REQUEST, ORDER_DETAILS_SUCCESS, ORDER_DETAILS_FAIL } from "../Constants/OrderConstants";
 import { ORDER_UPDATE_REQUEST, ORDER_UPDATE_SUCCESS, ORDER_UPDATE_FAIL, ORDER_UPDATE_RESET } from "../Constants/OrderConstants";
 import { ORDERS_LIST_FAIL, ORDERS_LIST_REQUEST, ORDERS_LIST_SUCCESS, ORDERS_LIST_RESET } from "../Constants/OrderConstants";
+import { SELLER_ORDERS_LIST_FAIL, SELLER_ORDERS_LIST_REQUEST, SELLER_ORDERS_LIST_SUCCESS, SELLER_ORDERS_LIST_RESET } from "../Constants/OrderConstants";
 
 export const createOrderReducer = (state={}, action) =>{
     switch(action.type){
@@ -89,6 +90,31 @@ export const ordersListReducer = (state={orders:[]}, action) =>{
                 error: action.payload
             }
         case ORDERS_LIST_RESET:
+            return {
+                orders:[]
+            }
+        default:
+            return state
+    }
+}
+
+export const sellerOrdersListReducer = (state={orders:[]}, action) =>{
+    switch(action.type){
+        case SELLER_ORDERS_LIST_REQUEST:
+            return {
+                loading: true
+            }
+        case SELLER_ORDERS_LIST_SUCCESS:
+            return {
+                loading: false,
+                orders: action.payload
+            }
+        case SELLER_ORDERS_LIST_FAIL:
+            return {
+                loading: false,
+                error: action.payload
+            }
+        case SELLER_ORDERS_LIST_RESET:
             return {
                 orders:[]
             }
