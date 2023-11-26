@@ -136,7 +136,8 @@ export const ProductEditPage = () => {
                 <Form.Control
                 required
                 className="mb-3"
-                type="text"
+                as='textarea'
+                rows='5'
                 placeholder="Enter product description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}

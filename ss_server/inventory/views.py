@@ -2,15 +2,15 @@ from django.conf import settings
 from rest_framework.response import Response
 from django.db import transaction
 from functools import wraps
-from .serializers import CategorySerializer, ItemSerializer, OrderItemSerializer, OrderSerializer, ShippingAddressSerializer
-from storeusers.models import Store_User
+from .serializers import CategorySerializer, ItemSerializer, OrderItemSerializer, OrderSerializer, ShippingAddressSerializer, ReviewSerializer
+from storeusers.models import Store_User, User_Role
 from storeusers.serializers import StoreUserSerializer
-from .models import Category, Item, OrderItem, Order, OrderStatus, OrderPaymentMethod
+from .models import Category, Item, OrderItem, Order, OrderStatus, OrderPaymentMethod, Reviews
 from rest_framework.exceptions import AuthenticationFailed, APIException
 from rest_framework.views import APIView
 from rest_framework import status
 from django.db import transaction
-from storeusers.views import authorize_customer, authorize_seller, authorize_storeuser
+from storeusers.views import authorize_customer, authorize_seller, authorize_storeuser, handleCustomerToken
 from django.utils import timezone
 from .utils import create_model_response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -68,6 +68,17 @@ class CategoryActions(APIView):
 class ItemActions(APIView):
     parser_classes = (MultiPartParser, FormParser,JSONParser)
 
+    def canCustomerReview(self, item, customer, storeId):
+        orderItems = OrderItem.objects.filter(customer_id=customer.user_id, item=item['item_id'], store_id=storeId).all()
+        if len(orderItems) > 0:
+            for orderItem in orderItems:
+                order = Order.objects.filter(store_id=storeId, order_id=orderItem.order.order_id).first()
+                if order.order_status >= OrderStatus.DELIVERED:
+                    review = Reviews.objects.filter(customer = customer.user_id, item=item['item_id'], store_id=storeId).first()
+                    if not review:
+                        item['canReview'] = True
+        return item
+    
     def get(self, request, storeId, itemId=None):
         many = False
         items = []
@@ -78,8 +89,22 @@ class ItemActions(APIView):
         else:
             items = Item.objects.filter(store_id=storeId).all()
             many = True
-        items_serializer = ItemSerializer(items, many=many)
-        return Response(create_model_response(Item, items_serializer.data))
+        items_serializer_data = ItemSerializer(items, many=many).data
+        try:
+            if many == False:
+                reviews = Reviews.objects.filter(item=itemId, store_id=storeId).all()
+                reviewsSer = ReviewSerializer(reviews, many=True)
+                items_serializer_data['reviews'] = reviewsSer.data
+
+                customer_token = handleCustomerToken(request)
+                customer = Store_User.objects.filter(user_id = customer_token['id'], store_id=storeId, user_role=User_Role.CUSTOMER).first()
+                #Checking if customer can review
+                if customer:
+                    items_serializer_data['canReview'] = False
+                    items_serializer_data = self.canCustomerReview(items_serializer_data, customer, storeId)
+        except Exception as ex:
+            print('Exception', ex)
+        return Response(create_model_response(Item, items_serializer_data))
     
     @authorize_seller
     def post(self, request, storeId):
@@ -312,3 +337,41 @@ class SellerOrderActions(APIView):
             customer = Store_User.objects.filter(store_id=storeId, user_id=order['customer_id']).first()
             order['customer'] = StoreUserSerializer(customer).data
         return Response(create_model_response(Order, ser.data))
+
+class ReviewActions(APIView):
+
+    @authorize_customer
+    @transaction.atomic
+    def post(self, request, storeId, itemId):
+        data = request.data
+        data['store_id'] = storeId
+        data['customer'] = self.customer_payload['id']
+        data['item'] = itemId
+        ser = ReviewSerializer(data=data)
+        existingReview = Reviews.objects.filter(customer=self.customer_payload['id'], item=itemId, store_id=storeId)
+        if existingReview:
+            raise APIException("Already Reviewed")
+        
+        if not data['review_rating']:
+            raise APIException("Rating Missing")
+        ser.is_valid(raise_exception=True)
+        ser.save()
+
+        #Updating the rating of the item
+        allItemReviews = Reviews.objects.filter(item=data['item'], store_id=storeId).all()
+        total = 0
+        for review in allItemReviews:
+            total += review.review_rating
+        
+        total = total/len(allItemReviews)
+
+        item = Item.objects.filter(item_id=data['item'], store_id=storeId).first()
+        updateData = {'rating': total}
+        itemser = ItemSerializer(item, data=updateData, partial=True)
+        itemser.is_valid()
+        itemser.save()
+        return Response(
+            {
+                Reviews.__name__: ser.data,
+                Item.__name__: itemser.data
+            })
