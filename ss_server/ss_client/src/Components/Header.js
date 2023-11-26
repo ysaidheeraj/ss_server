@@ -24,17 +24,17 @@ export const Header = () => {
   }
   return (
     <header>
-      <Navbar expand="lg" bg="dark" variant="dark" collapseOnSelect>
+      <Navbar expand="lg" bg="dark" variant="dark" collapseOnSelect className="fixed-top">
         <Container>
           <LinkContainer to="/">
-            <Navbar.Brand>SellSmart</Navbar.Brand>
+            <Navbar.Brand className='text-white'>SellSmart</Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
               <LinkContainer to={{pathname: '/login', search: '?redirect=cart'}}>
                 <Nav.Link >
-                  <i className="fas fa-shopping-cart"></i>CART
+                  <i className="fas fa-shopping-cart text-white"></i>CART
                 </Nav.Link>
               </LinkContainer>
 
@@ -48,7 +48,7 @@ export const Header = () => {
               ):(
                 <LinkContainer to="/login">
                   <Nav.Link>
-                    <i className="fas fa-user"></i>LOGIN
+                    <i className="fas fa-user text-white"></i>LOGIN
                   </Nav.Link>
                 </LinkContainer>
               )}

@@ -16,7 +16,9 @@ export const HomePage = () => {
 
   return (
     <div>
+      <br></br>
       <h1>Latest Products</h1>
+      <hr class="border border-secondry border-3 opacity-75"></hr>
       {loading ? <Loader />
                 : error ? <Message variant='danger'>{error}</Message>
                 :<Row>
