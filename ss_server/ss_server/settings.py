@@ -134,8 +134,7 @@ STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 
 STATICFILES_DIRS = [
     BASE_DIR/'static',
-    BASE_DIR/'ss_client/build/',
-    BASE_DIR/'ss_client/build/static', 
+    BASE_DIR/'ss_client/build/static'
 ]
 
 # Default primary key field type
