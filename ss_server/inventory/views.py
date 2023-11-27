@@ -83,34 +83,47 @@ class ItemActions(APIView):
     def get(self, request, storeId, itemId=None):
         many = False
         items = []
-        searchQuery = request.query_params.get('search')
-        response_obj = {}
-        if searchQuery == None:
-            searchQuery = ''
         if itemId:
             items = Item.objects.filter(item_id=itemId, store_id=storeId).first()
             if not items:
                 raise APIException("Invalid Item")
+            return Response(create_model_response(Item, ItemSerializer(items, many=False).data))
+
+        searchQuery = request.query_params.get('search')
+        category = request.query_params.get('category')
+        response_obj = {}
+
+        if searchQuery == None:
+            searchQuery = ''
+
+        if category != None and int(category) > -1:
+            category = Category.objects.filter(category_id=category, store_id=storeId).first()
+            if not category:
+                raise APIException("Invalid Category")
+
+            items = category.items
+            items = items.filter(item_name__icontains=searchQuery).all()
+            many = True
         else:
             items = Item.objects.filter(store_id=storeId, item_name__icontains=searchQuery).all()
 
-            page = request.query_params.get('page')
-            paginator = Paginator(items, 10)
+        page = request.query_params.get('page')
+        paginator = Paginator(items, 10)
 
-            try:
-                items = paginator.page(page)
-            except PageNotAnInteger:
-                items = paginator.page(1)
-            except EmptyPage:
-                items = paginator.page(paginator.num_pages)
-            
-            if page == None:
-                page = 1
-            page = int(page)
-            many = True
+        try:
+            items = paginator.page(page)
+        except PageNotAnInteger:
+            items = paginator.page(1)
+        except EmptyPage:
+            items = paginator.page(paginator.num_pages)
+        
+        if page == None:
+            page = 1
+        page = int(page)
+        many = True
 
-            response_obj['page'] = page
-            response_obj['pages'] = paginator.num_pages
+        response_obj['page'] = page
+        response_obj['pages'] = paginator.num_pages
         items_serializer_data = ItemSerializer(items, many=many).data
         try:
             if many == False:
