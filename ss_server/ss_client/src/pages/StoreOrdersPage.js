@@ -11,18 +11,18 @@ export const StoreOrdersPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const customerLogin = useSelector((state) => state.customerLogin);
-  const { customerInfo } = customerLogin;
+  const customerDetails = useSelector((state) => state.customerDetails);
+    const { customer } = customerDetails;
+
+    if(!customer || !customer.isSeller){
+        navigate('/login');
+    }
 
   const sellerOrdersList = useSelector((state) => state.sellerOrdersList);
   const {loading, error, orders} = sellerOrdersList;
 
   useEffect(() =>{
-    if (!customerInfo) {
-      navigate("/login");
-    }else{
-      dispatch(listStoreOrders());
-    }
+    dispatch(listStoreOrders());
   },[])
   return (
     <Row>
