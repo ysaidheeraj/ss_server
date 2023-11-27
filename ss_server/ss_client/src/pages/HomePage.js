@@ -26,7 +26,6 @@ export const HomePage = () => {
   return (
     <div>
       <br></br>
-      <h1>Latest Products</h1>
       <CategoriesNavbar selectedCategoryLink='/'/>
       <hr className="border border-secondry border-3 opacity-75"></hr>
       {loading ? <Loader />
