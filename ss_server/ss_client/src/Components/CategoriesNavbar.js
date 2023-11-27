@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import { listCategories } from "../Actions/CategoriesActions";
-import { Nav } from 'react-bootstrap';
+import { Nav, Image } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { Loader } from './Loader';
 import { useSearchParams } from 'react-router-dom';
@@ -37,7 +37,17 @@ export const CategoriesNavbar = ({selectedCategoryLink}) => {
                 </Nav.Item>
                 {categories.map((category) =>(
                     <Nav.Item key={category.category_id}>
-                        <Nav.Link eventKey={`${category.category_id}`}>{category.category_name}</Nav.Link>
+                        <Nav.Link eventKey={`${category.category_id}`}>
+                            {category.category_picture && (
+                                <Image
+                                    src={category.category_picture}
+                                    alt={category.category_name}
+                                    rounded
+                                    className='category-icon'
+                                />
+                            )}
+                            {category.category_name}
+                        </Nav.Link>
                     </Nav.Item>
                 ))}
             </Nav>

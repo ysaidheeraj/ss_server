@@ -33,3 +33,8 @@ h3{
 .rating span{
   margin: 0.1rem;
 }
+.category-icon {
+  width: 20px; /* Adjust the width as needed */
+  height: 20px; /* Adjust the height as needed */
+  margin-right: 5px; /* Adjust the margin as needed for spacing */
+}
