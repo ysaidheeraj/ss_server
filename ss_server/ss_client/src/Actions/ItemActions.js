@@ -7,15 +7,15 @@ import { ITEM_LIST_SUCCESS, ITEM_LIST_REQUEST, ITEM_LIST_FAIL,
 } from "../Constants/ItemConstants"
 import axios from "axios";
 
-export const listItems = () => async(dispatch) =>{
+export const listItems = (searchQuery = '') => async(dispatch) =>{
     try{
         dispatch({type: ITEM_LIST_REQUEST});
         
-        const {data} = await axios.get('/store/1/items/allitems');
+        const {data} = await axios.get(`/store/1/items/allitems${searchQuery}`);
 
         dispatch({
             type: ITEM_LIST_SUCCESS,
-            payload: data.Item
+            payload: data
         });
 
     }catch(error){

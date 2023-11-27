@@ -14,6 +14,7 @@ from storeusers.views import authorize_customer, authorize_seller, authorize_sto
 from django.utils import timezone
 from .utils import create_model_response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from django.core.paginator import Paginator, EmptyPage, Page, PageNotAnInteger
 
 class CategoryActions(APIView):
     def get(self, request, storeId, categoryId=None):
@@ -82,13 +83,34 @@ class ItemActions(APIView):
     def get(self, request, storeId, itemId=None):
         many = False
         items = []
+        searchQuery = request.query_params.get('search')
+        response_obj = {}
+        if searchQuery == None:
+            searchQuery = ''
         if itemId:
             items = Item.objects.filter(item_id=itemId, store_id=storeId).first()
             if not items:
                 raise APIException("Invalid Item")
         else:
-            items = Item.objects.filter(store_id=storeId).all()
+            items = Item.objects.filter(store_id=storeId, item_name__icontains=searchQuery).all()
+
+            page = request.query_params.get('page')
+            paginator = Paginator(items, 10)
+
+            try:
+                items = paginator.page(page)
+            except PageNotAnInteger:
+                items = paginator.page(1)
+            except EmptyPage:
+                items = paginator.page(paginator.num_pages)
+            
+            if page == None:
+                page = 1
+            page = int(page)
             many = True
+
+            response_obj['page'] = page
+            response_obj['pages'] = paginator.num_pages
         items_serializer_data = ItemSerializer(items, many=many).data
         try:
             if many == False:
@@ -104,6 +126,10 @@ class ItemActions(APIView):
                     items_serializer_data = self.canCustomerReview(items_serializer_data, customer, storeId)
         except Exception as ex:
             print('Exception', ex)
+        
+        if many ==True:
+            response_obj[Item.__name__] = items_serializer_data
+            return Response(response_obj)
         return Response(create_model_response(Item, items_serializer_data))
     
     @authorize_seller
