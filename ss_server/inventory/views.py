@@ -91,7 +91,22 @@ class ItemActions(APIView):
             items = Item.objects.filter(item_id=itemId, store_id=storeId).first()
             if not items:
                 raise APIException("Invalid Item")
-            return Response(create_model_response(Item, ItemSerializer(items, many=False).data))
+            
+            try:
+                items_serializer_data = ItemSerializer(items, many=False).data
+                reviews = Reviews.objects.filter(item=itemId, store_id=storeId).all()
+                reviewsSer = ReviewSerializer(reviews, many=True)
+                items_serializer_data['reviews'] = reviewsSer.data
+
+                customer_token = handleCustomerToken(request)
+                customer = Store_User.objects.filter(user_id = customer_token['id'], store_id=storeId, user_role=User_Role.CUSTOMER).first()
+                #Checking if customer can review
+                if customer:
+                    items_serializer_data['canReview'] = False
+                    items_serializer_data = self.canCustomerReview(items_serializer_data, customer, storeId)
+            except Exception as ex:
+                print('Exception', ex)
+            return Response(create_model_response(Item, items_serializer_data))
 
         searchQuery = request.query_params.get('search')
         category = request.query_params.get('category')
@@ -129,20 +144,6 @@ class ItemActions(APIView):
         response_obj['page'] = page
         response_obj['pages'] = paginator.num_pages
         items_serializer_data = ItemSerializer(items, many=many).data
-        try:
-            if many == False:
-                reviews = Reviews.objects.filter(item=itemId, store_id=storeId).all()
-                reviewsSer = ReviewSerializer(reviews, many=True)
-                items_serializer_data['reviews'] = reviewsSer.data
-
-                customer_token = handleCustomerToken(request)
-                customer = Store_User.objects.filter(user_id = customer_token['id'], store_id=storeId, user_role=User_Role.CUSTOMER).first()
-                #Checking if customer can review
-                if customer:
-                    items_serializer_data['canReview'] = False
-                    items_serializer_data = self.canCustomerReview(items_serializer_data, customer, storeId)
-        except Exception as ex:
-            print('Exception', ex)
         
         if many ==True:
             response_obj[Item.__name__] = items_serializer_data
