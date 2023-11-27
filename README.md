@@ -1,7 +1,6 @@
 # Sell Smart
-# Your Project Name
 
-Brief project description goes here.
+# An ecommerce platform customisable for any type of products
 
 ## Prerequisites
 
