@@ -108,7 +108,7 @@ export const ProductPage = () => {
                       </Col>
                     </Row>
                   </ListGroup.Item>
-                  {!customer.isSeller && item.item_available_count > 0 && (
+                  {customer && !customer.isSeller && item.item_available_count > 0 && (
                       <ListGroup.Item>
                           <Row>
                               <Col>Quantity:</Col>
