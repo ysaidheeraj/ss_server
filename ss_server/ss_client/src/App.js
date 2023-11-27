@@ -27,7 +27,7 @@ function App() {
 
   const customerDetails = useSelector((state) => state.customerDetails);
   const { error, loading, customer } = customerDetails;
-  if(!customer){
+  if(!customer && !loading && !error){
     dispatch(customer_details());
   }
 
