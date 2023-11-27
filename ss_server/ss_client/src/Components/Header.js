@@ -9,16 +9,7 @@ export const Header = () => {
   const dispatch = useDispatch();
 
   const customerDetails = useSelector((state) => state.customerDetails);
-  const { error, customer } = customerDetails;
-
-  useEffect(() => {
-    if(!customer && !error){
-      dispatch(customer_details());
-    }else if(error === "Login Expired"){
-      // If the login expires, we need to relogin
-      dispatch(customer_logout());
-    }
-  }, [dispatch, customer, error]);
+  const { customer } = customerDetails;
 
   const customerLogoutHandler = () =>{
     dispatch(customer_logout());

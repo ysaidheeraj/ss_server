@@ -17,8 +17,12 @@ export const SellerProductList = () => {
     const itemList = useSelector(state => state.itemList)
     const {error, loading, items, pages, page} = itemList;
 
-    const customerLogin = useSelector((state) => state.customerLogin);
-    const { customerInfo } = customerLogin;
+    const customerDetails = useSelector((state) => state.customerDetails);
+    const { customer } = customerDetails;
+
+    if(!customer || !customer.isSeller){
+        navigate('/login');
+    }
 
     const itemDelete = useSelector(state => state.itemDelete)
     const {error: errorDelete, loading: deleteLoading, success} = itemDelete;
@@ -34,16 +38,13 @@ export const SellerProductList = () => {
 
     useEffect(()=>{
         dispatch({type: ITEM_CREATE_RESET});
-        if(!customerInfo || !customerInfo.isSeller){
-            navigate('/login');
-        }
 
         if(createSuccess){
             navigate(`/seller/product/${createdItem.item_id}/edit`);
         }else{
             dispatch(listItems(queryString));
         }
-    },[dispatch, customerInfo, success, createSuccess, createdItem])
+    },[dispatch, success, createSuccess, createdItem])
 
     const deleteItemHandler = (id) =>{
         if(window.confirm('Are you sure you want to delete this item?')){
