@@ -1,4 +1,4 @@
-import React, { useEffect} from "react";
+import React, { useEffect, useState} from "react";
 import { Row, Col } from "react-bootstrap";
 import { Product } from "../Components/Product";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,13 +7,14 @@ import { Loader } from "../Components/Loader";
 import { Message } from "../Components/Message";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Paginate } from "../Components/Paginate";
+import { CategoriesNavbar } from "../Components/CategoriesNavbar";
 export const HomePage = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const ItemsList = useSelector(state => state.itemList);
   const {error, loading, items, page, pages} = ItemsList;
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchCategory, setSearchCategory] = useState(searchParams.get('category') ? searchParams.get('category') : '');
   let queryString = '';
   if(searchParams.size){
     queryString = '?'+searchParams.toString();
@@ -26,6 +27,7 @@ export const HomePage = () => {
     <div>
       <br></br>
       <h1>Latest Products</h1>
+      <CategoriesNavbar selectedCategoryLink='/'/>
       <hr className="border border-secondry border-3 opacity-75"></hr>
       {loading ? <Loader />
         : error ? <Message variant='danger'>{error}</Message>
