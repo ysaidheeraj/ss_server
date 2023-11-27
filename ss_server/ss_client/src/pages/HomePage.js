@@ -14,7 +14,6 @@ export const HomePage = () => {
   const {error, loading, items, page, pages} = ItemsList;
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const searchQuery = searchParams.get('search');
   let queryString = '';
   if(searchParams.size){
     queryString = '?'+searchParams.toString();
