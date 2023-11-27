@@ -3,6 +3,7 @@ import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { customer_logout, customer_details } from "../Actions/UserActions";
+import { SearchBox } from "./SearchBox";
 
 export const Header = () => {
   const dispatch = useDispatch();
@@ -31,6 +32,7 @@ export const Header = () => {
           </LinkContainer>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
+            <SearchBox />
             <Nav className="ms-auto">
               {customer && !customer.isSeller && (
                 <LinkContainer to={{pathname: '/login', search: '?redirect=cart'}}>
