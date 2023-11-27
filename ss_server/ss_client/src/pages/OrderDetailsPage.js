@@ -13,11 +13,15 @@ export const OrderDetailsPage = () => {
     const { id: orderId } = useParams();
 
     const customerDetails = useSelector((state) => state.customerDetails);
-    const { customer } = customerDetails;
+    const { loading:customerLoading, customer } = customerDetails;
 
-    if(!customer){
-        navigate(`/login?redirect=order/${orderId}`)
-    }
+    useEffect(() => {
+        if(!customerLoading){
+            if(!customer || !customer.first_name){
+                navigate(`/login?redirect=/order/${orderId}`)
+            }
+        }
+    }, [customerLoading, customer])
 
     const orderDetails = useSelector(state => state.orderDetails)
     const {error, loading, order} = orderDetails;
@@ -42,6 +46,7 @@ export const OrderDetailsPage = () => {
   return loading ? 
     (<Loader/>) 
     : error ? (<Message variant='danger'>{error}</Message>)
+    : !customer || !customer.first_name ? (<Message variant='danger'>Please <a href={`/login?redirect=/order/${orderId}`}>Login</a> to view order details.</Message>)
     :(
     <div>
         <h1>Order: {order.order_id}</h1>

@@ -17,15 +17,19 @@ export const CartPage = () => {
     const {cartItems} = cart;
     
     const customerDetails = useSelector((state) => state.customerDetails);
-    const { customer } = customerDetails;
+    const { loading, customer } = customerDetails;
 
     useEffect(() => {
-        if (customer && customer.first_name){
-            setLoggedIn(true);
-        }else{
-            navigate('/login?redirect=cart')
+        if(!loading){
+            if(customer && customer.isSeller){
+                navigate('/');
+            }else if (customer && customer.first_name){
+                setLoggedIn(true);
+            }else{
+                navigate('/login?redirect=/cart')
+            }
         }
-    }, [customer])
+    }, [loading])
 
     useEffect(() =>{
         if(itemId && loggedIn){

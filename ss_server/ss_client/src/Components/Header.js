@@ -26,11 +26,25 @@ export const Header = () => {
             <SearchBox />
             <Nav className="ms-auto">
               {customer && !customer.isSeller && (
-                <LinkContainer to={{pathname: '/login', search: '?redirect=cart'}}>
+                <LinkContainer to={{pathname: '/login', search: '?redirect=/cart'}}>
                   <Nav.Link >
                     <i className="fas fa-shopping-cart text-white"></i>CART
                   </Nav.Link>
                 </LinkContainer>
+              )}
+
+              {customer && customer.isSeller && (
+                <NavDropdown title={"Manage"} id='manage'>
+                  <LinkContainer to='/seller/customers'>
+                    <NavDropdown.Item>Customers</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to='/seller/products'>
+                    <NavDropdown.Item>Products</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to='/seller/orders'>
+                    <NavDropdown.Item>Orders</NavDropdown.Item>
+                  </LinkContainer>
+                </NavDropdown>
               )}
 
               {customer && customer.isSeller ? (
@@ -57,20 +71,6 @@ export const Header = () => {
                     <i className="fas fa-user text-white"></i>LOGIN
                   </Nav.Link>
                 </LinkContainer>
-              )}
-              
-              {customer && customer.isSeller && (
-                <NavDropdown title={"Manage"} id='manage'>
-                  <LinkContainer to='/seller/customers'>
-                    <NavDropdown.Item>Customers</NavDropdown.Item>
-                  </LinkContainer>
-                  <LinkContainer to='/seller/products'>
-                    <NavDropdown.Item>Products</NavDropdown.Item>
-                  </LinkContainer>
-                  <LinkContainer to='/seller/orders'>
-                    <NavDropdown.Item>Orders</NavDropdown.Item>
-                  </LinkContainer>
-                </NavDropdown>
               )}
             </Nav>
           </Navbar.Collapse>
