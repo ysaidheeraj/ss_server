@@ -17,10 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from django.conf import settings
-from django.conf.urls.static import static
-from django.views.static import serve
-from django.urls import re_path
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,6 +31,4 @@ urlpatterns = [
     path('store/<int:storeId>/orderitems/', include('inventory.urls')),
     path('store/<int:storeId>/orders/', include('inventory.urls')),
     path('store/<int:storeId>/reviews/', include('inventory.urls'))
-    # re_path(r'^(?P<path>.*)$', serve, {'document_root': settings.STATICFILES_DIRS[1]}),
 ]
-urlpatterns += static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
