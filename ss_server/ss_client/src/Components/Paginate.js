@@ -10,19 +10,14 @@ export const Paginate = ({pages, page, search='', isAdmin=false}) => {
     pages > 1 && (
         <Pagination className='mt-2'>
             {[...Array(pages).keys()].map((pageNum) =>(
-                // <LinkContainer 
-                //     key={pageNum+1}
-                //     to={pathName}
-                // >
-                    <Pagination.Item 
-                        key={pageNum+1}
-                        as='link' 
-                        active={pageNum + 1 === page}
-                        href={pathName + `page=${pageNum+1}`}
-                    >
-                        {pageNum+1}
-                    </Pagination.Item>
-                // </LinkContainer>
+                <Pagination.Item 
+                    key={pageNum+1}
+                    as='link' 
+                    active={pageNum + 1 === page}
+                    href={pathName + `page=${pageNum+1}`}
+                >
+                    {pageNum+1}
+                </Pagination.Item>
             ))}
         </Pagination>
     )

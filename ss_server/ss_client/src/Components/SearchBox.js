@@ -11,7 +11,8 @@ export const SearchBox = () => {
     const searchHandler = (e) => {
         e.preventDefault();
         if(searchString){
-            navigate(`/?search=${searchString}&page=1`);
+          searchParams.set('search', searchString);
+            navigate(`/?${searchParams.toString()}`);
         }else{
             const param = searchParams.get('search');
             if (param) {

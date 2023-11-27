@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { customer_logout, customer_details } from "../Actions/UserActions";
+import { customer_logout } from "../Actions/UserActions";
 import { SearchBox } from "./SearchBox";
 
 export const Header = () => {
@@ -43,6 +43,9 @@ export const Header = () => {
                   </LinkContainer>
                   <LinkContainer to='/seller/orders'>
                     <NavDropdown.Item>Orders</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to='/seller/categories'>
+                    <NavDropdown.Item>Categories</NavDropdown.Item>
                   </LinkContainer>
                 </NavDropdown>
               )}
