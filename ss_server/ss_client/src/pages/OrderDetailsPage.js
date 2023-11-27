@@ -18,7 +18,7 @@ export const OrderDetailsPage = () => {
     useEffect(() => {
         if(!customerLoading){
             if(!customer || !customer.first_name){
-                navigate(`/login?redirect=/order/${orderId}`)
+                navigate(`/login`)
             }
         }
     }, [customerLoading, customer])
@@ -46,7 +46,7 @@ export const OrderDetailsPage = () => {
   return loading ? 
     (<Loader/>) 
     : error ? (<Message variant='danger'>{error}</Message>)
-    : !customer || !customer.first_name ? (<Message variant='danger'>Please <a href={`/login?redirect=/order/${orderId}`}>Login</a> to view order details.</Message>)
+    : !customer || !customer.first_name ? (<Message variant='danger'>Please <a href={`/login`}>Login</a> to view order details.</Message>)
     :(
     <div>
         <h1>Order: {order.order_id}</h1>

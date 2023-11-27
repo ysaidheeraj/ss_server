@@ -26,7 +26,7 @@ export const CartPage = () => {
             }else if (customer && customer.first_name){
                 setLoggedIn(true);
             }else{
-                navigate('/login?redirect=/cart')
+                navigate('/login')
             }
         }
     }, [loading])
