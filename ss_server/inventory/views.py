@@ -17,6 +17,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.core.paginator import Paginator, EmptyPage, Page, PageNotAnInteger
 
 class CategoryActions(APIView):
+    parser_classes = (MultiPartParser, FormParser,JSONParser)
     def get(self, request, storeId, categoryId=None):
         many = False
         categories = []
@@ -31,11 +32,14 @@ class CategoryActions(APIView):
     @authorize_seller
     def post(self, request, storeId):
         data = request.data
+        data = request.data
+        if len(data) == 0:
+            data['category_name'] = 'Sample category'
         data['store_id'] = storeId
         serializer = CategorySerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        return Response(create_model_response(Category, serializer.data))
     
     @authorize_seller
     def put(self, request, storeId, categoryId):
@@ -53,7 +57,7 @@ class CategoryActions(APIView):
         category_record = CategorySerializer(category, data=request.data, partial=True)
         if category_record.is_valid():
             category_record.save()
-            return Response(category_record.data)
+            return Response(create_model_response(Category, category_record.data))
         else:
             return Response(category_record.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -101,11 +105,11 @@ class ItemActions(APIView):
             if not category:
                 raise APIException("Invalid Category")
 
-            items = category.items
-            items = items.filter(item_name__icontains=searchQuery).all()
+            items = category.items.order_by('item_created_time')
+            items = items.filter(item_name__icontains=searchQuery)
             many = True
         else:
-            items = Item.objects.filter(store_id=storeId, item_name__icontains=searchQuery).all()
+            items = Item.objects.filter(store_id=storeId, item_name__icontains=searchQuery).order_by('item_created_time').all()
 
         page = request.query_params.get('page')
         paginator = Paginator(items, 10)
@@ -164,6 +168,15 @@ class ItemActions(APIView):
         if not item:
             raise AuthenticationFailed("Invalid Item")
         
+        categories = request.data.pop('categories')
+        if categories:
+            item.category_set.clear()
+            for categoryId in categories:
+                category = Category.objects.filter(store_id=storeId, category_id=categoryId).first()
+                if category:
+                    category.items.add(item)
+                else:
+                    raise APIException('Invalid Category')
         profile_picture = request.data.get('item_image')
         #Changing name of image so that it is unique per item
         if profile_picture:

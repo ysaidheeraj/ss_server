@@ -168,7 +168,7 @@ export const OrderDetailsPage = () => {
                                 ?(
                                     Number(order.order_status) <= 1 ? (
                                         <Button variant='primary' className='form-control' onClick={() => updateOrderStatus(2, false)}>
-                                            {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                            {updating && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                                             {updating ? "Processing" : "Mark As Shipped"}
                                         </Button>
                                     ) : (
@@ -179,13 +179,13 @@ export const OrderDetailsPage = () => {
                                     Number(order.order_status) <= 2 ? (
                                         <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(3, true, 
                                         'Are you sure you want to cancel your order? This action is irreversible, and your order will be cancelled.')}>
-                                            {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                            {updating && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                                             {updating ? "Processing" : "Cancel Order"}
                                         </Button>
                                     ) : Number(order.order_status) === 4 ?(
                                         <Button variant='danger' className='form-control' onClick={() => updateOrderStatus(5, true, 
                                         'Are you sure you want to return your order?')}>
-                                            {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                            {updating && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                                             {updating ? "Processing" : "Return Order"}
                                         </Button>
                                     ): Number(order.order_status) === 5 ? (
@@ -201,7 +201,7 @@ export const OrderDetailsPage = () => {
                         {customer.isSeller &&  Number(order.order_status) === 2 && (
                                 <ListGroup.Item>
                                         <Button variant='info' className='form-control' onClick={() => updateOrderStatus(4, false)}>
-                                            {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                            {updating && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                                             {updating ? "Processing" : "Mark As Delivered"}
                                         </Button>
                                 </ListGroup.Item>
@@ -214,7 +214,7 @@ export const OrderDetailsPage = () => {
                         {customer.isSeller && Number(order.order_status) === 5 &&(
                                 <ListGroup.Item>
                                         <Button variant='info' className='form-control' onClick={() => updateOrderStatus(6, false)}>
-                                            {updating && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                                            {updating && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                                             {updating ? "Processing" : "Mark As Received"}
                                         </Button>
                                 </ListGroup.Item>

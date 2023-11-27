@@ -64,7 +64,8 @@ export const SellerProductList = () => {
             </Col>
             <Col md={2} className='text-right'>
                 <Button className='my-3 form-control'  onClick={createItemHandler}>
-                    <i className='fas fa-plus'></i>Add Product
+                    {createLoading && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                    {createLoading ? "Creating" : (<div><i className='fas fa-plus'></i>Add Product</div>)}
                 </Button>
             </Col>
         </Row>
@@ -86,7 +87,7 @@ export const SellerProductList = () => {
                             <th>ID</th>
                             <th>NAME</th>
                             <th>PRICE</th>
-                            <th>CATEGORY</th>
+                            <th>CATEGORIES</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -97,7 +98,9 @@ export const SellerProductList = () => {
                                 <td>{item.item_id}</td>
                                 <td>{item.item_name}</td>
                                 <td>${item.item_price}</td>
-                                <td>{}</td>
+                                <td>{item.categories.map((category) =>(
+                                    <i key={category.category_id}>{category.category_name}{', '}</i>
+                                ))}</td>
                                 <td>
                                     <LinkContainer to={`/seller/product/${item.item_id}/edit`}>
                                         <Button variant='light' className='btn-sm'>
