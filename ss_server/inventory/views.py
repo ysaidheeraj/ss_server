@@ -14,7 +14,7 @@ from storeusers.views import authorize_customer, authorize_seller, authorize_sto
 from django.utils import timezone
 from .utils import create_model_response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from django.core.paginator import Paginator, EmptyPage, Page, PageNotAnInteger
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 class CategoryActions(APIView):
     parser_classes = (MultiPartParser, FormParser,JSONParser)
