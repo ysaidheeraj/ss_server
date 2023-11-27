@@ -17,6 +17,7 @@ import { SellerProductList } from "./pages/SellerProductList";
 import { ProductEditPage } from "./pages/ProductEditPage";
 import { StoreOrdersPage } from "./pages/StoreOrdersPage";
 import { SellerCategoryList } from "./pages/SellerCategoryList";
+import { CategoryEditPage } from "./pages/CategoryEditPage";
 import { customer_details, customer_logout } from "./Actions/UserActions";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -63,6 +64,7 @@ function App() {
                 <Route path="/seller/product/:id/edit" Component={ProductEditPage} />
                 <Route path="/seller/orders" Component={StoreOrdersPage} />
                 <Route path="/seller/categories" Component={SellerCategoryList} />
+                <Route path="/seller/category/:id/edit" Component={CategoryEditPage} />
               </Routes>
             </Container>
           </main>

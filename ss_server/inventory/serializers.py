@@ -14,6 +14,16 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = ['item_id', 'item_name', 'item_price', 'item_available_count', 'item_unit', 'store_id', 'item_image', 'rating', 'num_reviews', 'item_description']
+    def to_representation(self, instance):
+        data = super(ItemSerializer, self).to_representation(instance)
+        categories = Category.objects.filter(store_id=instance.store_id)
+        item_categories = []
+        for category in categories:
+            category_item = category.items.filter(item_id=instance.item_id)
+            if(category_item):
+                item_categories.append(CategorySerializer(category).data)
+        data['categories'] = item_categories
+        return data
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
