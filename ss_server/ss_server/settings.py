@@ -172,6 +172,7 @@ CATEGORY_MEDIA_ROOT = os.path.join(BASE_DIR, 'inventory/category_images')
 AUTH_USER_MODEL = 'storeusers.Store_User'
 
 APP_ROOT_URL = "http://localhost:8001"
+ALLOW_UNCONFIRMED_USER_LOGIN = False
 
 ENABLE_EMAILS = True
 

@@ -89,7 +89,7 @@ def authorize_storeuser(view_func):
 
     return wrapper
 
-def authenticateUser(email, password, store_id, allowUnconfirmed=False):
+def authenticateUser(email, password, store_id, isSignup=False):
 
     user_obj = Store_User.objects.filter(email=email, store_id=store_id).first()
 
@@ -99,7 +99,7 @@ def authenticateUser(email, password, store_id, allowUnconfirmed=False):
     if not user_obj.check_password(password):
         raise AuthenticationFailed("Incorrect Password")
     
-    if not allowUnconfirmed:
+    if not settings.ALLOW_UNCONFIRMED_USER_LOGIN and not isSignup:
         if not user_obj.isConfirmed:
             raise AuthenticationFailed("Unconfirmed User")
     
@@ -147,7 +147,7 @@ def accountConfirmTemplate(request, storeId):
 @api_view(['POST'])
 def confirmNewCustomer(request, storeId):
     data = request.data
-    customer = authenticateUser(data['email'], data['password'], storeId, allowUnconfirmed=True)
+    customer = authenticateUser(data['email'], data['password'], storeId, isSignup=True)
 
     if customer:
         if not customer.isConfirmed:

@@ -24,6 +24,7 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { Loader } from "./Components/Loader";
 import { useEffect } from "react";
+import { Message } from "./Components/Message";
 function App() {
   const dispatch = useDispatch();
 
@@ -41,10 +42,13 @@ function App() {
   }, [error]);
   return (
     <div>
-      {loading ? (<Loader />):
+      {!customer && loading ? (<Loader />):
       (
         <Router>
           <Header />
+          {customer && !customer.isConfirmed && (
+            <Message variant='warning'>Your account is not confirmed. Please check your email and confirm your account!</Message>
+          )}
           <main className="py-3">
             <Container>
               <Routes>
