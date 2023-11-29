@@ -42,7 +42,7 @@ class Store_User(AbstractUser):
         return self.user_role == User_Role.SELLER
     
     def __str__(self) -> str:
-        return self.email
+        return self.username
 
     class Meta:
         unique_together = (("email", "store_id", "user_role"))
