@@ -2,7 +2,6 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.utils.html import strip_tags
 from django.template.loader import render_to_string
 from django.conf import settings
-import base64, json
 
 def send_order_status_update_email(order):
     customer = order['customer']
@@ -26,23 +25,24 @@ def send_order_status_update_email(order):
     }
     context = {
         "user_name": customer['first_name'] + " " + customer['last_name'],
-        "order_link" : "http://localhost:8001/#/login?redirect=/order/"+str(order['order_id']),
+        "order_link" : settings.APP_ROOT_URL+"/#/login?redirect=/order/"+str(order['order_id']),
         "orderId": str(order['order_id']),
         "orderStatusText": orderStatusText[order['order_status']],
         "orderStatusMessage": orderStatusMessage[order['order_status']]
     }
+    if settings.ENABLE_EMAILS:
 
-    html_message = render_to_string("OrderStatusUpdate.html", context=context)
-    plain_message = strip_tags(html_message)
+        html_message = render_to_string("OrderStatusUpdate.html", context=context)
+        plain_message = strip_tags(html_message)
 
-    email = EmailMultiAlternatives(
-        subject=f"Update on your order {order['order_id']} from Sell Smart",
-        body=plain_message,
-        from_email=settings.EMAIL_HOST_USER,
-        to=[customer['email']],
-        reply_to=[settings.EMAIL_HOST_USER]
-    )
+        email = EmailMultiAlternatives(
+            subject=f"Update on your order {order['order_id']} from Sell Smart",
+            body=plain_message,
+            from_email=settings.EMAIL_HOST_USER,
+            to=[customer['email']],
+            reply_to=[settings.EMAIL_HOST_USER]
+        )
 
-    email.attach_alternative(html_message, "text/html")
-    email.send()
+        email.attach_alternative(html_message, "text/html")
+        email.send()
 

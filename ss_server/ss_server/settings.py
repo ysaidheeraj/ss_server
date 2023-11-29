@@ -171,6 +171,10 @@ CATEGORY_MEDIA_ROOT = os.path.join(BASE_DIR, 'inventory/category_images')
 
 AUTH_USER_MODEL = 'storeusers.Store_User'
 
+APP_ROOT_URL = "http://localhost:8001"
+
+ENABLE_EMAILS = True
+
 #Email settings
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
