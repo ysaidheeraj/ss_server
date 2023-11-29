@@ -80,6 +80,11 @@ export const customer_register = (first_name, last_name, email, password) => asy
             payload: data.customer
         })
 
+        dispatch({
+            type: CUSTOMER_DETAILS_SUCCESS,
+            payload: data.Store_User
+        })
+
         localStorage.setItem('customerInfo', JSON.stringify(data.customer));
     }catch(error){
         dispatch({

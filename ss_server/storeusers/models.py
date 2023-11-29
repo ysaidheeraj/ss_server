@@ -33,12 +33,16 @@ class Store_User(AbstractUser):
     user_created_time = models.DateTimeField(auto_now_add=True)
     user_updated_time = models.DateTimeField(auto_now=True)
     user_role = models.IntegerField(choices=User_Role.choices, blank=True, null=True)
+    isConfirmed = models.BooleanField(default=False)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
 
     @property
     def isSeller(self):
         return self.user_role == User_Role.SELLER
+    
+    def __str__(self) -> str:
+        return self.email
 
     class Meta:
         unique_together = (("email", "store_id", "user_role"))

@@ -11,6 +11,9 @@ from functools import wraps
 from django.conf import settings
 from .utils import create_model_response
 from  django.contrib.auth.hashers import make_password
+from .emailservice import send_welcome_account_confirmation_email
+from django.shortcuts import render, redirect
+from rest_framework.decorators import api_view
 
 secret_key = settings.HASH_SECRET
 def handleCustomerToken(request):
@@ -86,7 +89,7 @@ def authorize_storeuser(view_func):
 
     return wrapper
 
-def authenticateUser(email, password, store_id):
+def authenticateUser(email, password, store_id, allowUnconfirmed=False):
 
     user_obj = Store_User.objects.filter(email=email, store_id=store_id).first()
 
@@ -96,9 +99,13 @@ def authenticateUser(email, password, store_id):
     if not user_obj.check_password(password):
         raise AuthenticationFailed("Incorrect Password")
     
+    if not allowUnconfirmed:
+        if not user_obj.isConfirmed:
+            raise AuthenticationFailed("Unconfirmed User")
+    
     return user_obj
 
-def generate_token(user_obj, store_id):
+def generate_token(user_obj, store_id, redirectTo=False, redirectUrl=''):
     currentTime = datetime.datetime.utcnow()
     payload = {
         'id': user_obj.user_id, #Customer id
@@ -111,6 +118,8 @@ def generate_token(user_obj, store_id):
     key = 'customer_jwt'
     user_type = 'customer'
     response = Response()
+    if redirectTo:
+        response = redirect(redirectUrl)
     response.set_cookie(key=key, value=token, httponly=True, expires=currentTime + datetime.timedelta(hours=24)) #, domain="127.0.0.1") , samesite='Lax')
     response["Access-Control-Allow-Credentials"] = "true"
     response.data = {
@@ -129,7 +138,32 @@ class RegisterCustomerView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         customer = Store_User.objects.filter(email=data['email'], store_id=storeId, user_role=User_Role.CUSTOMER).first()
+        send_welcome_account_confirmation_email(customer)
         return generate_token(customer, storeId)
+
+def accountConfirmTemplate(request, storeId):
+    return render(request, "AccountConfirm.html")
+
+@api_view(['POST'])
+def confirmNewCustomer(request, storeId):
+    data = request.data
+    customer = authenticateUser(data['email'], data['password'], storeId, allowUnconfirmed=True)
+
+    if customer:
+        if not customer.isConfirmed:
+            userSer = StoreUserSerializer(customer, data={"isConfirmed": True}, partial=True)
+            if userSer.is_valid():
+                userSer.save()
+            customer = userSer.instance
+
+        return generate_token(customer, storeId)
+
+@api_view(['POST'])
+def resendAccountConfirm(request, storeId):
+    data = request.data
+    customer = Store_User.objects.filter(store_id=storeId, email=data['email']).first()
+    send_welcome_account_confirmation_email(customer)
+    return Response(status=status.HTTP_200_OK)
 
 class LoginCustomerView(APIView):
     def post(self, request, storeId):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Category, Item, Order, OrderItem, Reviews, ShippingAddress
-from stores.models import Store
+from storeusers.serializers import StoreUserSerializer
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -53,6 +53,8 @@ class OrderSerializer(serializers.ModelSerializer):
         order_items = OrderItem.objects.filter(order=instance)
         order_items_serializer = OrderItemSerializer(order_items, many=True)
         data['order_items'] = order_items_serializer.data
+
+        data['customer'] = StoreUserSerializer(instance.customer_id).data
 
         shippingAddress = ShippingAddress.objects.filter(order=instance.order_id).first()
         data['shipping_address'] = ShippingAddressSerializer(shippingAddress).data
