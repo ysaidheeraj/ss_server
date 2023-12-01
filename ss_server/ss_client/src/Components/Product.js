@@ -8,7 +8,7 @@ export const Product = ({product}) => {
     
     <Card className=' container h-100 rounded mb-md-4 shadow '>
         <Link to={`/product/${product.item_id}`}>
-            <Card.Img src={product.item_image} className='mt-3 mb-3 ml-3 mr-3 img-fluid' />
+            <Card.Img src={product.item_image + '?_=' + product.item_updated_time} className='mt-3 mb-3 ml-3 mr-3 img-fluid' />
         </Link>
 
         <Card.Body>

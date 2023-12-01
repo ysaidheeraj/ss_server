@@ -1,19 +1,19 @@
 from rest_framework import serializers
 from .models import Category, Item, Order, OrderItem, Reviews, ShippingAddress
-from stores.models import Store
+from storeusers.serializers import StoreUserSerializer
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         category_picture = serializers.ImageField(required=False, max_length=None, use_url=True)
-        fields = ['category_id', 'category_name', 'category_picture', 'store_id', 'category_created_time', 'items']
+        fields = ['category_id', 'category_name', 'category_picture', 'store_id', 'category_created_time', 'items', 'category_last_updated_time']
     
 
 class ItemSerializer(serializers.ModelSerializer):
     item_image = serializers.ImageField(required=False, max_length=None, use_url=True)
     class Meta:
         model = Item
-        fields = ['item_id', 'item_name', 'item_price', 'item_available_count', 'item_unit', 'store_id', 'item_image', 'rating', 'num_reviews', 'item_description']
+        fields = ['item_id', 'item_name', 'item_price', 'item_available_count', 'item_unit', 'store_id', 'item_image', 'rating', 'num_reviews', 'item_description', 'item_updated_time']
     def to_representation(self, instance):
         data = super(ItemSerializer, self).to_representation(instance)
         categories = Category.objects.filter(store_id=instance.store_id)
@@ -53,6 +53,8 @@ class OrderSerializer(serializers.ModelSerializer):
         order_items = OrderItem.objects.filter(order=instance)
         order_items_serializer = OrderItemSerializer(order_items, many=True)
         data['order_items'] = order_items_serializer.data
+
+        data['customer'] = StoreUserSerializer(instance.customer_id).data
 
         shippingAddress = ShippingAddress.objects.filter(order=instance.order_id).first()
         data['shipping_address'] = ShippingAddressSerializer(shippingAddress).data

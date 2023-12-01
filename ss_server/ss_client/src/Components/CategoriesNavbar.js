@@ -23,13 +23,21 @@ export const CategoriesNavbar = ({selectedCategoryLink}) => {
     
     const changeCategoryHandler = (categoryId) =>{
         setCurrentCategory(categoryId);
-        searchParams.set('category', categoryId)
+        if(categoryId != -1){
+            searchParams.set('category', categoryId);
+        }else{
+            const param = searchParams.get('category');
+            if (param) {
+                searchParams.delete('category');
+                setSearchParams(searchParams);
+            }
+        }
+        searchParams.set('page', '1');
         setSearchParams(searchParams);
-        navigate(`/?${searchParams.toString()}`);
     }
   return (
     <div>
-        {loading ? (<Loader />)
+        {!categories || loading ? (<Loader />)
         : categories.length > 0 ? (
             <Nav fill variant="tabs" activeKey={currentCategory} onSelect={changeCategoryHandler}>
                 <Nav.Item>
@@ -40,7 +48,7 @@ export const CategoriesNavbar = ({selectedCategoryLink}) => {
                         <Nav.Link eventKey={`${category.category_id}`}>
                             {category.category_picture && (
                                 <Image
-                                    src={category.category_picture}
+                                    src={category.category_picture + "?_=" +category.category_last_updated_time}
                                     alt={category.category_name}
                                     rounded
                                     className='category-icon'

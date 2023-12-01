@@ -46,17 +46,26 @@ export const OrderDetailsPage = () => {
   return loading ? 
     (<Loader/>) 
     : error ? (<Message variant='danger'>{error}</Message>)
-    : !customer || !customer.first_name ? (<Message variant='danger'>Please <a href={`/login`}>Login</a> to view order details.</Message>)
+    : !customer || !order.customer.first_name ? (<Message variant='danger'>Please <a href={`/login`}>Login</a> to view order details.</Message>)
     :(
     <div>
+        {customer.isSeller ? (
+            <Link to="/seller/orders" className="btn btn-primary my-3">
+                <i className="fa fa-arrow-left" aria-hidden="true"></i>
+            </Link>
+        ) : (
+            <Link to="/myorders" className="btn btn-primary my-3">
+                <i className="fa fa-arrow-left" aria-hidden="true"></i>
+            </Link>
+        )}
         <h1>Order: {order.order_id}</h1>
         <Row>
             <Col md={8}>
                 <ListGroup variant='flush'>
                     <ListGroup.Item>
                         <h2>Shipping</h2>
-                        <p><strong>Name: {customer.first_name}{' '}{customer.last_name}</strong></p>
-                        <p><strong>Email: <a href={`mailto:${customer.email}`}>{customer.email}</a></strong></p>
+                        <p><strong>Name: {order.customer.first_name}{' '}{order.customer.last_name}</strong></p>
+                        <p><strong>Email: <a href={`mailto:${order.customer.email}`}>{order.customer.email}</a></strong></p>
                         <p>
                             <strong>Shipping: </strong>
                             {order.shipping_address.address}, {order.shipping_address.city}
@@ -65,6 +74,10 @@ export const OrderDetailsPage = () => {
                             {' '}
                             {order.shipping_address.country}
                         </p>
+
+                        {Number(order.order_status) >= 2 &&
+                            (<Message variant='success'>Shipped</Message>)
+                        }
 
                         {Number(order.order_status) >= 4 ?
                             (<Message variant='success'>Delivered</Message>)
@@ -96,7 +109,7 @@ export const OrderDetailsPage = () => {
                                     <ListGroup.Item key={item.order_item_id}>
                                         <Row>
                                             <Col md={1}>
-                                                <Image src={item.Item.item_image} alt={item.Item.item_name} fluid rounded/>
+                                                <Image src={item.Item.item_image + "?_=" + item.item_updated_time} alt={item.Item.item_name} fluid rounded/>
                                             </Col>
 
                                             <Col>
@@ -217,6 +230,11 @@ export const OrderDetailsPage = () => {
                                             {updating && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                                             {updating ? "Processing" : "Mark As Received"}
                                         </Button>
+                                </ListGroup.Item>
+                        )}
+                        {customer.isSeller && Number(order.order_status) === 6 &&(
+                                <ListGroup.Item>
+                                    <Message variant='info'>Refunded</Message>
                                 </ListGroup.Item>
                         )}
                     </ListGroup>

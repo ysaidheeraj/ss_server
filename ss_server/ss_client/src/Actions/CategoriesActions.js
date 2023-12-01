@@ -3,11 +3,11 @@ import { CATEGORIES_CREATE_REQUEST, CATEGORIES_CREATE_SUCCESS, CATEGORIES_CREATE
 import {CATEGORY_DELETE_FAIL, CATEGORY_DELETE_REQUEST, CATEGORY_DELETE_SUCCESS} from "../Constants/CategoriesConstants";
 import axios from "axios";
 
-export const listCategories = () => async(dispatch) =>{
+export const listCategories = () => async(dispatch, getState) =>{
     try{
         dispatch({type: CATEGORIES_LIST_REQUEST});
         
-        const {data} = await axios.get(`/store/1/categories/allcategories`);
+        const {data} = await axios.get(`/store/${getState().storeDetails.store.store_id}/categories/allcategories`);
 
         dispatch({
             type: CATEGORIES_LIST_SUCCESS,
@@ -22,7 +22,7 @@ export const listCategories = () => async(dispatch) =>{
     }
 }
 
-export const createCategory = () => async(dispatch) =>{
+export const createCategory = () => async(dispatch, getState) =>{
     try{
         dispatch({type: CATEGORIES_CREATE_REQUEST});
 
@@ -34,7 +34,7 @@ export const createCategory = () => async(dispatch) =>{
         }
 
         const {data} = await axios.post(
-            '/store/1/categories/createcategory',
+            `/store/${getState().storeDetails.store.store_id}/categories/createcategory`,
             {},
             config
         );
@@ -51,12 +51,12 @@ export const createCategory = () => async(dispatch) =>{
     }
 }
 
-export const listCategoryDetails = (id) => async(dispatch) =>{
+export const listCategoryDetails = (id) => async(dispatch, getState) =>{
     try{
         dispatch({type: CATEGORY_DETAILS_REQUEST});
 
         const {data} = await axios.get(
-            `/store/1/categories/category/${id}`,
+            `/store/${getState().storeDetails.store.store_id}/categories/category/${id}`,
         );
 
         dispatch({
@@ -71,7 +71,7 @@ export const listCategoryDetails = (id) => async(dispatch) =>{
     }
 }
 
-export const updateCategory = (category, id) => async(dispatch) =>{
+export const updateCategory = (category, id) => async(dispatch, getState) =>{
     try{
         dispatch({type: CATEGORY_UPDATE_REQUEST});
 
@@ -89,7 +89,7 @@ export const updateCategory = (category, id) => async(dispatch) =>{
         }
 
         const {data} = await axios.put(
-            `/store/1/categories/category/${id}`,
+            `/store/${getState().storeDetails.store.store_id}/categories/category/${id}`,
             category,
             config
         );
@@ -111,7 +111,7 @@ export const updateCategory = (category, id) => async(dispatch) =>{
     }
 }
 
-export const deleteCategory = (id) => async(dispatch) =>{
+export const deleteCategory = (id) => async(dispatch, getState) =>{
     try{
         dispatch({type: CATEGORY_DELETE_REQUEST});
 
@@ -123,7 +123,7 @@ export const deleteCategory = (id) => async(dispatch) =>{
         }
 
         const {data} = await axios.delete(
-            `/store/1/categories/category/${id}`,
+            `/store/${getState().storeDetails.store.store_id}/categories/category/${id}`,
             config
         );
 

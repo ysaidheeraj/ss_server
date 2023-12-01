@@ -20,9 +20,6 @@ export const ProfilePage = () => {
   const customerDetails = useSelector((state) => state.customerDetails);
   const { error, loading, customer } = customerDetails;
 
-  const customerLogin = useSelector((state) => state.customerLogin);
-  const { customerInfo } = customerLogin;
-
   const customerUpdate = useSelector((state) => state.customerUpdateProfile);
   const { success } = customerUpdate; //Checking if update is success
 
@@ -47,7 +44,7 @@ export const ProfilePage = () => {
 
 
   useEffect(() => {
-    if (!customerInfo) {
+    if (!customer) {
       navigate("/login");
     } else {
       if (!customer || success) {
@@ -61,13 +58,13 @@ export const ProfilePage = () => {
         setLastName(customer.last_name);
         setEmail(customer.email);
         if(customer.profile_picture){
-          setImageSrc(customer.profile_picture);
+          setImageSrc(customer.profile_picture + "?_=" + customer.user_updated_time);
         }else{
           setImageSrc('/storeusers/profile_pictures/default_avatar.jpeg');
         }
       }
     }
-  }, [dispatch, customer, customerInfo, success, navigate]);
+  }, [dispatch, customer, success, navigate]);
 
   const registerSubmitHandler = (e) => {
     e.preventDefault();

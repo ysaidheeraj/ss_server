@@ -64,7 +64,10 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, "ss_client/build")
+            os.path.join(BASE_DIR, "ss_client/build"),
+            os.path.join(BASE_DIR, "storeusers","EmailTemplates"),
+            os.path.join(BASE_DIR, "storeusers","Templates"),
+            os.path.join(BASE_DIR, "inventory","EmailTemplates"),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -86,8 +89,11 @@ WSGI_APPLICATION = 'ss_server.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'SellSmart'
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'SellSmart',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',  # Change this to the MySQL server's hostname or IP address if it's not on localhost.
     }
 }
 
@@ -164,3 +170,17 @@ CATEGORY_MEDIA_URL = 'category_images/'
 CATEGORY_MEDIA_ROOT = os.path.join(BASE_DIR, 'inventory/category_images')
 
 AUTH_USER_MODEL = 'storeusers.Store_User'
+
+APP_ROOT_URL = "http://localhost:8001"
+ALLOW_UNCONFIRMED_USER_LOGIN = False
+
+ENABLE_EMAILS = True
+
+#Email settings
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'sellsmart443@gmail.com'
+DEFAULT_FROM_MAIL = 'Sell Smart <sellsmart443@gmail.com>'
+EMAIL_HOST_PASSWORD = 'zdeq fbqz tipx uqvk'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False

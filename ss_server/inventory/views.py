@@ -15,6 +15,7 @@ from django.utils import timezone
 from .utils import create_model_response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from .emailservice import send_order_status_update_email
 
 class CategoryActions(APIView):
     parser_classes = (MultiPartParser, FormParser,JSONParser)
@@ -169,7 +170,7 @@ class ItemActions(APIView):
         if not item:
             raise AuthenticationFailed("Invalid Item")
         
-        categories = request.data.pop('categories')
+        categories = request.data.pop('categories') if request.data.get('categories') else None
         if categories:
             item.category_set.clear()
             for categoryId in categories:
@@ -378,6 +379,7 @@ class OrderActions(APIView):
         orderSer = OrderSerializer(order, data=request.data, partial=True)
         orderSer.is_valid(raise_exception=True)
         orderSer.save()
+        send_order_status_update_email(orderSer.data)
         return Response(create_model_response(Order, orderSer.data))
     
 class SellerOrderActions(APIView):

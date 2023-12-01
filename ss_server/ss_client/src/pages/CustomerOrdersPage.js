@@ -11,14 +11,14 @@ export const CustomerOrdersPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const customerLogin = useSelector((state) => state.customerLogin);
-  const { customerInfo } = customerLogin;
+  const customerDetails = useSelector((state) => state.customerDetails);
+  const { customer } = customerDetails;
 
   const ordersList = useSelector((state) => state.ordersList);
   const {loading, error, orders} = ordersList;
 
   useEffect(() =>{
-    if (!customerInfo) {
+    if (!customer) {
       navigate("/login");
     }else{
       dispatch(listCustomerOrders());

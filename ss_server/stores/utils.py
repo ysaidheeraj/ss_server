@@ -1,0 +1,10 @@
+from rest_framework.response import Response
+
+def create_model_response(model, serialized_data):
+    """
+    Create a response with the model name as key and serialized data as value.
+    """
+    response_data = {
+        model.__name__: serialized_data
+    }
+    return response_data

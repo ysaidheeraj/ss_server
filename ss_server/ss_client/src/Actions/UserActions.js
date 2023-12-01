@@ -4,9 +4,10 @@ import { CUSTOMER_UPDATE_REQUEST, CUSTOMER_UPDATE_SUCCESS, CUSTOMER_UPDATE_FAIL,
 import { CUSTOMER_LIST_FAIL, CUSTOMER_LIST_RESET, CUSTOMER_LIST_SUCCESS, CUSTOMER_LIST_REQUEST } from "../Constants/UserConstants";
 import { ORDERS_LIST_RESET, SELLER_ORDERS_LIST_RESET } from "../Constants/OrderConstants";
 import axios from "axios";
+import store_data from "./StoreActions";
 
 
-export const customer_login = (email, password) => async(dispatch) =>{
+export const customer_login = (email, password) => async(dispatch, getState) =>{
     try{
         dispatch({
             type: CUSTOMER_LOGIN_REQUEST
@@ -19,7 +20,7 @@ export const customer_login = (email, password) => async(dispatch) =>{
             }
         }
         const {data} = await axios.post(
-            '/store/1/storeuser/customer/login',
+            `/store/${getState().storeDetails.store.store_id}/storeuser/customer/login`,
             {
                 "email": email,
                 "password": password
@@ -46,7 +47,7 @@ export const customer_login = (email, password) => async(dispatch) =>{
     }
 }
 
-export const customer_register = (first_name, last_name, email, password) => async(dispatch) =>{
+export const customer_register = (first_name, last_name, email, password) => async(dispatch, getState) =>{
     try{
         dispatch({
             type: CUSTOMER_REGISTER_REQUEST
@@ -59,7 +60,7 @@ export const customer_register = (first_name, last_name, email, password) => asy
             }
         }
         const {data} = await axios.post(
-            '/store/1/storeuser/customer/register',
+            `/store/${getState().storeDetails.store.store_id}/storeuser/customer/register`,
             {
                 "email": email,
                 "password": password,
@@ -80,6 +81,11 @@ export const customer_register = (first_name, last_name, email, password) => asy
             payload: data.customer
         })
 
+        dispatch({
+            type: CUSTOMER_DETAILS_SUCCESS,
+            payload: data.Store_User
+        })
+
         localStorage.setItem('customerInfo', JSON.stringify(data.customer));
     }catch(error){
         dispatch({
@@ -89,14 +95,14 @@ export const customer_register = (first_name, last_name, email, password) => asy
     }
 }
 
-export const customer_details = () => async(dispatch) =>{
+export const customer_details = () => async(dispatch, getState) =>{
     try{
         dispatch({
             type: CUSTOMER_DETAILS_REQUEST
         })
 
         const {data} = await axios.get(
-            '/store/1/storeuser/customer/customer',
+            `/store/${getState().storeDetails.store.store_id}/storeuser/customer/customer`,
             {withCredentials: true}
         )
 
@@ -136,7 +142,7 @@ export const update_customer_details = (customer) => async(dispatch, getState) =
         }
 
         const {data} = await axios.put(
-            '/store/1/storeuser/customer/update',
+            `/store/${getState().storeDetails.store.store_id}/storeuser/customer/update`,
             customer,
             config
         )
@@ -175,7 +181,7 @@ export const list_store_customers = () => async(dispatch, getState) =>{
         }
 
         const {data} = await axios.get(
-            '/store/1/storeuser/seller/allcustomers',
+            `/store/${getState().storeDetails.store.store_id}/storeuser/seller/allcustomers`,
             config
         )
 
@@ -195,14 +201,14 @@ export const list_store_customers = () => async(dispatch, getState) =>{
 }
 
 
-export const customer_logout = () => async(dispatch) =>{
+export const customer_logout = () => async(dispatch, getState) =>{
     const config = {
         headers : {
             'X-CSRFToken': getCookie('csrftoken')
         }
     }
     const {data} = await axios.post(
-        '/store/1/storeuser/customer/logout',
+        `/store/${getState().storeDetails.store.store_id}/storeuser/customer/logout`,
         { withCredentials: true },
         config
     )

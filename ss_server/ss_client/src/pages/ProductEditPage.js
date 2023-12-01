@@ -23,7 +23,7 @@ export const ProductEditPage = () => {
         if(!customerLoading && (!customer || !customer.isSeller)){
             navigate('/login');
         }
-    }, [])
+    }, [customer, customerLoading])
 
     const categoriesList = useSelector((state) => state.categoriesList);
     const {loading: categoriesLoading, categories, error: categoriesError } = categoriesList;
@@ -70,18 +70,20 @@ export const ProductEditPage = () => {
                     {value: category.category_id, label: category.category_name, key: category.category_id}
                 )))
             }
-            if(!item.item_name || item.item_id !== Number(itemId)){
-                dispatch(listItemDetails(itemId));
-                dispatch(listCategories());
-            }else{
-                setName(item.item_name);
-                setPrice(item.item_price);
-                setQuantity(item.item_available_count);
-                setImageSrc(item.item_image)
-                setDescription(item.item_description ? item.item_description : '')
-                setSelectedCategories(item.categories.map((category) =>(
-                    {value: category.category_id, label: category.category_name, key: category.category_id}
-                )))
+            if(!loading){
+                if(!item.item_name || item.item_id !== Number(itemId)){
+                    dispatch(listItemDetails(itemId));
+                    dispatch(listCategories());
+                }else{
+                    setName(item.item_name);
+                    setPrice(item.item_price);
+                    setQuantity(item.item_available_count);
+                    setImageSrc(item.item_image + "?_=" + item.item_updated_time)
+                    setDescription(item.item_description ? item.item_description : '')
+                    setSelectedCategories(item.categories.map((category) =>(
+                        {value: category.category_id, label: category.category_name, key: category.category_id}
+                    )))
+                }
             }
         }
     },[dispatch, item, loading, updateSuccess])

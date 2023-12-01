@@ -21,13 +21,16 @@ export const RegisterPage = () => {
     const redirect = searchParams.get('redirect') ? searchParams.get('redirect') : '/';
 
     const customerRegister = useSelector(state => state.customerRegister)
-    const {error, loading, customerInfo} = customerRegister;
+    const {error, loading} = customerRegister;
+
+    const customerDetails = useSelector(state => state.customerDetails)
+    const {loading: customerLoading, customer} = customerDetails;
 
     useEffect(() => {
-        if (customerInfo){
+        if (!customerLoading && customer){
             navigate(redirect);
         }
-    }, [customerInfo, redirect])
+    }, [customer,customerLoading, redirect])
 
     const registerSubmitHandler = (e) => {
         e.preventDefault();

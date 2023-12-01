@@ -10,9 +10,10 @@ export const SearchBox = () => {
 
     const searchHandler = (e) => {
         e.preventDefault();
+        searchParams.set('page', '1');
         if(searchString){
           searchParams.set('search', searchString);
-            navigate(`/?${searchParams.toString()}`);
+          navigate(`/?${searchParams.toString()}`);
         }else{
             const param = searchParams.get('search');
             if (param) {

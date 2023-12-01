@@ -18,11 +18,7 @@ export const SellerProductList = () => {
     const {error, loading, items, pages, page} = itemList;
 
     const customerDetails = useSelector((state) => state.customerDetails);
-    const { customer } = customerDetails;
-
-    if(!customer || !customer.isSeller){
-        navigate('/login');
-    }
+    const { loading: customerLoading, customer } = customerDetails;
 
     const itemDelete = useSelector(state => state.itemDelete)
     const {error: errorDelete, loading: deleteLoading, success} = itemDelete;
@@ -42,9 +38,13 @@ export const SellerProductList = () => {
         if(createSuccess){
             navigate(`/seller/product/${createdItem.item_id}/edit`);
         }else{
-            dispatch(listItems(queryString));
+            if(!customerLoading && (!customer || !customer.isSeller)){
+                navigate('/login');
+            }else{
+                dispatch(listItems(queryString));
+            }
         }
-    },[dispatch, success, createSuccess, createdItem])
+    },[dispatch, success, createSuccess, createdItem, customer, customerLoading, searchParams])
 
     const deleteItemHandler = (id) =>{
         if(window.confirm('Are you sure you want to delete this item?')){
