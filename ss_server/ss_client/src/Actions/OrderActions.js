@@ -21,7 +21,7 @@ export const create_order = (order) => async(dispatch, getState) =>{
         }
 
         const {data} = await axios.post(
-            'store/1/orders/customer/createorder',
+            `store/${getState().storeDetails.store.store_id}/orders/customer/createorder`,
             order,
             config
         )
@@ -61,7 +61,7 @@ export const getOrderDetails = (id) => async(dispatch, getState) =>{
         }
 
         const {data} = await axios.get(
-            `/store/1/orders/customer/order/${id}`,
+            `/store/${getState().storeDetails.store.store_id}/orders/customer/order/${id}`,
             config
         )
 
@@ -94,7 +94,7 @@ export const updateOrderDetails = (id, requestData) => async(dispatch, getState)
         }
 
         const {data} = await axios.put(
-            `/store/1/orders/customer/order/${id}`,
+            `/store/${getState().storeDetails.store.store_id}/orders/customer/order/${id}`,
             requestData,
             config
         )
@@ -132,7 +132,7 @@ export const listCustomerOrders = (id) => async(dispatch, getState) =>{
         }
 
         const {data} = await axios.get(
-            `/store/1/orders/customer/allorders`,
+            `/store/${getState().storeDetails.store.store_id}/orders/customer/allorders`,
             config
         )
 
@@ -164,7 +164,7 @@ export const listStoreOrders = (id) => async(dispatch, getState) =>{
         }
 
         const {data} = await axios.get(
-            `/store/1/orders/seller/allorders`,
+            `/store/${getState().storeDetails.store.store_id}/orders/seller/allorders`,
             config
         )
 

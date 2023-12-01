@@ -19,30 +19,46 @@ import { StoreOrdersPage } from "./pages/StoreOrdersPage";
 import { SellerCategoryList } from "./pages/SellerCategoryList";
 import { CategoryEditPage } from "./pages/CategoryEditPage";
 import { customer_details, customer_logout } from "./Actions/UserActions";
+import { listStoreDetails } from "./Actions/StoreActions";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { Loader } from "./Components/Loader";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Message } from "./Components/Message";
 function App() {
   const dispatch = useDispatch();
+  const [loadingData, setLoadingData] = useState(true);
+
+  const storeDetails = useSelector((state) => state.storeDetails);
+  const { error: storeError, loading: storeLoading, store } = storeDetails;
 
   const customerDetails = useSelector((state) => state.customerDetails);
   const { error, loading, customer } = customerDetails;
-  if(!customer && !loading && !error){
-    dispatch(customer_details());
-  }
 
   useEffect(() => {
+    if((customer || error) && store){
+      if(!loading && !storeLoading){
+        setLoadingData(false);
+      }
+    }
+    if(store && !storeLoading){
+      if(!customer && !loading && !error){
+        dispatch(customer_details());
+      }
+    }
+
+    if(!store && !storeLoading && !storeError){
+      dispatch(listStoreDetails(1));
+    }
     if(error === "Login Expired"){
       // If the login expires, we need to relogin
       dispatch(customer_logout());
     }
-  }, [error]);
+  }, [dispatch, store, error, storeLoading, loading]);
   return (
     <div>
-      {!customer && loading ? (<Loader />):
+      {loadingData ? (<Loader />):
       (
         <Router>
           <Header />

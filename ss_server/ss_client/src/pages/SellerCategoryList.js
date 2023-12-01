@@ -14,11 +14,7 @@ export const SellerCategoryList = () => {
     const navigate = useNavigate();
 
     const customerDetails = useSelector((state) => state.customerDetails);
-    const { customer } = customerDetails;
-
-    if(!customer || !customer.isSeller){
-        navigate('/login');
-    }
+    const { loading: customerLoading, customer } = customerDetails;
 
     const categoriesList = useSelector((state) => state.categoriesList);
     const {loading, categories, error } = categoriesList;
@@ -34,9 +30,13 @@ export const SellerCategoryList = () => {
             dispatch({type: CATEGORIES_CREATE_RESET})
             navigate(`/seller/category/${category.category_id}/edit`);
         }else{
+          if(!customerLoading && (!customer || !customer.isSeller)){
+            navigate('/login');
+          }else{
             dispatch(listCategories());
+          }
         }
-    },[dispatch, createSuccess, category, deleteSuccess])
+    },[dispatch, createSuccess, category, deleteSuccess, customer, customerLoading])
 
     const createCategoryHandler = () =>{
         dispatch(createCategory());

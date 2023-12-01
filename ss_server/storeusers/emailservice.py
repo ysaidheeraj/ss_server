@@ -19,7 +19,7 @@ def send_welcome_account_confirmation_email(customer):
         email = EmailMultiAlternatives(
             subject="Welcome to Sell Smart",
             body=plain_message,
-            from_email=settings.EMAIL_HOST_USER,
+            from_email=settings.DEFAULT_FROM_MAIL,
             to=[customer.email],
             reply_to=[settings.EMAIL_HOST_USER]
         )

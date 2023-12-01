@@ -7,11 +7,11 @@ import { ITEM_LIST_SUCCESS, ITEM_LIST_REQUEST, ITEM_LIST_FAIL,
 } from "../Constants/ItemConstants"
 import axios from "axios";
 
-export const listItems = (searchQuery = '') => async(dispatch) =>{
+export const listItems = (searchQuery = '') => async(dispatch, getState) =>{
     try{
         dispatch({type: ITEM_LIST_REQUEST});
         
-        const {data} = await axios.get(`/store/1/items/allitems${searchQuery}`);
+        const {data} = await axios.get(`/store/${getState().storeDetails.store.store_id}/items/allitems${searchQuery}`);
 
         dispatch({
             type: ITEM_LIST_SUCCESS,
@@ -26,11 +26,11 @@ export const listItems = (searchQuery = '') => async(dispatch) =>{
     }
 }
 
-export const listItemDetails = (id) => async(dispatch) =>{
+export const listItemDetails = (id) => async(dispatch, getState) =>{
     try{
         dispatch({type: ITEM_DETAILS_REQUEST});
         
-        const {data} = await axios.get(`/store/1/items/item/${id}`);
+        const {data} = await axios.get(`/store/${getState().storeDetails.store.store_id}/items/item/${id}`);
 
         dispatch({
             type: ITEM_DETAILS_SUCCESS,
@@ -45,7 +45,7 @@ export const listItemDetails = (id) => async(dispatch) =>{
     }
 }
 
-export const deleteItem = (id) => async(dispatch) =>{
+export const deleteItem = (id) => async(dispatch, getState) =>{
     try{
         dispatch({type: ITEM_DELETE_REQUEST});
 
@@ -56,7 +56,7 @@ export const deleteItem = (id) => async(dispatch) =>{
             withCredentials: true
         }
         
-        const {data} = await axios.delete(`/store/1/items/item/${id}`, config);
+        const {data} = await axios.delete(`/store/${getState().storeDetails.store.store_id}/items/item/${id}`, config);
 
         dispatch({
             type: ITEM_DELETE_SUCCESS
@@ -70,7 +70,7 @@ export const deleteItem = (id) => async(dispatch) =>{
     }
 }
 
-export const createItem = () => async(dispatch) =>{
+export const createItem = () => async(dispatch, getState) =>{
     try{
         dispatch({type: ITEM_CREATE_REQUEST});
 
@@ -81,7 +81,7 @@ export const createItem = () => async(dispatch) =>{
             withCredentials: true
         }
         
-        const {data} = await axios.post(`/store/1/items/createitem`, {}, config);
+        const {data} = await axios.post(`/store/${getState().storeDetails.store.store_id}/items/createitem`, {}, config);
 
         dispatch({
             type: ITEM_CREATE_SUCCESS,
@@ -116,7 +116,7 @@ export const update_item_details = (item, id) => async(dispatch, getState) =>{
         }
 
         const {data} = await axios.put(
-            `/store/1/items/item/${id}`,
+            `/store/${getState().storeDetails.store.store_id}/items/item/${id}`,
             item,
             config
         )
@@ -153,7 +153,7 @@ export const create_item_review = (review, id) => async(dispatch, getState) =>{
         }
 
         const {data} = await axios.post(
-            `/store/1/reviews/item/${id}/createreview`,
+            `/store/${getState().storeDetails.store.store_id}/reviews/item/${id}/createreview`,
             review,
             config
         )

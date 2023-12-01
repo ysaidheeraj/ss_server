@@ -170,7 +170,7 @@ class ItemActions(APIView):
         if not item:
             raise AuthenticationFailed("Invalid Item")
         
-        categories = request.data.pop('categories')
+        categories = request.data.pop('categories') if request.data.get('categories') else None
         if categories:
             item.category_set.clear()
             for categoryId in categories:

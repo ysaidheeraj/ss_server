@@ -179,7 +179,8 @@ ENABLE_EMAILS = True
 #Email settings
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'saidheeraj.y15@iiits.in'
-EMAIL_HOST_PASSWORD = 'blzd mjbn ypcm ptsn'
+EMAIL_HOST_USER = 'sellsmart443@gmail.com'
+DEFAULT_FROM_MAIL = 'Sell Smart <sellsmart443@gmail.com>'
+EMAIL_HOST_PASSWORD = 'zdeq fbqz tipx uqvk'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False

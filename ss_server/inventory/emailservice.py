@@ -38,7 +38,7 @@ def send_order_status_update_email(order):
         email = EmailMultiAlternatives(
             subject=f"Update on your order {order['order_id']} from Sell Smart",
             body=plain_message,
-            from_email=settings.EMAIL_HOST_USER,
+            from_email=settings.DEFAULT_FROM_MAIL,
             to=[customer['email']],
             reply_to=[settings.EMAIL_HOST_USER]
         )

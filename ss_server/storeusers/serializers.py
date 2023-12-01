@@ -9,7 +9,7 @@ class StoreUserSerializer(serializers.ModelSerializer):
     # user_role = serializers.IntegerField(required=False)
     class Meta:
         model = Store_User
-        fields = ['user_id', 'email', 'password', 'first_name', 'last_name', 'store_id', 'profile_picture', 'address', 'phone_number', 'user_role', 'username', 'isSeller', 'isConfirmed']
+        fields = ['user_id', 'email', 'password', 'first_name', 'last_name', 'store_id', 'profile_picture', 'address', 'phone_number', 'user_role', 'username', 'isSeller', 'isConfirmed', 'user_updated_time']
         #To avoid returning password in the response
         extra_kwargs = {
             'password' : {'write_only': True}

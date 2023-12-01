@@ -58,7 +58,7 @@ export const ProfilePage = () => {
         setLastName(customer.last_name);
         setEmail(customer.email);
         if(customer.profile_picture){
-          setImageSrc(customer.profile_picture);
+          setImageSrc(customer.profile_picture + "?_=" + customer.user_updated_time);
         }else{
           setImageSrc('/storeusers/profile_pictures/default_avatar.jpeg');
         }

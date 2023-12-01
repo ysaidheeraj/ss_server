@@ -75,6 +75,10 @@ export const OrderDetailsPage = () => {
                             {order.shipping_address.country}
                         </p>
 
+                        {Number(order.order_status) >= 2 &&
+                            (<Message variant='success'>Shipped</Message>)
+                        }
+
                         {Number(order.order_status) >= 4 ?
                             (<Message variant='success'>Delivered</Message>)
                             :(<Message variant='warning'>Not Delivered</Message>)
@@ -105,7 +109,7 @@ export const OrderDetailsPage = () => {
                                     <ListGroup.Item key={item.order_item_id}>
                                         <Row>
                                             <Col md={1}>
-                                                <Image src={item.Item.item_image} alt={item.Item.item_name} fluid rounded/>
+                                                <Image src={item.Item.item_image + "?_=" + item.item_updated_time} alt={item.Item.item_name} fluid rounded/>
                                             </Col>
 
                                             <Col>

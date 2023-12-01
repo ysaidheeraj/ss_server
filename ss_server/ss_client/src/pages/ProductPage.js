@@ -62,7 +62,7 @@ export const ProductPage = () => {
         <div>
           <Row>
             <Col md={6}>
-              <Image src={item.item_image} alt={item.item_name} fluid rounded/>
+              <Image src={item.item_image + "?_=" + item.item_updated_time} alt={item.item_name} fluid rounded/>
             </Col>
 
             <Col md={3}>

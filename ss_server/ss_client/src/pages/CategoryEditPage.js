@@ -53,11 +53,13 @@ export const CategoryEditPage = () => {
             dispatch({type: CATEGORY_UPDATE_RESET});
             navigate('/seller/categories');
         }else{
-            if(!category.category_name || category.category_id !== Number(categoryId)){
-                dispatch(listCategoryDetails(categoryId))
-            }else{
-                setName(category.category_name);
-                setImageSrc(category.category_picture)
+            if(!loading){
+                if(!category.category_name || category.category_id !== Number(categoryId)){
+                    dispatch(listCategoryDetails(categoryId))
+                }else{
+                    setName(category.category_name);
+                    setImageSrc(category.category_picture + "?_=" +category.category_last_updated_time)
+                }
             }
         }
     },[dispatch, category, loading, updateSuccess])
