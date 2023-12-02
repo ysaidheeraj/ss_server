@@ -15,6 +15,10 @@ export const Header = () => {
   const storeDetails = useSelector((state) => state.storeDetails);
   const { store } = storeDetails;
 
+  useEffect(() =>{
+    document.title = store.store_name
+  },[])
+
   const customerLogoutHandler = () =>{
     dispatch(customer_logout());
   }
