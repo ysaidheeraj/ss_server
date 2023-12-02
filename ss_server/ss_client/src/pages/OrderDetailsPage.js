@@ -224,6 +224,11 @@ export const OrderDetailsPage = () => {
                                     <Message variant='success'>Delivered</Message>
                                 </ListGroup.Item>
                         )}
+                        {customer.isSeller && Number(order.order_status) >= 5 &&(
+                                <ListGroup.Item>
+                                    <Message variant='warning'>Returned</Message>
+                                </ListGroup.Item>
+                        )}
                         {customer.isSeller && Number(order.order_status) === 5 &&(
                                 <ListGroup.Item>
                                         <Button variant='info' className='form-control' onClick={() => updateOrderStatus(6, false)}>
