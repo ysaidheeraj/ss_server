@@ -135,7 +135,7 @@ export const ProfilePage = () => {
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              disabled
             ></Form.Control>
           </Form.Group>
 
