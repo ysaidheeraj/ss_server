@@ -34,25 +34,30 @@ export const HomePage = () => {
 
 
   return (
-    <div>
-      <br></br>
+    <div className="mt-6">
       <CategoriesNavbar selectedCategoryLink=''/>
       <hr className="border border-secondry border-3 opacity-75"></hr>
       {loading ? <Loader />
         : error ? <Message variant='danger'>{error}</Message>
-        :<div><Row>
+        :<div>
+        <Row className="row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
           {items.length === 0 ? (
             <Message variant='info'>No products to list</Message>
-          ): (
+          ) : (
             items.map((product) => (
-              <Col key={product.item_id} sm={12} md={6} lg={4} xl={3}>
-                <Product product={product}/>
+              <Col key={product.item_id}>
+                <div style={{ height: '420px' }} className="d-flex justify-content-center align-items-stretch">
+                  {/* Ensure consistent dimensions for the product */}
+                  <div className="card mb-3 w-100">
+                    <Product product={product} />
+                  </div>
+                </div>
               </Col>
             ))
           )}
         </Row>
         <Paginate page={page} pages={pages} search={searchParams.get('search')}/>
-        </div>
+      </div>
       }
     </div>
   );
