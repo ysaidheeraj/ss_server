@@ -15,14 +15,14 @@ export const PaymentPage = () => {
 
   //If shipping address is missing, redirect to shipping
   if(!shippingAddress.address){
-    navigate('/shipping');
+    navigate('../shipping');
   }
 
   const [paymentMethod, setPaymentMethod] = useState('COD')
   const submitHandler = (e) =>{
     e.preventDefault()
     dispatch(savePaymentMethod(paymentMethod))
-    navigate('/placeorder');
+    navigate('../placeorder');
   }
   return (
     <FormContainer>

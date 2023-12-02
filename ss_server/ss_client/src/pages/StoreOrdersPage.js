@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { listStoreOrders } from '../Actions/OrderActions'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { Form, Button, Row, Col, Table } from 'react-bootstrap'
+import { Button, Row, Col, Table } from 'react-bootstrap'
 import { LinkContainer } from 'react-router-bootstrap'
 import { Loader } from '../Components/Loader'
 import { Message } from '../Components/Message'
@@ -19,8 +19,8 @@ export const StoreOrdersPage = () => {
 
   useEffect(() =>{
       if(!customerLoading && (!customer || !customer.isSeller)){
-          navigate('/login');
-      }else{
+          navigate('../login');
+      }else if(!customerLoading){
         dispatch(listStoreOrders());
       }
   }, [customer, customerLoading])
@@ -57,7 +57,7 @@ export const StoreOrdersPage = () => {
                 <td>{order.order_paid_time ? (<i className="fa fa-check" aria-hidden="true" style={{'color': 'green'}}></i>) : (<i className="fa fa-times" aria-hidden="true" style={{'color': 'red'}}></i>)}</td>
                 <td>{Number(order.order_status) >= 4  ? (<i className="fa fa-check" aria-hidden="true" style={{'color': 'green'}}></i>) : (<i className="fa fa-times" aria-hidden="true" style={{'color': 'red'}}></i>)}</td>
                 <td>
-                    <LinkContainer to={`/order/${order.order_id}`}>
+                    <LinkContainer to={`../order/${order.order_id}`}>
                         <Button className='btn-sm'>
                         Details
                         </Button>

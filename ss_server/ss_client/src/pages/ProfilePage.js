@@ -45,7 +45,7 @@ export const ProfilePage = () => {
 
   useEffect(() => {
     if (!customer) {
-      navigate("/login");
+      navigate("../login");
     } else {
       if (!customer || success) {
         //Resetting the profile data on successful update

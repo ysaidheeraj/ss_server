@@ -12,18 +12,18 @@ export const CustomerOrdersPage = () => {
   const navigate = useNavigate();
 
   const customerDetails = useSelector((state) => state.customerDetails);
-  const { customer } = customerDetails;
+  const { loading:customerLoading, customer } = customerDetails;
 
   const ordersList = useSelector((state) => state.ordersList);
   const {loading, error, orders} = ordersList;
 
   useEffect(() =>{
     if (!customer) {
-      navigate("/login");
-    }else{
+      navigate("../login");
+    }else if(!customerLoading){
       dispatch(listCustomerOrders());
     }
-  },[])
+  },[customer])
   return (
     <Row>
       <Col>
@@ -55,7 +55,7 @@ export const CustomerOrdersPage = () => {
                 <td>{order.order_paid_time ? (<i className="fa fa-check" aria-hidden="true" style={{'color': 'green'}}></i>) : (<i className="fa fa-times" aria-hidden="true" style={{'color': 'red'}}></i>)}</td>
                 <td>{Number(order.order_status) >= 4  ? (<i className="fa fa-check" aria-hidden="true" style={{'color': 'green'}}></i>) : (<i className="fa fa-times" aria-hidden="true" style={{'color': 'red'}}></i>)}</td>
                 <td>
-                  <LinkContainer to={`/order/${order.order_id}`}>
+                  <LinkContainer to={`../order/${order.order_id}`}>
                     <Button className='btn-sm'>
                       Details
                     </Button>

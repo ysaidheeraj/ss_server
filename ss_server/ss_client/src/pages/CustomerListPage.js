@@ -17,7 +17,7 @@ export const CustomerListPage = () => {
 
     useEffect(() =>{
         if(!customerLoading && (!customer || !customer.isSeller)){
-            navigate('/login');
+            navigate('../login');
         }else{
             dispatch(list_store_customers());
         }

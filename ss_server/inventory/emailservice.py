@@ -25,10 +25,11 @@ def send_order_status_update_email(store, order):
     }
     context = {
         "user_name": customer['first_name'] + " " + customer['last_name'],
-        "order_link" : settings.APP_ROOT_URL+"/#/login?redirect=/order/"+str(order['order_id']),
+        "order_link" : settings.APP_ROOT_URL+"/#/store/"+str(store.store_id)+"/login?redirect=order/"+str(order['order_id']),
         "orderId": str(order['order_id']),
         "orderStatusText": orderStatusText[order['order_status']],
-        "orderStatusMessage": orderStatusMessage[order['order_status']]
+        "orderStatusMessage": orderStatusMessage[order['order_status']],
+        "storeName" : store.store_name
     }
     if settings.ENABLE_EMAILS:
 

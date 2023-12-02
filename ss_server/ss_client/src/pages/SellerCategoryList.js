@@ -28,10 +28,10 @@ export const SellerCategoryList = () => {
     useEffect(() =>{
         if(createSuccess){
             dispatch({type: CATEGORIES_CREATE_RESET})
-            navigate(`/seller/category/${category.category_id}/edit`);
+            navigate(`../seller/category/${category.category_id}/edit`);
         }else{
           if(!customerLoading && (!customer || !customer.isSeller)){
-            navigate('/login');
+            navigate('../login');
           }else{
             dispatch(listCategories());
           }
@@ -82,7 +82,7 @@ export const SellerCategoryList = () => {
                 <td>{category.category_name}</td>
                 <td>{category.items.length}</td>
                 <td>
-                    <LinkContainer to={`/seller/category/${category.category_id}/edit`}>
+                    <LinkContainer to={`../seller/category/${category.category_id}/edit`}>
                         <Button variant='light' className='btn-sm'>
                             <i className='fas fa-edit'></i>
                         </Button>

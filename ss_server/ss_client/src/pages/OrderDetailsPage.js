@@ -18,7 +18,7 @@ export const OrderDetailsPage = () => {
     useEffect(() => {
         if(!customerLoading){
             if(!customer || !customer.first_name){
-                navigate(`/login`)
+                navigate(`../login`)
             }
         }
     }, [customerLoading, customer])
@@ -46,15 +46,15 @@ export const OrderDetailsPage = () => {
   return loading ? 
     (<Loader/>) 
     : error ? (<Message variant='danger'>{error}</Message>)
-    : !customer || !order.customer.first_name ? (<Message variant='danger'>Please <a href={`/login`}>Login</a> to view order details.</Message>)
+    : !customer || !order.customer.first_name ? (<Message variant='danger'>Please <a href={`../login`}>Login</a> to view order details.</Message>)
     :(
     <div>
         {customer.isSeller ? (
-            <Link to="/seller/orders" className="btn btn-primary my-3">
+            <Link to="../seller/orders" className="btn btn-primary my-3">
                 <i className="fa fa-arrow-left" aria-hidden="true"></i>
             </Link>
         ) : (
-            <Link to="/myorders" className="btn btn-primary my-3">
+            <Link to="../myorders" className="btn btn-primary my-3">
                 <i className="fa fa-arrow-left" aria-hidden="true"></i>
             </Link>
         )}
@@ -113,7 +113,7 @@ export const OrderDetailsPage = () => {
                                             </Col>
 
                                             <Col>
-                                                <Link to={`/product/${item.Item.item_id}`}>{item.Item.item_name}</Link>
+                                                <Link to={`../product/${item.Item.item_id}`}>{item.Item.item_name}</Link>
                                             </Col>
 
                                             <Col md={4}>

@@ -8,6 +8,7 @@ import { Message } from "../Components/Message";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Paginate } from "../Components/Paginate";
 import { CategoriesNavbar } from "../Components/CategoriesNavbar";
+import Notification from "../Components/Notification";
 export const HomePage = () => {
   const dispatch = useDispatch();
   const ItemsList = useSelector(state => state.itemList);
@@ -20,13 +21,22 @@ export const HomePage = () => {
     queryString = '?'+searchParams.toString();
   }
     useEffect(() => {
+      if(!loading && !error){
         dispatch(listItems(queryString));
-    }, [dispatch, searchParams]);
+      }
+    }, [dispatch, searchParams, error]);
+
+    useEffect(() =>{
+      if(error){
+        Notification.error(error);
+      }
+    }, [error])
+
 
   return (
     <div>
       <br></br>
-      <CategoriesNavbar selectedCategoryLink='/'/>
+      <CategoriesNavbar selectedCategoryLink=''/>
       <hr className="border border-secondry border-3 opacity-75"></hr>
       {loading ? <Loader />
         : error ? <Message variant='danger'>{error}</Message>

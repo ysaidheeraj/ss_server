@@ -22,11 +22,11 @@ export const CartPage = () => {
     useEffect(() => {
         if(!loading){
             if(customer && customer.isSeller){
-                navigate('/');
+                navigate('../');
             }else if (customer && customer.first_name){
                 setLoggedIn(true);
             }else{
-                navigate('/login')
+                navigate('../login')
             }
         }
     }, [loading])
@@ -42,7 +42,7 @@ export const CartPage = () => {
     }
 
     const checkoutHandler = () =>{
-        navigate('/login?redirect=shipping')
+        navigate('../login?redirect=shipping')
     }
   return (
     <Row>
@@ -50,7 +50,7 @@ export const CartPage = () => {
         <Col md={8}>
             {cartItems.length === 0 ? (
                 <Message variant='light'>
-                    Your cart is empty <Link to='/'>Back to Home</Link>
+                    Your cart is empty <Link to='../'>Back to Home</Link>
                 </Message>
             ) : (
                 <ListGroup variant='flush'>
@@ -61,7 +61,7 @@ export const CartPage = () => {
                                     <Image src={item.image} alt={item.name} fluid rounded/>
                                 </Col>
                                 <Col md={3}>
-                                    <Link to={`/product/${item.item}`}>{item.name}</Link>
+                                    <Link to={`../product/${item.item}`}>{item.name}</Link>
                                 </Col>
                                 <Col md={2}>
                                     ${item.price}
