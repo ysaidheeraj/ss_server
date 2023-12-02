@@ -8,7 +8,7 @@ export const Paginate = ({pages, page, search='', isAdmin=false}) => {
     const navigate = useNavigate();
 
     // const searchParamsString = searchParams.size ? `/?${searchParams.toString()}&`: '/?';
-    const pathName = isAdmin ? '/seller/products' : '/';
+    const pathName = isAdmin ? 'seller/products' : '';
 
     const handleClick = (e, pageNum) =>{
         e.preventDefault();

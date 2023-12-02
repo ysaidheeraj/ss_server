@@ -42,12 +42,9 @@
 </head>
 <body>
   <div class="container" align="left">
-    <h1>Hi {{user_name}}!</h1>
-    <p>We have an update regarding your order {{orderId}}</p>
-    <p>Current status of your order is: {{orderStatusText}}</p>
-    <a href={{order_link}} class="button">View Order</a>
-    <p>{{orderStatusMessage}}</p>
-    <p>Thank you for choosing {{storeName}}.</p>
+    <h1>Dear {{user_name}}!</h1>
+    <p>A customer has reported the following issue:</p>
+    <p>{{mailBody}}</p>
     <p align="left">Best regards,<br>{{storeName}}</p>
   </div>
 </body>

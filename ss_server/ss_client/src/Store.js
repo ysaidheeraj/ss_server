@@ -6,7 +6,7 @@ import { CartReducer } from "./Reducers/CartReducers";
 import { customerLoginReducer, customerSignupReducer, customerDetailsReducer, customerUpdateReducer, customerListReducer } from "./Reducers/UserReducer";
 import { createOrderReducer, orderDetailsReducer, orderUpdateReducer, ordersListReducer, sellerOrdersListReducer } from "./Reducers/OrderReducers";
 import { categoriesListReducer, categoriesCreateReducer, categoryDetailsReducer, categoryUpdateReducer, categoryDeleteReducer } from "./Reducers/CategoriesReducers";
-import { storeDetailsReducer } from "./Reducers/StoreReducers";
+import { storeDetailsReducer, createStoreTicketReducer } from "./Reducers/StoreReducers";
 
 const appReducer = combineReducers({
     itemList: itemListReducer,
@@ -35,7 +35,8 @@ const appReducer = combineReducers({
     categoryUpdate: categoryUpdateReducer,
     categoryDelete: categoryDeleteReducer,
 
-    storeDetails: storeDetailsReducer
+    storeDetails: storeDetailsReducer,
+    createTicket: createStoreTicketReducer
 });
 
 const cartItemsFromStorage = localStorage.getItem('cartItems') ? 

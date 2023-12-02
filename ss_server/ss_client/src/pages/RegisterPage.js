@@ -18,7 +18,7 @@ export const RegisterPage = () => {
     const dispatch = useDispatch();
 
     const [searchParams] = useSearchParams();
-    const redirect = searchParams.get('redirect') ? searchParams.get('redirect') : '/';
+    const redirect = searchParams.get('redirect') ? searchParams.get('redirect') : '';
 
     const customerRegister = useSelector(state => state.customerRegister)
     const {error, loading} = customerRegister;
@@ -119,7 +119,7 @@ export const RegisterPage = () => {
 
             <Row className='py-3'>
                 <Col>
-                    Already have an account? <Link to={redirect ? `/login?redirect=${redirect}` : '/login'}>Login</Link>
+                    Already have an account? <Link to={redirect ? `login?redirect=${redirect}` : 'login'}>Login</Link>
                 </Col>
             </Row>
         </Form>

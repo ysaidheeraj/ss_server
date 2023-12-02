@@ -23,7 +23,7 @@ export const PlaceOrderPage = () => {
 
     useEffect(() =>{
         if(!cart.paymentMethod){
-            navigate('/payment');
+            navigate('../payment');
         }
     })
     
@@ -32,7 +32,7 @@ export const PlaceOrderPage = () => {
             dispatch({
                 type: CREATE_ORDER_RESET
             })
-            navigate(`/order/${order.order_id}`)
+            navigate(`../order/${order.order_id}`)
         }
     },[success, navigate])
     const placeOrder = () => {
@@ -88,7 +88,7 @@ export const PlaceOrderPage = () => {
                                             </Col>
 
                                             <Col>
-                                                <Link to={`/product/${item.item}`}>{item.name}</Link>
+                                                <Link to={`../product/${item.item}`}>{item.name}</Link>
                                             </Col>
 
                                             <Col md={4}>

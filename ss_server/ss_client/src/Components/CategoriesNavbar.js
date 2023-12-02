@@ -39,7 +39,7 @@ export const CategoriesNavbar = ({selectedCategoryLink}) => {
     <div>
         {!categories || loading ? (<Loader />)
         : categories.length > 0 ? (
-            <Nav fill variant="tabs" activeKey={currentCategory} onSelect={changeCategoryHandler}>
+            <Nav fill variant="pills" activeKey={currentCategory} onSelect={changeCategoryHandler}>
                 <Nav.Item>
                     <Nav.Link eventKey="-1">All</Nav.Link>
                 </Nav.Item>

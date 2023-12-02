@@ -38,3 +38,12 @@ h3{
   height: 20px; /* Adjust the height as needed */
   margin-right: 5px; /* Adjust the margin as needed for spacing */
 }
+
+.product-list-image{
+  height: 200px;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;  
+}

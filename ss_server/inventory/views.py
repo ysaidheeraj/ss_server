@@ -379,7 +379,7 @@ class OrderActions(APIView):
         orderSer = OrderSerializer(order, data=request.data, partial=True)
         orderSer.is_valid(raise_exception=True)
         orderSer.save()
-        send_order_status_update_email(orderSer.data)
+        send_order_status_update_email(order.store_id, orderSer.data)
         return Response(create_model_response(Order, orderSer.data))
     
 class SellerOrderActions(APIView):

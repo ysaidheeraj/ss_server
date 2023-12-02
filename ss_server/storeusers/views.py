@@ -138,7 +138,7 @@ class RegisterCustomerView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         customer = Store_User.objects.filter(email=data['email'], store_id=storeId, user_role=User_Role.CUSTOMER).first()
-        send_welcome_account_confirmation_email(customer)
+        send_welcome_account_confirmation_email(customer.store_id, customer)
         return generate_token(customer, storeId)
 
 def accountConfirmTemplate(request, storeId):
@@ -162,7 +162,7 @@ def confirmNewCustomer(request, storeId):
 def resendAccountConfirm(request, storeId):
     data = request.data
     customer = Store_User.objects.filter(store_id=storeId, email=data['email']).first()
-    send_welcome_account_confirmation_email(customer)
+    send_welcome_account_confirmation_email(customer.store_id, customer)
     return Response(status=status.HTTP_200_OK)
 
 class LoginCustomerView(APIView):
