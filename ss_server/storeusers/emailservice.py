@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 import base64, json
 
-def send_welcome_account_confirmation_email(customer):
+def send_welcome_account_confirmation_email(store, customer):
 
     context = {
         "user_name": customer.first_name + " " + customer.last_name,
@@ -19,7 +19,7 @@ def send_welcome_account_confirmation_email(customer):
         email = EmailMultiAlternatives(
             subject="Welcome to Sell Smart",
             body=plain_message,
-            from_email=settings.DEFAULT_FROM_MAIL,
+            from_email=store.store_name + " " + settings.DEFAULT_FROM_MAIL,
             to=[customer.email],
             reply_to=[settings.EMAIL_HOST_USER]
         )

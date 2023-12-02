@@ -3,7 +3,7 @@ from django.utils.html import strip_tags
 from django.template.loader import render_to_string
 from django.conf import settings
 
-def send_order_status_update_email(order):
+def send_order_status_update_email(store, order):
     customer = order['customer']
     orderStatusText = {
         0: "Confirmed",
@@ -38,7 +38,7 @@ def send_order_status_update_email(order):
         email = EmailMultiAlternatives(
             subject=f"Update on your order {order['order_id']} from Sell Smart",
             body=plain_message,
-            from_email=settings.DEFAULT_FROM_MAIL,
+            from_email=store.store_name + " "+settings.DEFAULT_FROM_MAIL,
             to=[customer['email']],
             reply_to=[settings.EMAIL_HOST_USER]
         )
