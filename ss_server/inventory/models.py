@@ -52,6 +52,9 @@ class Item(models.Model):
     def num_reviews(self):
         return Reviews.objects.filter(item=self).all().count()
 
+    def __str__(self) -> str:
+        return self.item_name
+
     class Meta:
         unique_together = (("item_name", "store_id"))
 
@@ -63,6 +66,9 @@ class Category(models.Model):
     category_created_time = models.DateTimeField(auto_now_add=True)
     category_last_updated_time = models.DateTimeField(auto_now=True)
     items = models.ManyToManyField(Item, blank=True)
+
+    def __str__(self) -> str:
+        return self.category_name
 
     class Meta:
         unique_together = (("category_name", "store_id"))
@@ -94,6 +100,9 @@ class Order(models.Model):
     order_paid_time = models.DateTimeField(null=True, blank=True)
     payment_method = models.IntegerField(choices=OrderPaymentMethod.choices, null=True)
 
+    def __str__(self) -> str:
+        return self.order_id
+
 class OrderItem(models.Model):
     order_item_id = models.AutoField(primary_key=True)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
@@ -102,6 +111,9 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
     item_price = models.FloatField(null=True)
     customer_id = models.ForeignKey(Store_User, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.order_item_id
 
     class Meta:
         unique_together = (('item', 'order', 'store_id', 'customer_id'))
@@ -122,6 +134,9 @@ class Reviews(models.Model):
     item = models.ForeignKey(Item, on_delete = models.CASCADE)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
 
+    def __str__(self) -> str:
+        return self.review_id
+
     class Meta:
         unique_together = (('item', 'customer', 'store_id'))
 
@@ -132,3 +147,6 @@ class ShippingAddress(models.Model):
     city = models.CharField(max_length=200, null=True, blank=True)
     postalCode = models.CharField(max_length=200, null=True, blank=True)
     country = models.CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self) -> str:
+        return self.id

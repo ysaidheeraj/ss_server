@@ -16,34 +16,83 @@ import { CustomerListPage } from "./pages/CustomerListPage";
 import { SellerProductList } from "./pages/SellerProductList";
 import { ProductEditPage } from "./pages/ProductEditPage";
 import { StoreOrdersPage } from "./pages/StoreOrdersPage";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { SellerCategoryList } from "./pages/SellerCategoryList";
+import { CategoryEditPage } from "./pages/CategoryEditPage";
+import { customer_details, customer_logout } from "./Actions/UserActions";
+import { listStoreDetails } from "./Actions/StoreActions";
+import { HashRouter as Router, Route, Routes } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { Loader } from "./Components/Loader";
+import { useEffect, useState } from "react";
+import { Message } from "./Components/Message";
 function App() {
+  const dispatch = useDispatch();
+  const [loadingData, setLoadingData] = useState(true);
+
+  const storeDetails = useSelector((state) => state.storeDetails);
+  const { error: storeError, loading: storeLoading, store } = storeDetails;
+
+  const customerDetails = useSelector((state) => state.customerDetails);
+  const { error, loading, customer } = customerDetails;
+
+  useEffect(() => {
+    if((customer || error) && store){
+      if(!loading && !storeLoading){
+        setLoadingData(false);
+      }
+    }
+    if(store && !storeLoading){
+      if(!customer && !loading && !error){
+        dispatch(customer_details());
+      }
+    }
+
+    if(!store && !storeLoading && !storeError){
+      dispatch(listStoreDetails(1));
+    }
+    if(error === "Login Expired"){
+      // If the login expires, we need to relogin
+      dispatch(customer_logout());
+    }
+  }, [dispatch, store, error, storeLoading, loading]);
   return (
-    <Router>
-      <Header />
-      <main className="py-3">
-        <Container>
-          <Routes>
-            <Route path="/" Component={HomePage} exact />
-            <Route path="/product/:id" Component={ProductPage} />
-            <Route path="/cart/:id?" Component={CartPage} />
-            <Route path="/login" Component={LoginPage} />
-            <Route path="/register" Component={RegisterPage} />
-            <Route path="/profile" Component={ProfilePage} />
-            <Route path="/shipping" Component={ShippingPage} />
-            <Route path="/payment" Component={PaymentPage} />
-            <Route path="/placeorder" Component={PlaceOrderPage} />
-            <Route path="/order/:id" Component={OrderDetailsPage} />
-            <Route path="/myorders" Component={CustomerOrdersPage} />
-            <Route path="/seller/customers" Component={CustomerListPage} />
-            <Route path="/seller/products" Component={SellerProductList} />
-            <Route path="/seller/product/:id/edit" Component={ProductEditPage} />
-            <Route path="/seller/orders" Component={StoreOrdersPage} />
-          </Routes>
-        </Container>
-      </main>
-      <Footer />
-    </Router>
+    <div>
+      {loadingData ? (<Loader />):
+      (
+        <Router>
+          <Header />
+          {customer && !customer.isConfirmed && (
+            <Message variant='warning'>Your account is not confirmed. Please check your email and confirm your account!</Message>
+          )}
+          <main className="py-3">
+            <Container>
+              <Routes>
+                <Route path="/" Component={HomePage} exact />
+                <Route path="/product/:id" Component={ProductPage} />
+                <Route path="/cart/:id?" Component={CartPage} />
+                <Route path="/login" Component={LoginPage} />
+                <Route path="/register" Component={RegisterPage} />
+                <Route path="/profile" Component={ProfilePage} />
+                <Route path="/shipping" Component={ShippingPage} />
+                <Route path="/payment" Component={PaymentPage} />
+                <Route path="/placeorder" Component={PlaceOrderPage} />
+                <Route path="/order/:id" Component={OrderDetailsPage} />
+                <Route path="/myorders" Component={CustomerOrdersPage} />
+                <Route path="/seller/customers" Component={CustomerListPage} />
+                <Route path="/seller/products" Component={SellerProductList} />
+                <Route path="/seller/product/:id/edit" Component={ProductEditPage} />
+                <Route path="/seller/orders" Component={StoreOrdersPage} />
+                <Route path="/seller/categories" Component={SellerCategoryList} />
+                <Route path="/seller/category/:id/edit" Component={CategoryEditPage} />
+              </Routes>
+            </Container>
+          </main>
+          <Footer />
+        </Router>
+      )}
+    </div>
+    
   );
 }
 

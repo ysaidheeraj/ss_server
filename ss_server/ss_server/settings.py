@@ -64,7 +64,10 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, "ss_client/build")
+            os.path.join(BASE_DIR, "ss_client/build"),
+            os.path.join(BASE_DIR, "storeusers","EmailTemplates"),
+            os.path.join(BASE_DIR, "storeusers","Templates"),
+            os.path.join(BASE_DIR, "inventory","EmailTemplates"),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -134,8 +137,7 @@ STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 
 STATICFILES_DIRS = [
     BASE_DIR/'static',
-    BASE_DIR/'ss_client/build/',
-    BASE_DIR/'ss_client/build/static', 
+    BASE_DIR/'ss_client/build/static'
 ]
 
 # Default primary key field type
@@ -168,3 +170,17 @@ CATEGORY_MEDIA_URL = 'category_images/'
 CATEGORY_MEDIA_ROOT = os.path.join(BASE_DIR, 'inventory/category_images')
 
 AUTH_USER_MODEL = 'storeusers.Store_User'
+
+APP_ROOT_URL = "http://localhost:8001"
+ALLOW_UNCONFIRMED_USER_LOGIN = False
+
+ENABLE_EMAILS = True
+
+#Email settings
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'sellsmart443@gmail.com'
+DEFAULT_FROM_MAIL = 'Sell Smart <sellsmart443@gmail.com>'
+EMAIL_HOST_PASSWORD = 'zdeq fbqz tipx uqvk'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False

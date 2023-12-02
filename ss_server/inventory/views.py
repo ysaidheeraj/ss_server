@@ -14,8 +14,11 @@ from storeusers.views import authorize_customer, authorize_seller, authorize_sto
 from django.utils import timezone
 from .utils import create_model_response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from .emailservice import send_order_status_update_email
 
 class CategoryActions(APIView):
+    parser_classes = (MultiPartParser, FormParser,JSONParser)
     def get(self, request, storeId, categoryId=None):
         many = False
         categories = []
@@ -30,11 +33,14 @@ class CategoryActions(APIView):
     @authorize_seller
     def post(self, request, storeId):
         data = request.data
+        data = request.data
+        if len(data) == 0:
+            data['category_name'] = 'Sample category'
         data['store_id'] = storeId
         serializer = CategorySerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        return Response(create_model_response(Category, serializer.data))
     
     @authorize_seller
     def put(self, request, storeId, categoryId):
@@ -52,7 +58,7 @@ class CategoryActions(APIView):
         category_record = CategorySerializer(category, data=request.data, partial=True)
         if category_record.is_valid():
             category_record.save()
-            return Response(category_record.data)
+            return Response(create_model_response(Category, category_record.data))
         else:
             return Response(category_record.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -86,12 +92,9 @@ class ItemActions(APIView):
             items = Item.objects.filter(item_id=itemId, store_id=storeId).first()
             if not items:
                 raise APIException("Invalid Item")
-        else:
-            items = Item.objects.filter(store_id=storeId).all()
-            many = True
-        items_serializer_data = ItemSerializer(items, many=many).data
-        try:
-            if many == False:
+            
+            try:
+                items_serializer_data = ItemSerializer(items, many=False).data
                 reviews = Reviews.objects.filter(item=itemId, store_id=storeId).all()
                 reviewsSer = ReviewSerializer(reviews, many=True)
                 items_serializer_data['reviews'] = reviewsSer.data
@@ -102,8 +105,50 @@ class ItemActions(APIView):
                 if customer:
                     items_serializer_data['canReview'] = False
                     items_serializer_data = self.canCustomerReview(items_serializer_data, customer, storeId)
-        except Exception as ex:
-            print('Exception', ex)
+            except Exception as ex:
+                print('Exception', ex)
+            return Response(create_model_response(Item, items_serializer_data))
+
+        searchQuery = request.query_params.get('search')
+        category = request.query_params.get('category')
+        response_obj = {}
+
+        if searchQuery == None:
+            searchQuery = ''
+
+        if category != None and int(category) > -1:
+            category = Category.objects.filter(category_id=category, store_id=storeId).first()
+            if not category:
+                raise APIException("Invalid Category")
+
+            items = category.items.order_by('item_created_time')
+            items = items.filter(item_name__icontains=searchQuery)
+            many = True
+        else:
+            items = Item.objects.filter(store_id=storeId, item_name__icontains=searchQuery).order_by('item_created_time').all()
+
+        page = request.query_params.get('page')
+        paginator = Paginator(items, 10)
+
+        try:
+            items = paginator.page(page)
+        except PageNotAnInteger:
+            items = paginator.page(1)
+        except EmptyPage:
+            items = paginator.page(paginator.num_pages)
+        
+        if page == None:
+            page = 1
+        page = int(page)
+        many = True
+
+        response_obj['page'] = page
+        response_obj['pages'] = paginator.num_pages
+        items_serializer_data = ItemSerializer(items, many=many).data
+        
+        if many ==True:
+            response_obj[Item.__name__] = items_serializer_data
+            return Response(response_obj)
         return Response(create_model_response(Item, items_serializer_data))
     
     @authorize_seller
@@ -125,6 +170,15 @@ class ItemActions(APIView):
         if not item:
             raise AuthenticationFailed("Invalid Item")
         
+        categories = request.data.pop('categories') if request.data.get('categories') else None
+        if categories:
+            item.category_set.clear()
+            for categoryId in categories:
+                category = Category.objects.filter(store_id=storeId, category_id=categoryId).first()
+                if category:
+                    category.items.add(item)
+                else:
+                    raise APIException('Invalid Category')
         profile_picture = request.data.get('item_image')
         #Changing name of image so that it is unique per item
         if profile_picture:
@@ -325,6 +379,7 @@ class OrderActions(APIView):
         orderSer = OrderSerializer(order, data=request.data, partial=True)
         orderSer.is_valid(raise_exception=True)
         orderSer.save()
+        send_order_status_update_email(orderSer.data)
         return Response(create_model_response(Order, orderSer.data))
     
 class SellerOrderActions(APIView):

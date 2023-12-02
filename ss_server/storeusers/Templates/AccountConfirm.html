@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Confirmation</title>
+</head>
+<style>
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    /* align-items: center; */
+    justify-content: center;
+    height: 100vh;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+form {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #4caf50;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+</style>
+<body>
+    <div>
+        <h2>Sell Smart Account Confirmation</h2>
+        <form id="accountConfirmationForm">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required disabled>
+    
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+    
+            <button type="submit">Confirm Account</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</body>
+<script>
+    $(document).ready(function() {
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        let data = atob(urlParams.get('data'));
+        data = JSON.parse(data)
+        $('#email').val(data.email);
+        $('#accountConfirmationForm').submit(function(event) {
+            event.preventDefault();
+            var csrfToken = "csrftoken=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var cookieArray = decodedCookie.split(';');
+
+            for (var i = 0; i < cookieArray.length; i++) {
+                var cookie = cookieArray[i].trim();
+                if (cookie.indexOf(csrfToken) == 0) {
+                    csrfToken = cookie.substring(csrfToken.length, cookie.length);
+                }
+            }
+
+            const config = {
+                headers : {
+                    'Content-type' : 'application/json',
+                    'X-CSRFToken': csrfToken
+                }
+            }
+    
+            // Get form data
+            const email = $('#email').val();
+            const password = $('#password').val();
+    
+            // Make API request
+            $.ajax({
+                type: 'POST',
+                url: '/store/'+String(data.storeId)+'/storeuser/customer/confirmaccount',
+                data: JSON.stringify({
+                    email: email,
+                    password: password
+                }),
+                contentType: 'application/json',
+                headers : {
+                    'X-CSRFToken': csrfToken
+                },
+                success: function(response) {
+                    window.location.replace(window.location.origin);
+                    // Handle success, e.g., redirect to a success page
+                },
+                error: function(error) {
+                    alert(error.responseJSON.detail);
+                }
+            });
+        });
+    });
+    </script>
+</html>

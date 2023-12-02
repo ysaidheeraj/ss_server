@@ -5,6 +5,8 @@ import { itemListReducer, itemDetailsReducer, itemDeleteReducer, itemCreateReduc
 import { CartReducer } from "./Reducers/CartReducers";
 import { customerLoginReducer, customerSignupReducer, customerDetailsReducer, customerUpdateReducer, customerListReducer } from "./Reducers/UserReducer";
 import { createOrderReducer, orderDetailsReducer, orderUpdateReducer, ordersListReducer, sellerOrdersListReducer } from "./Reducers/OrderReducers";
+import { categoriesListReducer, categoriesCreateReducer, categoryDetailsReducer, categoryUpdateReducer, categoryDeleteReducer } from "./Reducers/CategoriesReducers";
+import { storeDetailsReducer } from "./Reducers/StoreReducers";
 
 const appReducer = combineReducers({
     itemList: itemListReducer,
@@ -25,7 +27,15 @@ const appReducer = combineReducers({
     orderUpdate: orderUpdateReducer,
     ordersList: ordersListReducer,
     sellerOrdersList: sellerOrdersListReducer,
-    customerList: customerListReducer
+    customerList: customerListReducer,
+
+    categoriesList: categoriesListReducer,
+    categoryCreate: categoriesCreateReducer,
+    categoryDetails: categoryDetailsReducer,
+    categoryUpdate: categoryUpdateReducer,
+    categoryDelete: categoryDeleteReducer,
+
+    storeDetails: storeDetailsReducer
 });
 
 const cartItemsFromStorage = localStorage.getItem('cartItems') ? 

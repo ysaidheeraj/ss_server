@@ -6,17 +6,34 @@ import { Loader } from '../Components/Loader'
 import { Message } from '../Components/Message'
 import { listItemDetails, update_item_details } from '../Actions/ItemActions'
 import { ITEM_UPDATE_RESET } from '../Constants/ItemConstants'
-
+import { listCategories } from '../Actions/CategoriesActions';
+import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
 
 export const ProductEditPage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { id: itemId } = useParams();
+    const animatedComponents = makeAnimated();
+
+    const customerDetails = useSelector((state) => state.customerDetails);
+    const { customer, loading:customerLoading } = customerDetails;
+
+    useEffect(() =>{
+        if(!customerLoading && (!customer || !customer.isSeller)){
+            navigate('/login');
+        }
+    }, [customer, customerLoading])
+
+    const categoriesList = useSelector((state) => state.categoriesList);
+    const {loading: categoriesLoading, categories, error: categoriesError } = categoriesList;
 
     const [name, setName] = useState('');
     const [price, setPrice] = useState(0);
     const [quantity, setQuantity] = useState(0);
     const [description, setDescription] = useState('');
+    const [allCategories, setAllCategories] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState([]);
 
     const itemDetails = useSelector((state) => state.itemDetails);
     const { loading, error, item } = itemDetails;
@@ -48,14 +65,25 @@ export const ProductEditPage = () => {
             dispatch({type: ITEM_UPDATE_RESET});
             navigate('/seller/products');
         }else{
-            if(!item.item_name || item.item_id !== Number(itemId)){
-                dispatch(listItemDetails(itemId))
-            }else{
-                setName(item.item_name);
-                setPrice(item.item_price);
-                setQuantity(item.item_available_count);
-                setImageSrc(item.item_image)
-                setDescription(item.item_description)
+            if(categories){
+                setAllCategories(categories.map((category) =>(
+                    {value: category.category_id, label: category.category_name, key: category.category_id}
+                )))
+            }
+            if(!loading){
+                if(!item.item_name || item.item_id !== Number(itemId)){
+                    dispatch(listItemDetails(itemId));
+                    dispatch(listCategories());
+                }else{
+                    setName(item.item_name);
+                    setPrice(item.item_price);
+                    setQuantity(item.item_available_count);
+                    setImageSrc(item.item_image + "?_=" + item.item_updated_time)
+                    setDescription(item.item_description ? item.item_description : '')
+                    setSelectedCategories(item.categories.map((category) =>(
+                        {value: category.category_id, label: category.category_name, key: category.category_id}
+                    )))
+                }
             }
         }
     },[dispatch, item, loading, updateSuccess])
@@ -66,8 +94,13 @@ export const ProductEditPage = () => {
             'item_name': name,
             'item_available_count': quantity,
             'item_price': price,
-            'item_description': description
+            'item_description': description,
+            'categories' : selectedCategories.map((selectedCategory) => (selectedCategory.value))
         }, itemId));
+    }
+
+    const handleSelectChange = (selectedOptions) =>{
+        setSelectedCategories(selectedOptions);
     }
 
   return (
@@ -144,8 +177,25 @@ export const ProductEditPage = () => {
                 ></Form.Control>
             </Form.Group>
 
+            <Form.Group controlId="description">
+                <Form.Label>Product Categories</Form.Label>
+                {categoriesLoading ? (<Loader />):
+                (
+                    <Select
+                    className="mb-3"
+                    closeMenuOnSelect={false}
+                    components={animatedComponents}
+                    value={selectedCategories}
+                    isMulti
+                    options={allCategories}
+                    onChange={handleSelectChange}
+                />
+                )}
+                
+            </Form.Group>
+
             <Button type="submit" variant="primary" className="form-control">
-                {updateLoading && <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
+                {updateLoading && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                 {updateLoading ? "Processing" : "Update Product Details"}
             </Button>
             </Form>

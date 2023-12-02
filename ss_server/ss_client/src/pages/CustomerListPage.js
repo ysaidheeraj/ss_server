@@ -12,17 +12,16 @@ export const CustomerListPage = () => {
     const customerList = useSelector(state => state.customerList)
     const {loading, error, customers} = customerList;
 
-    //Calling the list users
-    useEffect(()=>{
-        dispatch(list_store_customers());
-    },[dispatch])
-
     const customerDetails = useSelector((state) => state.customerDetails);
-    const { customer } = customerDetails;
+    const { loading: customerLoading, customer } = customerDetails;
 
-    if(!customer || !customer.isSeller){
-        navigate('/login');
-    }
+    useEffect(() =>{
+        if(!customerLoading && (!customer || !customer.isSeller)){
+            navigate('/login');
+        }else{
+            dispatch(list_store_customers());
+        }
+    }, [dispatch, customer, customerLoading])
 
 
   return (

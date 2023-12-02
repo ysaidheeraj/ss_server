@@ -62,7 +62,7 @@ export const ProductPage = () => {
         <div>
           <Row>
             <Col md={6}>
-              <Image src={item.item_image} alt={item.item_name} fluid rounded/>
+              <Image src={item.item_image + "?_=" + item.item_updated_time} alt={item.item_name} fluid rounded/>
             </Col>
 
             <Col md={3}>
@@ -108,8 +108,7 @@ export const ProductPage = () => {
                       </Col>
                     </Row>
                   </ListGroup.Item>
-                  
-                  {item.item_available_count > 0 && (
+                  {customer && !customer.isSeller && item.item_available_count > 0 && (
                       <ListGroup.Item>
                           <Row>
                               <Col>Quantity:</Col>
@@ -130,8 +129,7 @@ export const ProductPage = () => {
                               </Col>
                           </Row>
                       </ListGroup.Item>
-                  )}
-
+                  ) && (
                   <ListGroup.Item>
                     <Button
                       onClick={addToCartHandler}
@@ -141,7 +139,7 @@ export const ProductPage = () => {
                     >
                       Add To Cart
                     </Button>
-                  </ListGroup.Item>
+                  </ListGroup.Item>)}
                 </ListGroup>
               </Card>
             </Col>
