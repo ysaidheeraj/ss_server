@@ -68,6 +68,7 @@ TEMPLATES = [
             os.path.join(BASE_DIR, "storeusers","EmailTemplates"),
             os.path.join(BASE_DIR, "storeusers","Templates"),
             os.path.join(BASE_DIR, "inventory","EmailTemplates"),
+            os.path.join(BASE_DIR, "stores","EmailTemplates")
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -171,7 +172,7 @@ CATEGORY_MEDIA_ROOT = os.path.join(BASE_DIR, 'inventory/category_images')
 
 AUTH_USER_MODEL = 'storeusers.Store_User'
 
-APP_ROOT_URL = "http://localhost:8001"
+APP_ROOT_URL = "http://localhost:3000"
 ALLOW_UNCONFIRMED_USER_LOGIN = False
 
 ENABLE_EMAILS = True
@@ -180,7 +181,7 @@ ENABLE_EMAILS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'sellsmart443@gmail.com'
-DEFAULT_FROM_MAIL = 'Sell Smart <sellsmart443@gmail.com>'
+DEFAULT_FROM_MAIL = '<sellsmart443@gmail.com>'
 EMAIL_HOST_PASSWORD = 'zdeq fbqz tipx uqvk'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False

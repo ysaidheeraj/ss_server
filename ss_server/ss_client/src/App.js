@@ -18,6 +18,9 @@ import { ProductEditPage } from "./pages/ProductEditPage";
 import { StoreOrdersPage } from "./pages/StoreOrdersPage";
 import { SellerCategoryList } from "./pages/SellerCategoryList";
 import { CategoryEditPage } from "./pages/CategoryEditPage";
+import {SSHomePage} from "./pages/SSHomePage";
+import { ToastContainer } from "react-toastify";
+import { ContactPage } from "./pages/ContactPage";
 import { customer_details, customer_logout } from "./Actions/UserActions";
 import { listStoreDetails } from "./Actions/StoreActions";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
@@ -61,30 +64,45 @@ function App() {
       {loadingData ? (<Loader />):
       (
         <Router>
-          <Header />
+          {/* <Header /> */}
           {customer && !customer.isConfirmed && (
             <Message variant='warning'>Your account is not confirmed. Please check your email and confirm your account!</Message>
           )}
           <main className="py-3">
             <Container>
+            <ToastContainer
+              position="top-center"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
               <Routes>
-                <Route path="/" Component={HomePage} exact />
-                <Route path="/product/:id" Component={ProductPage} />
-                <Route path="/cart/:id?" Component={CartPage} />
-                <Route path="/login" Component={LoginPage} />
-                <Route path="/register" Component={RegisterPage} />
-                <Route path="/profile" Component={ProfilePage} />
-                <Route path="/shipping" Component={ShippingPage} />
-                <Route path="/payment" Component={PaymentPage} />
-                <Route path="/placeorder" Component={PlaceOrderPage} />
-                <Route path="/order/:id" Component={OrderDetailsPage} />
-                <Route path="/myorders" Component={CustomerOrdersPage} />
-                <Route path="/seller/customers" Component={CustomerListPage} />
-                <Route path="/seller/products" Component={SellerProductList} />
-                <Route path="/seller/product/:id/edit" Component={ProductEditPage} />
-                <Route path="/seller/orders" Component={StoreOrdersPage} />
-                <Route path="/seller/categories" Component={SellerCategoryList} />
-                <Route path="/seller/category/:id/edit" Component={CategoryEditPage} />
+                <Route path="/" Component={SSHomePage} exact/>
+                <Route path="/store/:storeId" Component={Header}>
+                  <Route path="" Component={HomePage} exact />
+                  <Route path="product/:id" Component={ProductPage} />
+                  <Route path="cart/:id?" Component={CartPage} />
+                  <Route path="login" Component={LoginPage} />
+                  <Route path="contact" Component={ContactPage} />
+                  <Route path="register" Component={RegisterPage} />
+                  <Route path="profile" Component={ProfilePage} />
+                  <Route path="shipping" Component={ShippingPage} />
+                  <Route path="payment" Component={PaymentPage} />
+                  <Route path="placeorder" Component={PlaceOrderPage} />
+                  <Route path="order/:id" Component={OrderDetailsPage} />
+                  <Route path="myorders" Component={CustomerOrdersPage} />
+                  <Route path="seller/customers" Component={CustomerListPage} />
+                  <Route path="seller/products" Component={SellerProductList} />
+                  <Route path="seller/product/:id/edit" Component={ProductEditPage} />
+                  <Route path="seller/orders" Component={StoreOrdersPage} />
+                  <Route path="seller/categories" Component={SellerCategoryList} />
+                  <Route path="seller/category/:id/edit" Component={CategoryEditPage} />
+                </Route>
               </Routes>
             </Container>
           </main>

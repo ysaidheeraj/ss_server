@@ -17,7 +17,7 @@ export const CategoryEditPage = () => {
 
     useEffect(() =>{
         if(!customer || !customer.isSeller){
-            navigate('/login');
+            navigate('../login');
         }
     }, [])
 
@@ -51,7 +51,7 @@ export const CategoryEditPage = () => {
     useEffect(() => {
         if(updateSuccess){
             dispatch({type: CATEGORY_UPDATE_RESET});
-            navigate('/seller/categories');
+            navigate('../seller/categories');
         }else{
             if(!loading){
                 if(!category.category_name || category.category_id !== Number(categoryId)){
@@ -73,7 +73,7 @@ export const CategoryEditPage = () => {
 
   return (
     <Container>
-        <Link to="/seller/categories" className="btn btn-primary my-3">
+        <Link to="../seller/categories" className="btn btn-primary my-3">
             <i className="fa fa-arrow-left" aria-hidden="true"></i>
         </Link>
         <Row>

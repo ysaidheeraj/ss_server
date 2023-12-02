@@ -25,7 +25,7 @@ export const ShippingPage = () => {
       pinCode,
       country
     }));
-    navigate('/payment')
+    navigate('../payment')
   }
 
   return (

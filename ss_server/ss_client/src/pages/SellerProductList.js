@@ -36,10 +36,10 @@ export const SellerProductList = () => {
         dispatch({type: ITEM_CREATE_RESET});
 
         if(createSuccess){
-            navigate(`/seller/product/${createdItem.item_id}/edit`);
+            navigate(`../seller/product/${createdItem.item_id}/edit`);
         }else{
             if(!customerLoading && (!customer || !customer.isSeller)){
-                navigate('/login');
+                navigate('../login');
             }else{
                 dispatch(listItems(queryString));
             }
@@ -102,7 +102,7 @@ export const SellerProductList = () => {
                                     <i key={category.category_id}>{category.category_name}{', '}</i>
                                 ))}</td>
                                 <td>
-                                    <LinkContainer to={`/seller/product/${item.item_id}/edit`}>
+                                    <LinkContainer to={`../seller/product/${item.item_id}/edit`}>
                                         <Button variant='light' className='btn-sm'>
                                             <i className='fas fa-edit'></i>
                                         </Button>

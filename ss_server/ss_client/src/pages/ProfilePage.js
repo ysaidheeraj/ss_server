@@ -45,7 +45,7 @@ export const ProfilePage = () => {
 
   useEffect(() => {
     if (!customer) {
-      navigate("/login");
+      navigate("../login");
     } else {
       if (!customer || success) {
         //Resetting the profile data on successful update
@@ -135,7 +135,7 @@ export const ProfilePage = () => {
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              disabled
             ></Form.Control>
           </Form.Group>
 

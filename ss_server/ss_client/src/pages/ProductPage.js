@@ -36,7 +36,7 @@ export const ProductPage = () => {
   }, [dispatch, success]);
 
   const addToCartHandler = () => {
-    navigate(`/cart/${productId}?qty=${quantity}`)
+    navigate(`../cart/${productId}?qty=${quantity}`)
   }
 
   const createReviewHandler = (e) =>{
@@ -50,7 +50,7 @@ export const ProductPage = () => {
 
   return (
     <div>
-      <Link to="/" className="btn btn-primary my-3">
+      <Link to="../" className="btn btn-primary my-3">
         <i className="fa fa-arrow-left" aria-hidden="true"></i>
       </Link>
 
