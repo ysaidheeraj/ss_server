@@ -16,10 +16,10 @@ export const CategoriesNavbar = ({selectedCategoryLink}) => {
     const categoriesList = useSelector((state) => state.categoriesList);
     const {loading, categories, error } = categoriesList;
     useEffect(() =>{
-        if(!categories || !categories.length){
+        if(!loading || !error){
             dispatch(listCategories());
         }
-    },[dispatch])
+    },[dispatch, error, navigate])
     
     const changeCategoryHandler = (categoryId) =>{
         setCurrentCategory(categoryId);

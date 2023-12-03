@@ -27,3 +27,26 @@ def send_welcome_account_confirmation_email(store, customer):
 
         email.attach_alternative(html_message, "text/html")
         email.send()
+
+def send_welcome_account_confirmation_email_seller(seller):
+
+    context = {
+        "user_name": seller.first_name + " " + seller.last_name,
+        "account_confirm_link" : settings.APP_ROOT_URL+"/storeusers/seller/accountconfirmpage?data="+base64.b64encode(
+            json.dumps({"email":seller.email}).encode('utf-8')).decode("utf-8"),
+    }
+
+    html_message = render_to_string("WelcomeAccConfirmSeller.html", context=context)
+    plain_message = strip_tags(html_message)
+    
+    if settings.ENABLE_EMAILS:
+        email = EmailMultiAlternatives(
+            subject="Welcome to Sell Smart",
+            body=plain_message,
+            from_email= "Sell Smart " + settings.DEFAULT_FROM_MAIL,
+            to=[seller.email],
+            reply_to=[settings.EMAIL_HOST_USER]
+        )
+
+        email.attach_alternative(html_message, "text/html")
+        email.send()

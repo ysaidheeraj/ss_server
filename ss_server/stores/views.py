@@ -4,10 +4,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Store
 from storeusers.models import Store_User, User_Role
+from storeusers.serializers import StoreUserSerializer
 from .serializers import StoreSerializer
 from .utils import create_model_response
 from .emailservice import send_customer_ticket_to_seller
-from storeusers.views import authorize_customer
+from storeusers.views import authorize_customer, authorize_seller, generate_token
 # Create your views here.
 
 class StoreActions(APIView):
@@ -17,13 +18,25 @@ class StoreActions(APIView):
         store = StoreSerializer(store)
         return Response(create_model_response(Store,store.data))
     
+    @authorize_seller
     def post(self, request):
         data = request.data
         serializer = StoreSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(create_model_response(Store, serializer.data), status=status.HTTP_201_CREATED)
-    
+
+        #Linking seller to the store
+        seller = Store_User.objects.filter(user_id=self.seller_payload['id']).first()
+        sellerSer = StoreUserSerializer(seller, data={
+            'store_id': serializer.data['store_id'],
+            'username': 'seller_'+seller.email+"_"+str(serializer.data['store_id'])
+        }, partial=True)
+        sellerSer.is_valid(raise_exception=True)
+        sellerSer.save()
+        response = generate_token(sellerSer.instance, serializer.data['store_id'])
+        response.data[Store.__name__] = serializer.data
+        response.data['seller'] = sellerSer.data
+        return response
 class StoreTickets(APIView):
 
     @authorize_customer

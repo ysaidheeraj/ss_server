@@ -1,29 +1,57 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { customer_logout } from "../Actions/UserActions";
+import { customer_logout, customer_details } from "../Actions/UserActions";
 import { SearchBox } from "./SearchBox";
+import { useParams } from "react-router-dom";
 import { Outlet } from "react-router-dom";
+import { Message } from "./Message";
+import { Loader } from "./Loader";
+import { listStoreDetails } from "../Actions/StoreActions";
 
 export const Header = () => {
-  const dispatch = useDispatch();
 
-  const customerDetails = useSelector((state) => state.customerDetails);
-  const { customer } = customerDetails;
+  const { storeId } = useParams();
+
+  const dispatch = useDispatch();
+  const [loadingData, setLoadingData] = useState(true);
 
   const storeDetails = useSelector((state) => state.storeDetails);
-  const { store } = storeDetails;
+  const { error: storeError, loading: storeLoading, store } = storeDetails;
 
-  useEffect(() =>{
-    document.title = store.store_name
-  },[])
+  const customerDetails = useSelector((state) => state.customerDetails);
+  const { error, loading, customer } = customerDetails;
+
+  useEffect(() => {
+    if(!loading && !storeLoading){
+      setLoadingData(false);
+    }
+    if(store && !storeLoading){
+      if(!customer && !loading && !error){
+        setLoadingData(true);
+        document.title = store.store_name
+        dispatch(customer_details());
+      }
+    }
+
+    if(!storeLoading && ((!store  && !storeError) || (store && store.store_id != storeId))){
+      setLoadingData(true);
+      dispatch(listStoreDetails(storeId));
+    }
+    if(error === "Login Expired"){
+      // If the login expires, we need to relogin
+      dispatch(customer_logout());
+    }
+  }, [dispatch, store, error, storeLoading, loading, storeId]);
 
   const customerLogoutHandler = () =>{
     dispatch(customer_logout());
   }
   return (
     <>
+    {loadingData ? (<Loader />): (
+      <>
       <header>
         <Navbar expand="lg" bg="dark" variant="dark" collapseOnSelect className="fixed-top">
           <Container>
@@ -96,7 +124,12 @@ export const Header = () => {
           </Container>
         </Navbar>
       </header>
+      {customer && !customer.isConfirmed && (
+        <Message variant='warning'>Your account is not confirmed. Please check your email and confirm your account!</Message>
+      )}
       <Outlet />
+      </>
+    )}
     </>
   );
 };

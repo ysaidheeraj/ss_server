@@ -60,7 +60,7 @@ button:hover {
 </style>
 <body>
     <div>
-        <h2>{{storeName}} Account Confirmation</h2>
+        <h2>SellSmart Account Confirmation</h2>
         <form id="accountConfirmationForm">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required disabled>
@@ -108,7 +108,7 @@ button:hover {
             // Make API request
             $.ajax({
                 type: 'POST',
-                url: '/store/'+String(data.storeId)+'/storeuser/customer/confirmaccount',
+                url: '/storeusers/seller/confirmaccount',
                 data: JSON.stringify({
                     email: email,
                     password: password
@@ -118,7 +118,8 @@ button:hover {
                     'X-CSRFToken': csrfToken
                 },
                 success: function(response) {
-                    window.location.replace(window.location.origin+"/#/store/"+String(data.storeId));
+                    // window.location.replace(window.location.origin+"/#/");
+                    window.location.replace("http://localhost:3000/#/");
                 },
                 error: function(error) {
                     alert(error.responseJSON.detail);

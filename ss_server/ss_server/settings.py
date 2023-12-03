@@ -91,10 +91,7 @@ WSGI_APPLICATION = 'ss_server.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'SellSmart',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',  # Change this to the MySQL server's hostname or IP address if it's not on localhost.
+        'NAME': 'SellSmart'
     }
 }
 

@@ -21,53 +21,18 @@ import { CategoryEditPage } from "./pages/CategoryEditPage";
 import {SSHomePage} from "./pages/SSHomePage";
 import { ToastContainer } from "react-toastify";
 import { ContactPage } from "./pages/ContactPage";
-import { customer_details, customer_logout } from "./Actions/UserActions";
-import { listStoreDetails } from "./Actions/StoreActions";
+import { SellerRegisterPage } from "./pages/SellerRegisterPage";
+import { SellerLoginPage } from "./pages/SellerLoginPage";
+import { StoreCreatePage } from "./pages/StoreCreatePage";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
-import { Loader } from "./Components/Loader";
-import { useEffect, useState } from "react";
-import { Message } from "./Components/Message";
 function App() {
-  const dispatch = useDispatch();
-  const [loadingData, setLoadingData] = useState(true);
-
-  const storeDetails = useSelector((state) => state.storeDetails);
-  const { error: storeError, loading: storeLoading, store } = storeDetails;
-
-  const customerDetails = useSelector((state) => state.customerDetails);
-  const { error, loading, customer } = customerDetails;
-
-  useEffect(() => {
-    if((customer || error) && store){
-      if(!loading && !storeLoading){
-        setLoadingData(false);
-      }
-    }
-    if(store && !storeLoading){
-      if(!customer && !loading && !error){
-        dispatch(customer_details());
-      }
-    }
-
-    if(!store && !storeLoading && !storeError){
-      dispatch(listStoreDetails(1));
-    }
-    if(error === "Login Expired"){
-      // If the login expires, we need to relogin
-      dispatch(customer_logout());
-    }
-  }, [dispatch, store, error, storeLoading, loading]);
+  
   return (
     <div>
-      {loadingData ? (<Loader />):
+      
       (
         <Router>
           {/* <Header /> */}
-          {customer && !customer.isConfirmed && (
-            <Message variant='warning'>Your account is not confirmed. Please check your email and confirm your account!</Message>
-          )}
           <main className="py-3">
             <Container>
             <ToastContainer
@@ -83,6 +48,9 @@ function App() {
             />
               <Routes>
                 <Route path="/" Component={SSHomePage} exact/>
+                <Route path="register" Component={SellerRegisterPage} />
+                <Route path="login" Component={SellerLoginPage} />
+                <Route path="createstore" Component={StoreCreatePage} />
                 <Route path="/store/:storeId" Component={Header}>
                   <Route path="" Component={HomePage} exact />
                   <Route path="product/:id" Component={ProductPage} />
@@ -108,7 +76,6 @@ function App() {
           </main>
           <Footer />
         </Router>
-      )}
     </div>
     
   );

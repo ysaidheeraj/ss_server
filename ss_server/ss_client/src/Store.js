@@ -3,10 +3,11 @@ import thunk from "redux-thunk";
 import { composeWithDevTools } from "redux-devtools-extension";
 import { itemListReducer, itemDetailsReducer, itemDeleteReducer, itemCreateReducer, itemUpdateReducer, itemReviewCreate } from "./Reducers/ItemReducers";
 import { CartReducer } from "./Reducers/CartReducers";
-import { customerLoginReducer, customerSignupReducer, customerDetailsReducer, customerUpdateReducer, customerListReducer } from "./Reducers/UserReducer";
+import { customerLoginReducer, customerSignupReducer, customerDetailsReducer, customerUpdateReducer, customerListReducer,
+sellerDetailsReducer, sellerLoginReducer, sellerSignupReducer } from "./Reducers/UserReducer";
 import { createOrderReducer, orderDetailsReducer, orderUpdateReducer, ordersListReducer, sellerOrdersListReducer } from "./Reducers/OrderReducers";
 import { categoriesListReducer, categoriesCreateReducer, categoryDetailsReducer, categoryUpdateReducer, categoryDeleteReducer } from "./Reducers/CategoriesReducers";
-import { storeDetailsReducer, createStoreTicketReducer } from "./Reducers/StoreReducers";
+import { storeDetailsReducer, createStoreTicketReducer, createStoreReducer } from "./Reducers/StoreReducers";
 
 const appReducer = combineReducers({
     itemList: itemListReducer,
@@ -22,6 +23,10 @@ const appReducer = combineReducers({
     customerDetails: customerDetailsReducer,
     customerUpdateProfile: customerUpdateReducer,
 
+    sellerDetails: sellerDetailsReducer,
+    sellerLogin: sellerLoginReducer,
+    sellerRegister: sellerSignupReducer,
+
     createOrder: createOrderReducer,
     orderDetails: orderDetailsReducer,
     orderUpdate: orderUpdateReducer,
@@ -36,7 +41,8 @@ const appReducer = combineReducers({
     categoryDelete: categoryDeleteReducer,
 
     storeDetails: storeDetailsReducer,
-    createTicket: createStoreTicketReducer
+    createTicket: createStoreTicketReducer,
+    createStore: createStoreReducer
 });
 
 const cartItemsFromStorage = localStorage.getItem('cartItems') ? 
