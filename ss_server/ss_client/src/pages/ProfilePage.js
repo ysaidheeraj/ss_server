@@ -44,7 +44,7 @@ export const ProfilePage = () => {
 
 
   useEffect(() => {
-    if (!customer) {
+    if (!loading && !customer.first_name) {
       navigate("../login");
     } else {
       if (!customer || success) {
