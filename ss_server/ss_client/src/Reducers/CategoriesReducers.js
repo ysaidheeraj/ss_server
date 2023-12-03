@@ -3,6 +3,7 @@ import { CATEGORIES_CREATE_REQUEST, CATEGORIES_CREATE_RESET, CATEGORIES_CREATE_S
 import { CATEGORY_DETAILS_REQUEST, CATEGORY_DETAILS_FAIL, CATEGORY_DETAILS_SUCCESS } from "../Constants/CategoriesConstants";
 import { CATEGORY_UPDATE_REQUEST, CATEGORY_UPDATE_RESET, CATEGORY_UPDATE_SUCCESS, CATEGORY_UPDATE_FAIL } from "../Constants/CategoriesConstants";
 import {CATEGORY_DELETE_FAIL, CATEGORY_DELETE_REQUEST, CATEGORY_DELETE_SUCCESS} from "../Constants/CategoriesConstants";
+import { RESET_ALL_DATA } from "../Constants/StoreConstants";
 
 export const categoriesListReducer = (state = {categories:[]}, action) =>{
     //Switch statement to determine the action type
@@ -14,6 +15,8 @@ export const categoriesListReducer = (state = {categories:[]}, action) =>{
             return {loading: false, categories: action.payload}
         case CATEGORIES_LIST_FAIL:
             return {loading: false, error:action.payload}
+        case RESET_ALL_DATA:
+            return {categories: []}
         default:
             return state
     }
@@ -31,6 +34,8 @@ export const categoriesCreateReducer = (state = {}, action) =>{
             return {loading: false, error:action.payload}
         case CATEGORIES_CREATE_RESET:
             return {};
+        case RESET_ALL_DATA:
+            return {}
         default:
             return state;
     }
@@ -46,6 +51,8 @@ export const categoryDetailsReducer = (state = {category:{}}, action) =>{
             return {loading: false, success: true, category: action.payload}
         case CATEGORY_DETAILS_FAIL:
             return {loading: false, error:action.payload}
+        case RESET_ALL_DATA:
+            return {category:{}}
         default:
             return state;
     }

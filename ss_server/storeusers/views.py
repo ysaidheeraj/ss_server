@@ -8,10 +8,11 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from inventory.models import Order, OrderStatus
 import jwt, datetime
 from functools import wraps
+from stores.models import Store
 from django.conf import settings
 from .utils import create_model_response
 from  django.contrib.auth.hashers import make_password
-from .emailservice import send_welcome_account_confirmation_email
+from .emailservice import send_welcome_account_confirmation_email, send_welcome_account_confirmation_email_seller
 from django.shortcuts import render, redirect
 from rest_framework.decorators import api_view
 
@@ -30,7 +31,9 @@ def handleCustomerToken(request):
     return payload
 
 def authorizeUser(user_id, store_id, user_role):
-    if user_role > -1:
+    if store_id is None and user_role > -1:
+        user_obj = Store_User.objects.filter(user_id=user_id, user_role=user_role).first()
+    elif user_role > -1:
         user_obj = Store_User.objects.filter(user_id=user_id, store_id=store_id, user_role=user_role).first()
     else:
         user_obj = Store_User.objects.filter(user_id=user_id, store_id=store_id).first()
@@ -90,8 +93,11 @@ def authorize_storeuser(view_func):
     return wrapper
 
 def authenticateUser(email, password, store_id, isSignup=False):
-
-    user_obj = Store_User.objects.filter(email=email, store_id=store_id).first()
+    user_obj = {}
+    if store_id is None:
+        user_obj = Store_User.objects.filter(email=email, user_role=User_Role.SELLER).first()
+    else:
+        user_obj = Store_User.objects.filter(email=email, store_id=store_id).first()
 
     if user_obj is None:
         raise AuthenticationFailed('User Not Found')
@@ -129,7 +135,7 @@ def generate_token(user_obj, store_id, redirectTo=False, redirectUrl=''):
     return response
 
 class RegisterCustomerView(APIView):
-    def post(self, request, storeId):
+    def post(self, request, storeId=None):
         data = request.data
         data['user_role'] = User_Role.CUSTOMER
         data['store_id'] = storeId
@@ -142,7 +148,25 @@ class RegisterCustomerView(APIView):
         return generate_token(customer, storeId)
 
 def accountConfirmTemplate(request, storeId):
-    return render(request, "AccountConfirm.html")
+    store = Store.objects.filter(store_id=storeId).first()
+    return render(request, "AccountConfirm.html" , {"storeName": store.store_name})
+
+def sellerAccountConfirmTemplate(request):
+    return render(request, "SellerAccountConfirm.html")
+
+@api_view(['POST'])
+def confirmNewSeller(request):
+    data = request.data
+    seller = authenticateUser(data['email'], data['password'], None, isSignup=True)
+
+    if seller:
+        if not seller.isConfirmed:
+            userSer = StoreUserSerializer(seller, data={"isConfirmed": True}, partial=True)
+            if userSer.is_valid():
+                userSer.save()
+            seller = userSer.instance
+
+        return generate_token(seller, -1)
 
 @api_view(['POST'])
 def confirmNewCustomer(request, storeId):
@@ -166,7 +190,7 @@ def resendAccountConfirm(request, storeId):
     return Response(status=status.HTTP_200_OK)
 
 class LoginCustomerView(APIView):
-    def post(self, request, storeId):
+    def post(self, request, storeId=None):
         email = request.data['email']
         password = request.data['password']
 
@@ -242,7 +266,7 @@ class ListAllCustomersView(APIView):
         return Response(create_model_response(Store_User, customerSerData))
 
 class LogoutCustomerView(APIView):
-    def post(self, request, storeId):
+    def post(self, request, storeId=None):
         response = Response()
         response.delete_cookie('customer_jwt')
         response.data = {
@@ -250,4 +274,22 @@ class LogoutCustomerView(APIView):
         }
         return response
 
+class RegisterSellerView(APIView):
+    def post(self, request):
+        data = request.data
+        seller = Store_User.objects.create(
+            first_name = data['first_name'],
+            last_name = data['last_name'],
+            email = data['email'],
+            password = make_password(data['password']),
+            username = 'seller_'+data['email'],
+            user_role = User_Role.SELLER
+        )
+        send_welcome_account_confirmation_email_seller(seller)
+        return generate_token(seller, -1)
 
+class GetSellerView(APIView):
+    @authorize_seller
+    def get(self, request):
+        seller = Store_User.objects.filter(user_id=self.seller_payload['id'], user_role = User_Role.SELLER).first()
+        return Response(create_model_response(Store_User, StoreUserSerializer(seller).data))

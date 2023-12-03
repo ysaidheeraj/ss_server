@@ -1,11 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
 from stores.models import Store
-
-phone_regex = RegexValidator(
-    regex=r'^\+?1?\d{9,15}$'
-)
 
 def custom_image_upload(instance, filename):
     old_instance = Store_User.objects.get(pk=instance.pk)
@@ -22,11 +17,7 @@ class Store_User(AbstractUser):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField()
-    phone_number = models.CharField(
-        max_length=15,
-        validators=[phone_regex]
-    )
-    store_id = models.ForeignKey(Store, related_name="storeusers", on_delete=models.CASCADE, null=True)
+    store_id = models.ForeignKey(Store, related_name="storeusers", on_delete=models.CASCADE, null=True, blank=True)
     password = models.CharField(max_length=255)
     profile_picture = models.ImageField(upload_to=custom_image_upload, default="storeusers/profile_pictures/default_avatar.jpeg")
     address = models.TextField(max_length=500, null=True, blank=True)

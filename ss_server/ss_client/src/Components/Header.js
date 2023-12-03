@@ -1,29 +1,62 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { customer_logout } from "../Actions/UserActions";
+import { customer_logout, customer_details } from "../Actions/UserActions";
 import { SearchBox } from "./SearchBox";
+import { useParams } from "react-router-dom";
 import { Outlet } from "react-router-dom";
+import { Message } from "./Message";
+import { Loader } from "./Loader";
+import { listStoreDetails } from "../Actions/StoreActions";
+import { RESET_ALL_DATA } from "../Constants/StoreConstants";
 
 export const Header = () => {
-  const dispatch = useDispatch();
 
-  const customerDetails = useSelector((state) => state.customerDetails);
-  const { customer } = customerDetails;
+  const { storeId } = useParams();
+  const [resettingData, setResettingData] = useState(true);
+
+  const dispatch = useDispatch();
+  const [loadingData, setLoadingData] = useState(true);
 
   const storeDetails = useSelector((state) => state.storeDetails);
-  const { store } = storeDetails;
+  const { error: storeError, loading: storeLoading, store } = storeDetails;
+
+  const customerDetails = useSelector((state) => state.customerDetails);
+  const { error, loading, customer } = customerDetails;
 
   useEffect(() =>{
-    document.title = store.store_name
-  },[])
+    setResettingData(false);
+    setLoadingData(true)
+    dispatch({type: RESET_ALL_DATA})
+  }, [storeId])
+
+  useEffect(() => {
+    if(!resettingData){
+      if(!store.store_name && !storeLoading){
+        setLoadingData(true);
+        dispatch(listStoreDetails(storeId));
+      }else if(store.store_name && !loading && !error && !customer.user_id){
+        setLoadingData(true);
+        document.title = store.store_name
+        dispatch(customer_details());
+      }else if(store.store_name && (error || customer.user_id)){
+        setLoadingData(false);
+      }
+      if(error === "Login Expired"){
+        // If the login expires, we need to relogin
+        dispatch(customer_logout());
+      }
+    }
+  }, [dispatch, store, error, storeLoading, loading, resettingData]);
 
   const customerLogoutHandler = () =>{
     dispatch(customer_logout());
   }
   return (
     <>
+    {loadingData ? (<Loader />): (
+      <>
       <header>
         <Navbar expand="lg" bg="dark" variant="dark" collapseOnSelect className="fixed-top">
           <Container>
@@ -96,7 +129,12 @@ export const Header = () => {
           </Container>
         </Navbar>
       </header>
+      {customer && !customer.isConfirmed && (
+        <Message variant='warning'>Your account is not confirmed. Please check your email and confirm your account!</Message>
+      )}
       <Outlet />
+      </>
+    )}
     </>
   );
 };
