@@ -3,6 +3,7 @@ import { STORE_CREATE_TICKET_REQUEST, STORE_CREATE_TICKET_SUCCESS, STORE_CREATE_
 import { CUSTOMER_DETAILS_RESET } from "../Constants/UserConstants";
 import axios from "axios";
 import { SELLER_DETAILS_SUCCESS } from "../Constants/UserConstants";
+import Notification from "../Components/Notification";
 
 export const listStoreDetails = (id) => async(dispatch) =>{
     try{
@@ -61,12 +62,18 @@ export const create_store = (storeName, storeDescription) => async(dispatch, get
             type: SELLER_DETAILS_SUCCESS,
             payload: data.seller
         })
+        Notification.success("Store created successfully");
 
     }catch(error){
         dispatch({
             type: STORE_CREATE_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 
@@ -95,12 +102,18 @@ export const createStoreTicket = (subject, mailBody) => async(dispatch, getState
             type: STORE_CREATE_TICKET_SUCCESS,
             payload: data.Message
         })
+        Notification.success("Query submitted successfully");
 
     }catch(error){
         dispatch({
             type: STORE_CREATE_TICKET_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 

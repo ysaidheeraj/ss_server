@@ -2,6 +2,7 @@ import {CATEGORIES_LIST_REQUEST, CATEGORIES_LIST_SUCCESS, CATEGORIES_LIST_FAIL, 
 import { CATEGORIES_CREATE_REQUEST, CATEGORIES_CREATE_SUCCESS, CATEGORIES_CREATE_FAIL } from "../Constants/CategoriesConstants";
 import {CATEGORY_DELETE_FAIL, CATEGORY_DELETE_REQUEST, CATEGORY_DELETE_SUCCESS} from "../Constants/CategoriesConstants";
 import axios from "axios";
+import Notification from "../Components/Notification";
 
 export const listCategories = () => async(dispatch, getState) =>{
     try{
@@ -43,11 +44,18 @@ export const createCategory = () => async(dispatch, getState) =>{
             type: CATEGORIES_CREATE_SUCCESS,
             payload: data.Category
         })
+
+        Notification.success("Category created successfully");
     }catch(error){
         dispatch({
             type: CATEGORIES_CREATE_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         })
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 
@@ -103,11 +111,18 @@ export const updateCategory = (category, id) => async(dispatch, getState) =>{
             type: CATEGORY_DETAILS_SUCCESS,
             payload: data.Category
         })
+
+        Notification.success("Category updated successfully");
     }catch(error){
         dispatch({
             type: CATEGORY_UPDATE_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         })
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 
@@ -130,11 +145,17 @@ export const deleteCategory = (id) => async(dispatch, getState) =>{
         dispatch({
             type: CATEGORY_DELETE_SUCCESS
         })
+        Notification.success("Category deleted successfully");
     }catch(error){
         dispatch({
             type: CATEGORY_DELETE_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         })
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 

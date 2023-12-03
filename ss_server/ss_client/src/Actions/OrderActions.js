@@ -5,6 +5,7 @@ import { ORDER_UPDATE_REQUEST, ORDER_UPDATE_SUCCESS, ORDER_UPDATE_FAIL, ORDER_UP
 import { ORDERS_LIST_FAIL, ORDERS_LIST_REQUEST, ORDERS_LIST_SUCCESS } from "../Constants/OrderConstants";
 import { SELLER_ORDERS_LIST_FAIL, SELLER_ORDERS_LIST_REQUEST, SELLER_ORDERS_LIST_SUCCESS } from "../Constants/OrderConstants";
 import axios from "axios";
+import Notification from "../Components/Notification";
 
 export const create_order = (order) => async(dispatch, getState) =>{
     try{
@@ -36,6 +37,7 @@ export const create_order = (order) => async(dispatch, getState) =>{
             payload: data.Order
         })
 
+        Notification.success("Order placed successfully");
         localStorage.removeItem('cartItems');
 
     }catch(error){
@@ -43,6 +45,11 @@ export const create_order = (order) => async(dispatch, getState) =>{
             type: CREATE_ORDER_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 
@@ -108,12 +115,18 @@ export const updateOrderDetails = (id, requestData) => async(dispatch, getState)
             type: ORDER_DETAILS_SUCCESS,
             payload: data.Order
         })
+        Notification.success("Order status updated successfully")
 
     }catch(error){
         dispatch({
             type: ORDER_UPDATE_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 
