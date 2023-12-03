@@ -19,7 +19,7 @@ export const customerLoginReducer = (state = {}, action) =>{
         case CUSTOMER_LOGIN_FAIL:
             return {loading: false, error:action.payload}
         case CUSTOMER_LOGOUT:
-            return {};
+            return {customer:{}};
         default:
             return state
     }
@@ -49,7 +49,7 @@ export const customerDetailsReducer = (state = {customer:{}}, action) =>{
         case CUSTOMER_DETAILS_SUCCESS:
             return {loading: false, customer: action.payload}
         case CUSTOMER_DETAILS_FAIL:
-            return {loading: false, error:action.payload}
+            return {loading: false, error:action.payload, customer:{}}
         case CUSTOMER_DETAILS_RESET:
             return {customer:{}}
         case RESET_ALL_DATA:
