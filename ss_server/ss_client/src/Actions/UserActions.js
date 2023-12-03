@@ -6,6 +6,7 @@ import { ORDERS_LIST_RESET, SELLER_ORDERS_LIST_RESET } from "../Constants/OrderC
 import { SELLER_DETAILS_REQUEST, SELLER_DETAILS_SUCCESS, SELLER_DETAILS_FAIL } from "../Constants/UserConstants";
 import axios from "axios";
 import store_data from "./StoreActions";
+import Notification from "../Components/Notification";
 
 
 export const customer_login = (email, password) => async(dispatch, getState) =>{
@@ -126,6 +127,7 @@ export const seller_register = (first_name, last_name, email, password) => async
             type: SELLER_DETAILS_SUCCESS,
             payload: data.customer
         })
+        Notification.success("User registered successfully! Please check your email and confirm your account.")
 
         localStorage.setItem('customerInfo', JSON.stringify(data.customer));
     }catch(error){
@@ -133,6 +135,11 @@ export const seller_register = (first_name, last_name, email, password) => async
             type: SELLER_REGISTER_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 
@@ -175,12 +182,19 @@ export const customer_register = (first_name, last_name, email, password, isSell
             payload: data.Store_User
         })
 
+        Notification.success("User registered successfully! Please check your email and confirm your account.")
+
         localStorage.setItem('customerInfo', JSON.stringify(data.customer));
     }catch(error){
         dispatch({
             type: CUSTOMER_REGISTER_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 
@@ -246,6 +260,8 @@ export const update_customer_details = (customer) => async(dispatch, getState) =
             payload: data.Store_User
         })
 
+        Notification.success("Details updated successfully!")
+
         localStorage.setItem('customerInfo', JSON.stringify(data.Store_User));
 
     }catch(error){
@@ -253,6 +269,11 @@ export const update_customer_details = (customer) => async(dispatch, getState) =
             type: CUSTOMER_UPDATE_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 

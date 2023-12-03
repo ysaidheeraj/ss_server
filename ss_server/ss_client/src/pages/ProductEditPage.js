@@ -63,7 +63,6 @@ export const ProductEditPage = () => {
     useEffect(() => {
         if(updateSuccess){
             dispatch({type: ITEM_UPDATE_RESET});
-            navigate('../seller/products');
         }else{
             if(categories){
                 setAllCategories(categories.map((category) =>(

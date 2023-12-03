@@ -129,7 +129,7 @@ export const Header = () => {
           </Container>
         </Navbar>
       </header>
-      {customer && !customer.isConfirmed && (
+      {customer.first_name && !customer.isConfirmed && (
         <Message variant='warning'>Your account is not confirmed. Please check your email and confirm your account!</Message>
       )}
       <Outlet />

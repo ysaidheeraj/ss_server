@@ -51,7 +51,6 @@ export const CategoryEditPage = () => {
     useEffect(() => {
         if(updateSuccess){
             dispatch({type: CATEGORY_UPDATE_RESET});
-            navigate('../seller/categories');
         }else{
             if(!loading){
                 if(!category.category_name || category.category_id !== Number(categoryId)){

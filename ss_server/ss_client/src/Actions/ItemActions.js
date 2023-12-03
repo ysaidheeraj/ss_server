@@ -5,6 +5,7 @@ import { ITEM_LIST_SUCCESS, ITEM_LIST_REQUEST, ITEM_LIST_FAIL,
     ITEM_UPDATE_REQUEST, ITEM_UPDATE_FAIL, ITEM_UPDATE_SUCCESS,
     ITEM_CREATE_REVIEW_FAIL, ITEM_CREATE_REVIEW_REQUEST, ITEM_CREATE_REVIEW_SUCCESS
 } from "../Constants/ItemConstants"
+import Notification from "../Components/Notification";
 import axios from "axios";
 
 export const listItems = (searchQuery = '') => async(dispatch, getState) =>{
@@ -62,11 +63,18 @@ export const deleteItem = (id) => async(dispatch, getState) =>{
             type: ITEM_DELETE_SUCCESS
         });
 
+        Notification.success("Item deleted successfully")
+
     }catch(error){
         dispatch({
             type: ITEM_DELETE_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 
@@ -88,11 +96,18 @@ export const createItem = () => async(dispatch, getState) =>{
             payload: data.Item
         });
 
+        Notification.success("Item created successfully")
+
     }catch(error){
         dispatch({
             type: ITEM_CREATE_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 
@@ -131,11 +146,18 @@ export const update_item_details = (item, id) => async(dispatch, getState) =>{
             payload: data.Item
         })
 
+        Notification.success("Item details updated successfully");
+
     }catch(error){
         dispatch({
             type: ITEM_UPDATE_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 
@@ -163,11 +185,18 @@ export const create_item_review = (review, id) => async(dispatch, getState) =>{
             payload: data.Reviews
         })
 
+        Notification.success("Review submitted successfully");
+
     }catch(error){
         dispatch({
             type: ITEM_CREATE_REVIEW_FAIL,
             payload: error.response && error.response.data.detail ? error.response.data.detail : error.message
         });
+        if(error.response && error.response.data.detail){
+            Notification.error(error.response.data.detail)
+        }else{
+            Notification.error("Sell Smart Internal Error")
+        }
     }
 }
 

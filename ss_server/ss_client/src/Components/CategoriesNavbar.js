@@ -6,7 +6,7 @@ import { Loader } from './Loader';
 import { useSearchParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
-export const CategoriesNavbar = ({selectedCategoryLink}) => {
+export const CategoriesNavbar = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
