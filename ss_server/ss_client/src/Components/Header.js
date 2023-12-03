@@ -9,10 +9,12 @@ import { Outlet } from "react-router-dom";
 import { Message } from "./Message";
 import { Loader } from "./Loader";
 import { listStoreDetails } from "../Actions/StoreActions";
+import { RESET_ALL_DATA } from "../Constants/StoreConstants";
 
 export const Header = () => {
 
   const { storeId } = useParams();
+  const [resettingData, setResettingData] = useState(true);
 
   const dispatch = useDispatch();
   const [loadingData, setLoadingData] = useState(true);
@@ -23,27 +25,30 @@ export const Header = () => {
   const customerDetails = useSelector((state) => state.customerDetails);
   const { error, loading, customer } = customerDetails;
 
+  useEffect(() =>{
+    setResettingData(false);
+    setLoadingData(true)
+    dispatch({type: RESET_ALL_DATA})
+  }, [storeId])
+
   useEffect(() => {
-    if(!loading && !storeLoading){
-      setLoadingData(false);
-    }
-    if(store && !storeLoading){
-      if(!customer && !loading && !error){
+    if(!resettingData){
+      if(!store.store_name && !storeLoading){
+        setLoadingData(true);
+        dispatch(listStoreDetails(storeId));
+      }else if(store.store_name && !loading && !error && !customer.user_id){
         setLoadingData(true);
         document.title = store.store_name
         dispatch(customer_details());
+      }else if(store.store_name && (error || customer.user_id)){
+        setLoadingData(false);
+      }
+      if(error === "Login Expired"){
+        // If the login expires, we need to relogin
+        dispatch(customer_logout());
       }
     }
-
-    if(!storeLoading && ((!store  && !storeError) || (store && store.store_id != storeId))){
-      setLoadingData(true);
-      dispatch(listStoreDetails(storeId));
-    }
-    if(error === "Login Expired"){
-      // If the login expires, we need to relogin
-      dispatch(customer_logout());
-    }
-  }, [dispatch, store, error, storeLoading, loading, storeId]);
+  }, [dispatch, store, error, storeLoading, loading, resettingData]);
 
   const customerLogoutHandler = () =>{
     dispatch(customer_logout());

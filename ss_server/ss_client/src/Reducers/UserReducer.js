@@ -6,6 +6,7 @@ import { SELLER_LOGIN_REQUEST, SELLER_LOGIN_SUCCESS, SELLER_LOGIN_FAIL, SELLER_L
 import { SELLER_REGISTER_REQUEST, SELLER_REGISTER_SUCCESS, SELLER_REGISTER_FAIL } from "../Constants/UserConstants";
 import { CUSTOMER_LIST_FAIL, CUSTOMER_LIST_RESET, CUSTOMER_LIST_SUCCESS, CUSTOMER_LIST_REQUEST } from "../Constants/UserConstants";
 import { SELLER_DETAILS_REQUEST, SELLER_DETAILS_SUCCESS, SELLER_DETAILS_FAIL, SELLER_DETAILS_RESET } from "../Constants/UserConstants";
+import { RESET_ALL_DATA } from "../Constants/StoreConstants";
 
 export const customerLoginReducer = (state = {}, action) =>{
     //Switch statement to determine the action type
@@ -39,7 +40,7 @@ export const customerSignupReducer = (state = {}, action) =>{
     }
 }
 
-export const customerDetailsReducer = (state = {}, action) =>{
+export const customerDetailsReducer = (state = {customer:{}}, action) =>{
     //Switch statement to determine the action type
     switch(action.type){
         //When the item list is loading
@@ -50,7 +51,9 @@ export const customerDetailsReducer = (state = {}, action) =>{
         case CUSTOMER_DETAILS_FAIL:
             return {loading: false, error:action.payload}
         case CUSTOMER_DETAILS_RESET:
-            return {customer:null}
+            return {customer:{}}
+        case RESET_ALL_DATA:
+            return {customer:{}}
         default:
             return state
     }

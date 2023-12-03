@@ -3,6 +3,7 @@ import { ORDER_DETAILS_REQUEST, ORDER_DETAILS_SUCCESS, ORDER_DETAILS_FAIL } from
 import { ORDER_UPDATE_REQUEST, ORDER_UPDATE_SUCCESS, ORDER_UPDATE_FAIL, ORDER_UPDATE_RESET } from "../Constants/OrderConstants";
 import { ORDERS_LIST_FAIL, ORDERS_LIST_REQUEST, ORDERS_LIST_SUCCESS, ORDERS_LIST_RESET } from "../Constants/OrderConstants";
 import { SELLER_ORDERS_LIST_FAIL, SELLER_ORDERS_LIST_REQUEST, SELLER_ORDERS_LIST_SUCCESS, SELLER_ORDERS_LIST_RESET } from "../Constants/OrderConstants";
+import { RESET_ALL_DATA } from "../Constants/StoreConstants";
 
 export const createOrderReducer = (state={}, action) =>{
     switch(action.type){
@@ -45,6 +46,8 @@ export const orderDetailsReducer = (state={loading: true, orderItems:[], shippin
                 loading: false,
                 error: action.payload
             }
+        case RESET_ALL_DATA:
+            return {loading: true, orderItems:[], shippingAddress:{}}
         default:
             return state
     }
@@ -93,6 +96,8 @@ export const ordersListReducer = (state={orders:[]}, action) =>{
             return {
                 orders:[]
             }
+        case RESET_ALL_DATA:
+            return {orders:[]}
         default:
             return state
     }
@@ -118,6 +123,8 @@ export const sellerOrdersListReducer = (state={orders:[]}, action) =>{
             return {
                 orders:[]
             }
+        case RESET_ALL_DATA:
+            return {orders:[]}
         default:
             return state
     }

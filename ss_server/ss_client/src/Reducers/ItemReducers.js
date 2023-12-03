@@ -5,6 +5,7 @@ import { ITEM_LIST_SUCCESS, ITEM_LIST_REQUEST, ITEM_LIST_FAIL,
     ITEM_UPDATE_FAIL, ITEM_UPDATE_REQUEST, ITEM_UPDATE_RESET, ITEM_UPDATE_SUCCESS,
     ITEM_CREATE_REVIEW_FAIL, ITEM_CREATE_REVIEW_REQUEST, ITEM_CREATE_REVIEW_SUCCESS, ITEM_CREATE_REVIEW_RESET
 } from "../Constants/ItemConstants"
+import { RESET_ALL_DATA } from "../Constants/StoreConstants"
 
 export const itemListReducer = (state = {items:[]}, action) =>{
     //Switch statement to determine the action type
@@ -16,6 +17,8 @@ export const itemListReducer = (state = {items:[]}, action) =>{
             return {loading: false, items: action.payload.Item, page: action.payload.page, pages: action.payload.pages}
         case ITEM_LIST_FAIL:
             return {loading: false, error:action.payload}
+        case RESET_ALL_DATA:
+            return {items:[]}
         default:
             return state
     }
@@ -31,6 +34,8 @@ export const itemDetailsReducer = (state = {item:{reviews:[]}}, action) =>{
             return {loading: false, item: action.payload}
         case ITEM_DETAILS_FAIL:
             return {loading: false, error:action.payload}
+        case RESET_ALL_DATA:
+            return {item:{reviews:[]}}
         default:
             return state
     }

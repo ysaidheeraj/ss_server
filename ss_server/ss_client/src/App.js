@@ -26,13 +26,9 @@ import { SellerLoginPage } from "./pages/SellerLoginPage";
 import { StoreCreatePage } from "./pages/StoreCreatePage";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 function App() {
-  
   return (
     <div>
-      
-      (
         <Router>
-          {/* <Header /> */}
           <main className="py-3">
             <Container>
             <ToastContainer

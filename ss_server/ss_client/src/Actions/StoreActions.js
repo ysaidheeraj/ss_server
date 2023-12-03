@@ -18,9 +18,6 @@ export const listStoreDetails = (id) => async(dispatch) =>{
             payload: data.Store
         })
 
-        dispatch({
-            type: CUSTOMER_DETAILS_RESET
-        })
     }catch(error){
         dispatch({
             type: STORE_DETAILS_FAIL,

@@ -90,7 +90,7 @@ WSGI_APPLICATION = 'ss_server.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'SellSmart'
     }
 }
@@ -169,6 +169,7 @@ CATEGORY_MEDIA_ROOT = os.path.join(BASE_DIR, 'inventory/category_images')
 
 AUTH_USER_MODEL = 'storeusers.Store_User'
 
+#Change this based on which port you are running the server
 APP_ROOT_URL = "http://localhost:3000"
 ALLOW_UNCONFIRMED_USER_LOGIN = False
 

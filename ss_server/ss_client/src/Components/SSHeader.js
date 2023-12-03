@@ -4,6 +4,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { seller_logout } from '../Actions/UserActions';
 import { useDispatch, useSelector } from 'react-redux';
 import { seller_details } from '../Actions/UserActions';
+import { RESET_ALL_DATA } from '../Constants/StoreConstants';
 
 export const SSHeader = () => {
     const dispatch = useDispatch();
@@ -14,7 +15,14 @@ export const SSHeader = () => {
     const sellerDetails = useSelector((state) => state.sellerDetails);
     const { error, loading, seller } = sellerDetails;
 
+    const storeDetails = useSelector((state) => state.storeDetails);
+    const { store } = storeDetails;
+
     useEffect(() =>{
+        if(store.store_name){
+            dispatch({type: RESET_ALL_DATA});
+            document.title = "SellSmart";
+        }
         if(!seller && !error){
             dispatch(seller_details());
         }
