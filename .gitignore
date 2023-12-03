@@ -5,6 +5,10 @@
 __pycache__
 db.sqlite3
 media
+pyvenv.cfg
+launch.json
+.DS_Store
+package-lock.json
 
 # Migrations
 migrations/
