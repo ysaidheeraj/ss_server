@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useSearchParams, Link } from 'react-router-dom'
-import { Form, Button, Row, Col } from 'react-bootstrap'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Form, Button } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { Loader } from '../Components/Loader'
 import { Message } from '../Components/Message'
 import { FormContainer } from '../Components/FormContainer'
-import { create_store } from '../Actions/StoreActions'
+import { create_store, update_store } from '../Actions/StoreActions'
 import { SSHeader } from '../Components/SSHeader';
 import { STORE_CREATE_RESET } from '../Constants/StoreConstants'
 
-export const StoreCreatePage = () => {
+export const StoreCreatePage = ({update=false}) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const navigate = useNavigate();
@@ -24,24 +24,46 @@ export const StoreCreatePage = () => {
     const sellerDetails = useSelector((state) => state.sellerDetails);
     const { seller, loading:sellerLoading } = sellerDetails;
 
+    const customerDetails = useSelector((state) => state.customerDetails);
+    const { customer } = customerDetails;
+
+    const storeDetails = useSelector((state) => state.storeDetails);
+    const { store: currentStore } = storeDetails;
+
     useEffect(() => {
-        if (!sellerLoading && (!seller || !seller.first_name)){
-            navigate(redirect);
-        }else if(!loading && success){
-            dispatch({type: STORE_CREATE_RESET});
-            navigate(redirect);
+        if(currentStore.store_name){
+            setName(currentStore.store_name);
+            setDescription(currentStore.store_description ? currentStore.store_description : '');
         }
-    }, [seller,sellerLoading, redirect, store, loading, success])
+        if(update){
+            if(!customer.first_name){
+                navigate('../login');
+            }
+        }else{
+            if (!sellerLoading && (!seller || !seller.first_name)){
+                navigate(redirect);
+            }else if(!loading && success){
+                dispatch({type: STORE_CREATE_RESET});
+            }
+        }
+    }, [seller,sellerLoading, redirect, store, loading, success, customer, currentStore, update])
 
     const registerSubmitHandler = (e) => {
         e.preventDefault();
-        dispatch(create_store(name, description));
+        if(update){
+            dispatch(update_store({
+                'store_name': name,
+                'store_description' : description
+            }));
+        }else{
+            dispatch(create_store(name, description));
+        }
     }
   return (
     <>
-        <SSHeader seller={seller}/>
+        {!update && <SSHeader seller={seller}/>}
         <FormContainer>
-            <h1>Create Store</h1>
+            <h1>{!update ? "Create" : "Update"} Store</h1>
             {error && <Message variant='danger'>{error}</Message>}
             {loading && <Loader />}
             <Form onSubmit={registerSubmitHandler}>
@@ -76,8 +98,7 @@ export const StoreCreatePage = () => {
                     type="submit"
                     variant='primary'
                     className='w-100'
-                >Create</Button>
-
+                >{update ? "Update" : "Create"}</Button>
             </Form>
         </FormContainer>
     </>

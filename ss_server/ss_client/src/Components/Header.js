@@ -20,7 +20,7 @@ export const Header = () => {
   const [loadingData, setLoadingData] = useState(true);
 
   const storeDetails = useSelector((state) => state.storeDetails);
-  const { error: storeError, loading: storeLoading, store } = storeDetails;
+  const { loading: storeLoading, store } = storeDetails;
 
   const customerDetails = useSelector((state) => state.customerDetails);
   const { error, loading, customer } = customerDetails;
@@ -77,6 +77,9 @@ export const Header = () => {
 
                 {customer && customer.isSeller && (
                   <NavDropdown title={"Manage"} id='manage'>
+                    <LinkContainer to='seller/store'>
+                      <NavDropdown.Item>Store</NavDropdown.Item>
+                    </LinkContainer>
                     <LinkContainer to='seller/customers'>
                       <NavDropdown.Item>Customers</NavDropdown.Item>
                     </LinkContainer>

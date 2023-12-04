@@ -1,6 +1,5 @@
 import { Header } from "./Components/Header";
 import { Footer } from "./Components/Footer";
-import { Container } from "react-bootstrap";
 import { HomePage } from "./pages/HomePage";
 import { ProductPage } from "./pages/ProductPage";
 import { CartPage } from "./pages/CartPage";
@@ -47,7 +46,6 @@ function App() {
                 <Route path="register" Component={SellerRegisterPage} />
                 <Route path="login" Component={SellerLoginPage} />
                 <Route path="createstore" Component={StoreCreatePage} />
-                {/* <Container> */}
                   <Route path="/store/:storeId" Component={Header}>
                     <Route path="" Component={HomePage} exact />
                     <Route path="product/:id" Component={ProductPage} />
@@ -67,8 +65,8 @@ function App() {
                     <Route path="seller/orders" Component={StoreOrdersPage} />
                     <Route path="seller/categories" Component={SellerCategoryList} />
                     <Route path="seller/category/:id/edit" Component={CategoryEditPage} />
+                    <Route path="seller/store" element={<StoreCreatePage update={true} />} />
                   </Route>
-                {/* </Container> */}
               </Routes>
           </main>
           <Footer />
