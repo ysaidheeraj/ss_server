@@ -110,7 +110,7 @@ export const CartPage = () => {
                     <ListGroup.Item>
                         <Button
                             type='button'
-                            className='btn-dark form-control'
+                            className='btn-dark w-100'
                             disabled={cartItems.length === 0}
                             onClick={checkoutHandler}
                         >

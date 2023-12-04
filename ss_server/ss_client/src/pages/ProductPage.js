@@ -50,7 +50,7 @@ export const ProductPage = () => {
 
   return (
     <div>
-      <Link to="../" className="btn btn-primary my-3">
+      <Link to="../" className="btn btn-dark btn-primary my-3">
         <i className="fa fa-arrow-left" aria-hidden="true"></i>
       </Link>
 
@@ -133,7 +133,7 @@ export const ProductPage = () => {
                   <ListGroup.Item>
                     <Button
                       onClick={addToCartHandler}
-                      className="btn-dark form-control"
+                      className="btn-dark w-100"
                       type="button"
                       disabled={item.item_available_count === 0}
                     >

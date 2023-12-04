@@ -67,10 +67,10 @@ export const Header = () => {
             <Navbar.Collapse id="basic-navbar-nav">
               <SearchBox />
               <Nav className="ms-auto">
-                {customer && !customer.isSeller && (
+                {customer.first_name && !customer.isSeller && (
                   <LinkContainer to={{pathname: 'login', search: '?redirect=cart'}}>
                     <Nav.Link >
-                      <i className="fas fa-shopping-cart text-white"></i>CART
+                      <i className="fas fa-shopping-cart" style={{paddingRight: "3px"}}></i>Cart
                     </Nav.Link>
                   </LinkContainer>
                 )}
@@ -91,7 +91,13 @@ export const Header = () => {
                     </LinkContainer>
                   </NavDropdown>
                 )}
-
+                {customer.first_name && !customer.isSeller && (
+                  <LinkContainer to="contact">
+                    <Nav.Link>
+                    <i className="fa fa-question-circle" style={{paddingRight: "3px"}} aria-hidden="true"></i>Help
+                    </Nav.Link>
+                  </LinkContainer>
+                )}
                 {customer && customer.isSeller ? (
                   <NavDropdown title={customer.first_name} id='userName'>
                     <LinkContainer to='profile'>
@@ -99,7 +105,7 @@ export const Header = () => {
                     </LinkContainer>
                     <NavDropdown.Item onClick={customerLogoutHandler}>Logout</NavDropdown.Item>
                   </NavDropdown>
-                ): customer ? (
+                ): customer.first_name ? (
                   <NavDropdown title={customer.first_name} id='userName'>
                     <LinkContainer to='profile'>
                       <NavDropdown.Item>Profile</NavDropdown.Item>
@@ -117,13 +123,6 @@ export const Header = () => {
                     </Nav.Link>
                   </LinkContainer>
                 )}
-                {customer && !customer.isSeller && (
-                  <LinkContainer to="contact">
-                    <Nav.Link>
-                    <i className="fa fa-envelope" aria-hidden="true"></i>Contact Us
-                    </Nav.Link>
-                  </LinkContainer>
-                )}
               </Nav>
             </Navbar.Collapse>
           </Container>
@@ -132,7 +131,9 @@ export const Header = () => {
       {customer.first_name && !customer.isConfirmed && (
         <Message variant='warning'>Your account is not confirmed. Please check your email and confirm your account!</Message>
       )}
-      <Outlet />
+      <Container>
+        <Outlet />
+      </Container>
       </>
     )}
     </>

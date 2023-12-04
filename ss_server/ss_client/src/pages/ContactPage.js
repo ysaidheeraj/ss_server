@@ -73,7 +73,7 @@ export const ContactPage = () => {
             <Button
                 type="submit"
                 variant='primary'
-                className='form-control'
+                className='w-100'
             >
                 {loading && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                 {loading ? "Processing" : "Submit"}

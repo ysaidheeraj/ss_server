@@ -45,88 +45,90 @@ export const SellerRegisterPage = () => {
   return (
     <>
         <SSHeader seller={seller}/>
-        <FormContainer>
-            <h1>Register</h1>
-            {info && <Message variant='danger'>{info}</Message>}
-            {error && <Message variant='danger'>{error}</Message>}
-            {loading && <Loader />}
-            <Form onSubmit={registerSubmitHandler}>
-                <Form.Group controlId='first_name'>
-                
-                    <Form.Label>First Name:</Form.Label>
+        <div style={{paddingTop: "50px"}}>
+            <FormContainer>
+                <h1>Register</h1>
+                {info && <Message variant='danger'>{info}</Message>}
+                {error && <Message variant='danger'>{error}</Message>}
+                {loading && <Loader />}
+                <Form onSubmit={registerSubmitHandler}>
+                    <Form.Group controlId='first_name'>
+                    
+                        <Form.Label>First Name:</Form.Label>
+                            <Form.Control
+                                required
+                                className='mb-3'
+                                type='text'
+                                placeholder='Enter your first name'
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                            ></Form.Control>
+                    </Form.Group>
+
+                    <Form.Group controlId='last_name'>
+                        <Form.Label>Last Name:</Form.Label>
+                            <Form.Control
+                                required
+                                className='mb-3'
+                                type='text'
+                                placeholder='Enter your last name'
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+                            ></Form.Control>
+                    </Form.Group>
+                    
+                    
+                    <Form.Group controlId='email'>
+                        <Form.Label>Email Address:</Form.Label>
                         <Form.Control
                             required
                             className='mb-3'
-                            type='text'
-                            placeholder='Enter your first name'
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
+                            type='email'
+                            placeholder='Enter your email'
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                         ></Form.Control>
-                </Form.Group>
-
-                <Form.Group controlId='last_name'>
-                    <Form.Label>Last Name:</Form.Label>
+                    </Form.Group>
+                    
+                    
+                    <Form.Group controlId='password'>
+                        <Form.Label>Password:</Form.Label>
                         <Form.Control
                             required
                             className='mb-3'
-                            type='text'
-                            placeholder='Enter your last name'
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
+                            type='password'
+                            placeholder='Enter your password'
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                         ></Form.Control>
-                </Form.Group>
-                
-                
-                <Form.Group controlId='email'>
-                    <Form.Label>Email Address:</Form.Label>
-                    <Form.Control
-                        required
-                        className='mb-3'
-                        type='email'
-                        placeholder='Enter your email'
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    ></Form.Control>
-                </Form.Group>
-                
-                
-                <Form.Group controlId='password'>
-                    <Form.Label>Password:</Form.Label>
-                    <Form.Control
-                        required
-                        className='mb-3'
-                        type='password'
-                        placeholder='Enter your password'
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    ></Form.Control>
-                </Form.Group>
+                    </Form.Group>
 
-                <Form.Group controlId='reenter_password'>
-                    <Form.Label>Confirm Password:</Form.Label>
-                    <Form.Control
-                        required
-                        className='mb-3'
-                        type='password'
-                        placeholder='Confirm your password'
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                    ></Form.Control>
-                </Form.Group>
+                    <Form.Group controlId='reenter_password'>
+                        <Form.Label>Confirm Password:</Form.Label>
+                        <Form.Control
+                            required
+                            className='mb-3'
+                            type='password'
+                            placeholder='Confirm your password'
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                        ></Form.Control>
+                    </Form.Group>
 
-                <Button
-                    type="submit"
-                    variant='primary'
-                    className='form-control'
-                >Register</Button>
+                    <Button
+                        type="submit"
+                        variant='primary'
+                        className='w-100'
+                    >Register</Button>
 
-                <Row className='py-3'>
-                    <Col>
-                        Already have an account? <Link to={redirect ? `/login?redirect=${redirect}` : '/login'}>Login</Link>
-                    </Col>
-                </Row>
-            </Form>
-        </FormContainer>
+                    <Row className='py-3'>
+                        <Col>
+                            Already have an account? <Link to={redirect ? `/login?redirect=${redirect}` : '/login'}>Login</Link>
+                        </Col>
+                    </Row>
+                </Form>
+            </FormContainer>
+        </div>
     </>
   )
 }

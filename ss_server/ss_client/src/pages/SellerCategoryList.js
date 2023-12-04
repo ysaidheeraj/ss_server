@@ -54,7 +54,7 @@ export const SellerCategoryList = () => {
                 <h1>Categories</h1>
             </Col>
             <Col md={2} className='text-right'>
-                <Button className='my-3 form-control'  onClick={createCategoryHandler}>
+                <Button className='my-3 w-100'  onClick={createCategoryHandler}>
                     {createLoading && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                     {createLoading ? "Creating" : (<div><i className='fas fa-plus'></i>Add Category</div>)}   
                 </Button>
