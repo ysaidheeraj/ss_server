@@ -37,6 +37,16 @@ class StoreActions(APIView):
         response.data[Store.__name__] = serializer.data
         response.data['seller'] = sellerSer.data
         return response
+
+    @authorize_seller
+    def put(self, request, storeId):
+        data = request.data
+        store =  Store.objects.filter(store_id=storeId).first()
+        storeSer = StoreSerializer(store, data=data, partial=True)
+        storeSer.is_valid(raise_exception=True)
+        storeSer.save()
+        return Response(create_model_response(Store, storeSer.data))
+    
 class StoreTickets(APIView):
 
     @authorize_customer
