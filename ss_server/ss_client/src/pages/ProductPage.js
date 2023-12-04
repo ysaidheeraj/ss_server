@@ -147,9 +147,9 @@ export const ProductPage = () => {
           <Row>
             <Col md={6}>
               <h4>Reviews</h4>
-              {item.reviews.length === 0 && <Message variant='info'>No Reviews</Message>}
+              {item.reviews && item.reviews.length === 0 && <Message variant='info'>No Reviews</Message>}
               <ListGroup variant="flush">
-                {item.reviews.map((review) => (
+                {item.reviews && item.reviews.map((review) => (
                   <ListGroup.Item key={review.review_id}>
                     <strong>{review.name}</strong>
                     <Rating value={review.review_rating} color='#f8e825' />
