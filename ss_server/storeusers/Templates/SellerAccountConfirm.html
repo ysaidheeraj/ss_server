@@ -118,8 +118,7 @@ button:hover {
                     'X-CSRFToken': csrfToken
                 },
                 success: function(response) {
-                    // window.location.replace(window.location.origin+"/#/");
-                    window.location.replace("http://localhost:3000/#/");
+                    window.location.replace(window.location.origin+"/#/");
                 },
                 error: function(error) {
                     alert(error.responseJSON.detail);

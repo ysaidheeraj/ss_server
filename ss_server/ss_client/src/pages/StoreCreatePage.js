@@ -44,6 +44,7 @@ export const StoreCreatePage = ({update=false}) => {
                 navigate(redirect);
             }else if(!loading && success){
                 dispatch({type: STORE_CREATE_RESET});
+                navigate(redirect);
             }
         }
     }, [seller,sellerLoading, redirect, store, loading, success, customer, currentStore, update])
