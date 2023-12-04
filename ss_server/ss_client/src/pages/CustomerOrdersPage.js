@@ -18,7 +18,7 @@ export const CustomerOrdersPage = () => {
   const {loading, error, orders} = ordersList;
 
   useEffect(() =>{
-    if (!customer) {
+    if (!customer.first_name) {
       navigate("../login");
     }else if(!customerLoading){
       dispatch(listCustomerOrders());

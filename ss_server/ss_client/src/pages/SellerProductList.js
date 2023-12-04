@@ -63,7 +63,7 @@ export const SellerProductList = () => {
                 <h1>Products</h1>
             </Col>
             <Col md={2} className='text-right'>
-                <Button className='my-3 form-control'  onClick={createItemHandler}>
+                <Button className='my-3 w-100'  onClick={createItemHandler}>
                     {createLoading && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                     {createLoading ? "Creating" : (<div><i className='fas fa-plus'></i>Add Product</div>)}
                 </Button>

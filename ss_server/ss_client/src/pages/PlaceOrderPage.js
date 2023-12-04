@@ -155,7 +155,7 @@ export const PlaceOrderPage = () => {
                         <ListGroup.Item>
                             <Button
                                 type='button'
-                                className='btn-block form-control'
+                                className='btn-block w-100'
                                 disabled={cart.cartItems === 0}
                                 onClick={placeOrder}
                             >Place Order</Button>

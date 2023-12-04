@@ -117,7 +117,7 @@ export const ProductEditPage = () => {
             <Row className="mt-3">
             <Col>
                 <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} ref={(input) => input && input.setAttribute('accept', 'image/*')} />
-                <Button className="form-control" onClick={() => document.querySelector('input[type="file"]').click()}>
+                <Button className="w-100" onClick={() => document.querySelector('input[type="file"]').click()}>
                 <i className="fa fa-pencil" aria-hidden="true"></i>
                 {'   '}
                 Edit
@@ -193,7 +193,7 @@ export const ProductEditPage = () => {
                 
             </Form.Group>
 
-            <Button type="submit" variant="primary" className="form-control">
+            <Button type="submit" variant="primary" className="w-100">
                 {updateLoading && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
                 {updateLoading ? "Processing" : "Update Product Details"}
             </Button>

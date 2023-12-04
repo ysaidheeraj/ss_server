@@ -74,7 +74,7 @@ export const LoginPage = () => {
             <Button
                 type="submit"
                 variant='primary'
-                className='form-control'
+                className='btn-dark w-100'
             >Login</Button>
         </Form>
 

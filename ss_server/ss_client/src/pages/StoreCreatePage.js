@@ -75,7 +75,7 @@ export const StoreCreatePage = () => {
                 <Button
                     type="submit"
                     variant='primary'
-                    className='form-control'
+                    className='w-100'
                 >Create</Button>
 
             </Form>

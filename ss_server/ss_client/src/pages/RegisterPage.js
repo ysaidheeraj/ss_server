@@ -114,7 +114,7 @@ export const RegisterPage = () => {
             <Button
                 type="submit"
                 variant='primary'
-                className='form-control'
+                className='w-100 btn-dark'
             >Register</Button>
 
             <Row className='py-3'>
