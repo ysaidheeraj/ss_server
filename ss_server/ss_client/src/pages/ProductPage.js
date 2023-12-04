@@ -109,38 +109,40 @@ export const ProductPage = () => {
                     </Row>
                   </ListGroup.Item>
                   {customer && !customer.isSeller && item.item_available_count > 0 && (
-                      <ListGroup.Item>
-                          <Row>
-                              <Col>Quantity:</Col>
-                              <Col xs='auto' className="my-1">
-                                  <Form.Control
-                                      as="select"
-                                      className="form-select"
-                                      value={quantity}
-                                      onChange={(e) => setQuantity(e.target.value)}>
-                                          {
-                                              [...Array(item.item_available_count).keys()].map((x) => (
-                                                  <option key={x + 1} value={x + 1}>
-                                                    {x + 1}
-                                                  </option>
-                                              ))
-                                          }
-                                  </Form.Control>
-                              </Col>
-                          </Row>
+                      <>
+                        <ListGroup.Item>
+                            <Row>
+                                <Col>Quantity:</Col>
+                                <Col xs='auto' className="my-1">
+                                    <Form.Control
+                                        as="select"
+                                        className="form-select"
+                                        value={quantity}
+                                        onChange={(e) => setQuantity(e.target.value)}>
+                                            {
+                                                [...Array(item.item_available_count).keys()].map((x) => (
+                                                    <option key={x + 1} value={x + 1}>
+                                                      {x + 1}
+                                                    </option>
+                                                ))
+                                            }
+                                    </Form.Control>
+                                </Col>
+                            </Row>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                          <Button
+                            onClick={addToCartHandler}
+                            className="btn-dark w-100"
+                            type="button"
+                            disabled={item.item_available_count === 0}
+                          >
+                            Add To Cart
+                          </Button>
                       </ListGroup.Item>
-                  ) && (
-                  <ListGroup.Item>
-                    <Button
-                      onClick={addToCartHandler}
-                      className="btn-dark w-100"
-                      type="button"
-                      disabled={item.item_available_count === 0}
-                    >
-                      Add To Cart
-                    </Button>
-                  </ListGroup.Item>)}
-                </ListGroup>
+                    </>
+                  )}
+                  </ListGroup>
               </Card>
             </Col>
           </Row>
