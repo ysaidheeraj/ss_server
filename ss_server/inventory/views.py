@@ -324,13 +324,13 @@ class OrderActions(APIView):
 
         order = OrderSerializer(order).data
         order_status = order['order_status']
-        if order_status == OrderStatus.PAID or order_status == OrderStatus.CANCELLED or order_status == OrderStatus.RETURNED:
+        if order_status == OrderStatus.CONFIRMED or order_status == OrderStatus.CANCELLED or order_status == OrderStatus.RETURNED:
             orderItems = order['order_items']
             if isinstance(orderItems, list) and len(orderItems) > 0:
                 # Update available quantity for each item
                 with transaction.atomic():
                     for order_item in orderItems:
-                        self.update_item_and_order_item(order_item, deduct=data['order_status'] == OrderStatus.PAID)
+                        self.update_item_and_order_item(order_item, deduct=data['order_status'] == OrderStatus.CONFIRMED)
             else:
                 raise APIException("There are no items in this order")
         

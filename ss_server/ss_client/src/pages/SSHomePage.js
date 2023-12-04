@@ -100,7 +100,7 @@ export const SSHomePage = () => {
                         <div className="team-content">
                             <div className="team-img-icon">
                                 <div className="team-img rounded-circle">
-                                    <img src="/static/Home/img/team-3.jpg" className="img-fluid w-100 rounded-circle" alt="" />
+                                    <img src="/static/Home/img/team-3.jpeg" className="img-fluid w-100 rounded-circle" alt="" />
                                 </div>
                                 <div className="team-name text-center py-3">
                                     <h4 className="">Manish</h4>
