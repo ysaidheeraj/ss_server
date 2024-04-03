@@ -1,6 +1,6 @@
 # Sell Smart
 
-An ecommerce platform customisable for any type of products
+A comprehensive B2B ecommerce platform.
 
 ## Prerequisites
 
